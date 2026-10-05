@@ -400,6 +400,33 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
   .ad{padding:3px 0}
 }
 .rank li.can-report{cursor:pointer}
+
+/* ---- 자체 광고 배너: 광고가 없을 때 '이 자리에 광고하세요' ---- */
+#adSlot.house-on{border:0;border-radius:10px;overflow:hidden}
+.house{display:flex;align-items:center;gap:8px;width:100%;height:100%;padding:0 10px;text-decoration:none;color:#24384D;
+  background:linear-gradient(90deg,#FFE2EC 0%,#FFF4D6 50%,#E3F3FF 100%)}
+.house .hico{flex:none;display:flex}.house .hico svg{width:40px;height:40px}
+.house .htx{display:flex;flex-direction:column;line-height:1.15;min-width:0}
+.house .htx b{font-family:"Jua",sans-serif;font-weight:400;font-size:1.02rem;white-space:nowrap}
+.house .htx small{font-size:.72rem;color:#5F7891;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.house .htag{display:none}
+.house .hcta{margin-left:auto;flex:none;background:#FF9F6B;color:#fff;font-family:"Jua",sans-serif;font-size:.85rem;padding:5px 11px;border-radius:999px;box-shadow:0 2px 0 #E07A45}
+.house .spark{position:absolute;opacity:0}
+@media (max-width:340px){.house .hcta{display:none}}
+@media (min-width:768px) and (min-height:600px){
+  .house{gap:16px;padding:0 22px}
+  .house .hico svg{width:62px;height:62px}
+  .house .htx b{font-size:1.2rem}
+  .house .htx small{font-size:.75rem}
+  .house .htag{display:block;font-size:.8rem;color:#4C6278;margin:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .house .hcta{font-size:1.1rem;padding:9px 20px}
+}
+
+
+.mailbox{width:100%;font-family:"Jua",sans-serif;font-size:1.15rem;color:#E0703A;background:#FFF4EC;border:2px dashed #FFB98F;border-radius:14px;padding:12px 10px;user-select:all;-webkit-user-select:all;word-break:break-all}
+.btnlike{display:inline-block;font-family:"Jua",sans-serif;font-size:1.25rem;border-radius:999px;padding:13px 30px;text-decoration:none}
+.btnlike.sub{background:var(--card);color:var(--ink);box-shadow:0 4px 0 var(--frame)}
+#adModal .card{color:#24384D}#adModal .btnlike.sub{background:#fff;color:#24384D;box-shadow:0 4px 0 #C9DCEE}
 </style>
 </head>
 <body>
@@ -526,7 +553,22 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 </main>
 
 <!-- 광고 배너 자리 (320×50) -->
-<div class="ad"><div id="adSlot"><span class="adtxt">광고 영역 320×50</span></div></div>
+<div class="ad"><div id="adSlot"></div></div>
+</div>
+
+<!-- 광고 문의 -->
+<div class="modal" id="adModal" hidden>
+  <div class="card">
+    <h2>광고 문의</h2>
+    <p>강아지를 사랑하는 플레이어들에게<br>가게와 서비스를 알려 보세요!</p>
+    <div class="mailbox" id="mailBox">lovewoojin85@gmail.com</div>
+    <p class="msg" id="mailMsg"></p>
+    <div class="row">
+      <button id="copyMail">이메일 복사</button>
+      <a class="btnlike sub" id="openMail" target="_blank" rel="noopener" href="mailto:lovewoojin85@gmail.com?subject=%5B%EB%A9%8D%EB%A9%8D%20%ED%86%A1%ED%86%A1%5D%20%EA%B4%91%EA%B3%A0%20%EB%AC%B8%EC%9D%98">메일 보내기</a>
+    </div>
+    <button class="sub small" id="closeMail">닫기</button>
+  </div>
 </div>
 
 <!-- 일시정지 -->
@@ -1464,7 +1506,27 @@ function tap(r,c){
 [['feverBanner','show'],['toast','show'],['combo','show'],['tadd','show'],['bplus','show'],['lvl','up'],['timeBox','bump'],['boneBtn','got']].forEach(([id,cls])=>{
   const el=$(id);el&&el.addEventListener('animationend',e=>{if(e.target===el)el.classList.remove(cls)});
 });
-(function(){const t=document.querySelector('.adtxt');if(!t)return;const f=()=>{t.textContent=matchMedia('(min-width:768px) and (min-height:600px)').matches?'광고 영역 728×90':'광고 영역 320×50'};f();addEventListener('resize',f)})();
+(function(){
+  // 광고가 아직 없으면 '이 자리에 광고하세요' 자체 배너를 보여줘요
+  if(AD.image||AD.imageWide)return;const slot=$('adSlot');slot.classList.add('house-on');slot.textContent='';
+  const a=document.createElement('a');a.className='house';a.href='mailto:lovewoojin85@gmail.com?subject='+encodeURIComponent('[멍멍 톡톡] 광고 문의');
+  a.innerHTML=`<span class="hico">${svgFor(TYPES+1)}</span><span class="htx"><b>이 자리에 광고하세요!</b><span class="htag">강아지를 사랑하는 플레이어들에게 가게를 알려 보세요</span><small>광고 문의 · lovewoojin85@gmail.com</small></span><span class="hcta">문의하기</span>`;
+  slot.appendChild(a);
+})();
+/* 광고 문의 창: 메일 앱이 없거나 막힌 환경에서도 이메일을 복사할 수 있게 */
+const MAIL='lovewoojin85@gmail.com';
+function openAdModal(e){if(e)e.preventDefault();$('mailMsg').textContent='';$('adModal').hidden=false}
+async function copyMail(){
+  let ok=false;
+  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(MAIL);ok=true}}catch(e){}
+  if(!ok){try{const t=document.createElement('textarea');t.value=MAIL;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();ok=document.execCommand('copy');t.remove()}catch(e){}}
+  if(!ok){const r=document.createRange();r.selectNodeContents($('mailBox'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r)}
+  $('mailMsg').textContent=ok?'이메일 주소를 복사했어요! 메일 앱에 붙여 넣어 주세요.':'주소를 길게 눌러 복사해 주세요.';
+}
+$('copyMail').onclick=copyMail;
+$('closeMail').onclick=()=>{$('adModal').hidden=true};
+$('adModal').addEventListener('click',e=>{if(e.target.id==='adModal')$('adModal').hidden=true});
+document.addEventListener('click',e=>{const a=e.target.closest('#adSlot a.house, .contact a');if(a)openAdModal(e)});
 $('playBtn').onclick=startGame;
 $('againBtn').onclick=startGame;
 $('rankBtn').onclick=()=>{myEntry=null;submitNote={month:'',all:''};openRank('month')};
@@ -1639,7 +1701,6 @@ if(!(window.claude&&window.claude.use)&&/^https?:$/.test(location.protocol)){
 }
 </script>
 <script>
-/* 오프라인 실행: 앱 설치 후에도 인터넷 없이 게임을 열 수 있게 */
 if('serviceWorker' in navigator&&location.protocol==='https:'){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
 </body>
