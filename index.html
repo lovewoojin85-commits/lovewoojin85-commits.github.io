@@ -447,6 +447,16 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
   .card p{font-size:.92rem;line-height:1.45}
   .card .row button{padding:10px 22px;font-size:1.1rem}
 }
+
+/* 무지개 친구 둘이 붙었을 때: 더 크게, 더 빠르게 반짝 */
+.tile.friend.paired{z-index:2}
+.tile.friend.paired::before{inset:-12%;animation-duration:.7s;-webkit-mask:radial-gradient(circle,transparent 54%,#000 57%,#000 72%,transparent 75%);mask:radial-gradient(circle,transparent 54%,#000 57%,#000 72%,transparent 75%)}
+.tile.friend.paired .in::before{inset:-6%;background:radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,226,120,.75) 40%,rgba(255,170,90,.25) 62%,transparent 74%);animation:pglow .45s ease-in-out infinite alternate}
+.tile.friend.paired::after{inset:-16%;animation:ptwinkle .55s ease-in-out infinite}
+.tile.friend.paired .in{animation:pbounce .5s ease-in-out infinite alternate}
+@keyframes pglow{from{opacity:.55;transform:scale(.85)}to{opacity:1;transform:scale(1.18)}}
+@keyframes ptwinkle{0%,100%{opacity:.45;transform:scale(.85) rotate(0)}50%{opacity:1;transform:scale(1.12) rotate(25deg)}}
+@keyframes pbounce{from{transform:translateY(0) scale(1)}to{transform:translateY(-6%) scale(1.08)}}
 </style>
 </head>
 <body>
@@ -762,6 +772,7 @@ const SFX=(()=>{
     },
     tick(){tone(1250,{type:'square',dur:.03,vol:.06})},
     hint(){[1568,2093,2637,3136,2637,3136].forEach((f,i)=>tone(f,{dur:.18,vol:.1,delay:i*.05}))},
+    mega(){tone(70,{dur:.9,vol:.55,to:35});noise({dur:.9,vol:.3,freq:200,to:9000,q:.6,fx:true});[523,659,784,1046,1318,1568,2093,2637].forEach((f,i)=>tone(f,{type:'triangle',dur:.3,vol:.16,delay:.35+i*.045,fx:true}));[1046,1318,1568].forEach(f=>tone(f,{type:'triangle',dur:.9,vol:.12,delay:.75,fx:true}))},
     levelup(){[523,659,784,1046].forEach((f,i)=>tone(f,{type:'triangle',dur:.14,vol:.25,delay:i*.09}));[1046,1318,1568].forEach(f=>tone(f,{type:'triangle',dur:.6,vol:.14,delay:.4}))},
     crack(){noise({dur:.09,vol:.28,freq:1800,q:1.5});tone(900,{type:'triangle',dur:.08,vol:.12,to:450})},
     fever(){[523,659,784,1046,1318,1568,2093].forEach((f,i)=>tone(f,{type:'triangle',dur:.18,vol:.14,delay:i*.05,fx:true}));noise({dur:.6,vol:.08,freq:800,to:8000,q:.7,fx:true})},
@@ -1177,7 +1188,7 @@ async function clearSet(set,gain){
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];t.el.style.transition='';place(t,r,c)}
   jellyDrop(moved,true);
   await sleep(320);
-  checkTrio();
+  checkTrio();updatePairs();
 }
 function becomeFriend(r,c,f){
   const t=board[r][c];t.type=TYPES+f;t.shell=0;t.sleep=false;met[f]++;
@@ -1205,11 +1216,12 @@ async function resolve(){
     SFX.pop(combo,maxG);buzz(combo>=3?25:12);
     if(combo>1)showCombo(combo);
     if(combo>=3||maxG>=5)shake(Math.min(3+combo,9));
-    spawns.forEach(([k,f])=>{const[r,c]=keyRC(k);becomeFriend(r,c,f)});
+    spawns.forEach(([k,f])=>{const[r,c]=keyRC(k);becomeFriend(r,c,f)});updatePairs();
     await clearSet(clear,gain);
   }
 }
 async function finishTurn(){
+  updatePairs();
   if(!hasAnyMove()){
     clearInterval(tick);running=false;clearHint();clearSel();
     boardEl.querySelectorAll('.tile .in').forEach(s=>{s.style.transition='filter .4s';s.style.filter='grayscale(.7) brightness(.9)'});
@@ -1225,9 +1237,9 @@ async function trySwap(r1,c1,r2,c2){
   const a=board[r1][c1],b=board[r2][c2];
   if(!movable(a)){nope(a);return}
   if(!movable(b)){nope(b);return}
-  if(isFriend(a.type)&&isFriend(b.type))return friendCombo(r1,c1,r2,c2);
-  if(isFriend(a.type))return runEffect([{r:r1,c:c1,f:a.type-TYPES,target:isDog(b)?b.type:null}]);
-  if(isFriend(b.type))return runEffect([{r:r2,c:c2,f:b.type-TYPES,target:isDog(a)?a.type:null}]);
+  if(isFriend(a.type)&&isFriend(b.type))return megaBlast(r1,c1,r2,c2);
+  if(isFriend(a.type)){if(tryMegaFrom(r1,c1))return;return runEffect([{r:r1,c:c1,f:a.type-TYPES,target:isDog(b)?b.type:null}])}
+  if(isFriend(b.type)){if(tryMegaFrom(r2,c2))return;return runEffect([{r:r2,c:c2,f:b.type-TYPES,target:isDog(a)?a.type:null}])}
   busy=true;clearHint();clearSel();lastAct=Date.now();
   swapCells(r1,c1,r2,c2);place(board[r1][c1],r1,c1);place(board[r2][c2],r2,c2);SFX.swap();
   await sleep(200);
@@ -1264,22 +1276,30 @@ async function runEffect(starts,{extra=null,msg=null,consumed=[]}={}){
   SFX.friend();buzz([40,30,60]);shake(Math.min(10+ch*2,16));flash();
   combo=1;await clearSet(total,gain);await resolve();await finishTurn();
 }
-function friendCombo(r1,c1,r2,c2){
-  const f1=board[r1][c1].type-TYPES,f2=board[r2][c2].type-TYPES,S=new Set(),add=(r,c)=>{if(inB(r,c))S.add(r*N+c)};
-  let msg;
-  if(f1===2&&f2===2){for(let r=0;r<N;r++)for(let c=0;c<N;c++)add(r,c);msg='킹찰스 둘이 모두를 불러 모았어요!'}
-  else if(f1===2||f2===2){
-    const other=f1===2?f2:f1,[orr,occ]=f1===2?[r2,c2]:[r1,c1];
-    const tys=commonTypes(2);for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];if(isDog(t)&&tys.includes(t.type))add(r,c)}
-    effectCells(orr,occ,other).forEach(k=>S.add(k));if(other===1)addTime(5);
-    msg=wa(FRIENDS[f1].label)+' '+FRIENDS[f2].label+' 합동 도움!';
-  }else{
-    for(let d=-1;d<=1;d++)for(let i=0;i<N;i++){add(r2+d,i);add(i,c2+d)}
-    if(f1===1||f2===1)addTime(5);
-    msg=wa(FRIENDS[f1].label)+' '+FRIENDS[f2].label+' 합동 도움!';
-  }
-  return runEffect([],{extra:S,msg,consumed:[r1*N+c1,r2*N+c2]});
+/* ---- 무지개 친구 둘이 나란히 붙으면: 더 반짝이고, 누르면 판 전체 대폭발 ---- */
+function pairPartner(r,c){
+  for(const[dr,dc]of[[0,1],[1,0],[0,-1],[-1,0]]){const rr=r+dr,cc=c+dc;if(inB(rr,cc)&&board[rr][cc]&&isFriend(board[rr][cc].type))return[rr,cc]}
+  return null;
 }
+function updatePairs(){
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r]&&board[r][c];if(!t||!t.el)continue;
+    t.el.classList.toggle('paired',isFriend(t.type)&&!!pairPartner(r,c))}
+}
+async function megaBlast(r1,c1,r2,c2){
+  if(busy||!active())return;
+  busy=true;clearHint();clearSel();lastAct=Date.now();
+  const f1=board[r1][c1].type-TYPES,f2=board[r2][c2].type-TYPES;
+  const S=new Set();for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c])S.add(r*N+c);
+  toast(f1===f2?`${FRIENDS[f1].label} 둘이 손을 잡았어요! 전체 대폭발!`:`${wa(FRIENDS[f1].label)} ${FRIENDS[f2].label} 손을 잡았어요! 전체 대폭발!`);
+  [board[r1][c1],board[r2][c2]].forEach(t=>{const w=inner(t);w&&w.animate&&w.animate([{transform:'scale(1)'},{transform:'scale(1.6) rotate(-12deg)'},{transform:'scale(1.4) rotate(10deg)'}],{duration:380,easing:'ease-out',fill:'forwards'})});
+  SFX.mega();buzz([60,40,80,40,120]);
+  await sleep(380);
+  flash();shake(18);feverConfetti();
+  const gain=Math.round(S.size*40*mult());score+=gain;updateScore();
+  addTime(8);addFever(50);
+  combo=1;await clearSet(S,gain);await resolve();await finishTurn();
+}
+function tryMegaFrom(r,c){const p=pairPartner(r,c);if(!p)return false;megaBlast(r,c,p[0],p[1]);return true}
 
 /* ---- 게임 진행 ---- */
 function startGame(){
@@ -1513,7 +1533,7 @@ boardEl.addEventListener('pointermove',e=>{
   if(Math.max(Math.abs(dx),Math.abs(dy))>th){
     drag.moved=true;
     let r2=drag.r,c2=drag.c;if(Math.abs(dx)>Math.abs(dy))c2+=Math.sign(dx);else r2+=Math.sign(dy);
-    if(!inB(r2,c2)){const t=board[drag.r][drag.c];if(t&&isFriend(t.type))runEffect([{r:drag.r,c:drag.c,f:t.type-TYPES,target:null}]);return}
+    if(!inB(r2,c2)){const t=board[drag.r][drag.c];if(t&&isFriend(t.type)&&!tryMegaFrom(drag.r,drag.c))runEffect([{r:drag.r,c:drag.c,f:t.type-TYPES,target:null}]);return}
     trySwap(drag.r,drag.c,r2,c2);
   }
 });
@@ -1524,7 +1544,7 @@ function tap(r,c){
   const t=board[r][c];
   if(isFriend(t.type)){
     if(sel&&Math.abs(sel.r-r)+Math.abs(sel.c-c)===1){const s=sel;clearSel();trySwap(s.r,s.c,r,c);return}
-    clearSel();runEffect([{r,c,f:t.type-TYPES,target:null}]);return;
+    clearSel();if(tryMegaFrom(r,c))return;runEffect([{r,c,f:t.type-TYPES,target:null}]);return;
   }
   if(!movable(t)){nope(t);return}
   if(sel){const s=sel;if(s.r===r&&s.c===c){clearSel();return}
@@ -1589,7 +1609,7 @@ function openThemes(){
     [svgFor(TYPES),'<b>치와와</b>를 누르면 가로세로 한 줄씩 정리해요.'],
     [svgFor(TYPES+1),'<b>말티즈</b>는 주변 9칸을 정리하고 5초를 더해줘요.'],
     [svgFor(TYPES+2),'<b>킹찰스</b>를 강아지 쪽으로 밀면 그 종류를 모두 정리해요.'],
-    ['<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#FFE7A3"/><text x="50" y="64" text-anchor="middle" font-family="Jua,sans-serif" font-size="38" fill="#FF8A4C">+</text></svg>','<b>친구끼리 서로 바꾸면</b> 합동 도움! 세 친구가 한 판에 모이면 보너스와 피버 타임이 시작돼요.'],
+    ['<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#FFE7A3"/><text x="50" y="64" text-anchor="middle" font-family="Jua,sans-serif" font-size="38" fill="#FF8A4C">+</text></svg>','<b>무지개 친구 둘이 나란히 붙으면</b> 더 크게 반짝여요. 그때 누르면 판 전체가 한 번에 터져요! 세 친구가 한 판에 모이면 보너스와 피버 타임도 시작돼요.'],
     ['<svg viewBox="0 0 100 100"><defs><linearGradient id="hf" x1="0" x2="1"><stop offset="0" stop-color="#FF8A8A"/><stop offset=".5" stop-color="#FFE66B"/><stop offset="1" stop-color="#7DB8F0"/></linearGradient></defs><rect x="10" y="40" width="80" height="20" rx="10" fill="url(#hf)"/></svg>','<b>피버 게이지</b>가 가득 차면 10초 동안 점수 2배, 시간도 멈춰요.'],
     [document.querySelector('#boneBtn svg').outerHTML,'<b>개껌 힌트</b>를 누르면 가장 좋은 자리가 반짝여요. 5천 점마다 1개씩 생겨요.'],
     [SAND_ART,'<b>레벨 5</b>부터 모래더미가 나와요. 움직일 수 없고, 옆에서 맞추면 부서져요.'],
