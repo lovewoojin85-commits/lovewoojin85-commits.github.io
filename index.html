@@ -428,6 +428,25 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .btnlike.sub{background:var(--card);color:var(--ink);box-shadow:0 4px 0 var(--frame)}
 #adModal .card{color:#24384D}#adModal .btnlike.sub{background:#fff;color:#24384D;box-shadow:0 4px 0 #C9DCEE}
 #nick[readonly]{cursor:default;font-family:"Jua",sans-serif;text-align:center;color:#E0703A;background:#FFF8F2}
+
+/* 긴 닉네임도 잘리지 않게 */
+.submit{flex-direction:column;align-items:stretch}
+.nickrow{display:flex;gap:8px;align-items:center}
+.nickrow input{flex:1;min-width:0;font-size:1.15rem;padding:11px 10px;letter-spacing:-.01em}
+.nickrow .dice{flex:none}
+.submit #submitBtn{width:100%}
+.rank .nm{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height:1.25}
+.myrank .who{white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+.champs .c .n{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;font-size:.92rem;line-height:1.2}
+
+.card>*{flex-shrink:0}
+@media (max-height:700px){
+  .card{padding:18px 16px;gap:9px}
+  .card h2{font-size:1.6rem}
+  .big{font-size:2.6rem}
+  .card p{font-size:.92rem;line-height:1.45}
+  .card .row button{padding:10px 22px;font-size:1.1rem}
+}
 </style>
 </head>
 <body>
@@ -591,8 +610,10 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
     <p id="metMsg"></p>
     <p class="endsub" id="unlockMsg" style="color:#3DBA6F"></p>
     <div class="submit">
-      <input id="nick" maxlength="10" readonly aria-label="내 닉네임 (주사위로 바꾸기)" title="주사위를 눌러 바꿀 수 있어요">
-      <button class="sub dice" id="diceBtn" aria-label="랜덤 닉네임">🎲</button>
+      <div class="nickrow">
+        <input id="nick" maxlength="10" readonly aria-label="내 닉네임 (주사위로 바꾸기)" title="주사위를 눌러 바꿀 수 있어요">
+        <button class="sub dice" id="diceBtn" aria-label="랜덤 닉네임">🎲</button>
+      </div>
       <button id="submitBtn">점수 등록</button>
     </div>
     <p class="msg" id="submitMsg"></p>
@@ -1308,6 +1329,7 @@ function endGame(reason){
     if(newly.length)um.textContent='새 배경이 열렸어요: '+newly.map(t=>t.name).join(', ');
   }
   {const sv=ls.get('mung-nick','');$('nick').value=validNick(sv)?sv:randomNick()}
+  requestAnimationFrame(fitNick);
   $('submitBtn').disabled=score<=0;$('nick').disabled=false;
   $('submitMsg').textContent=score>0?'🎲를 눌러 마음에 드는 닉네임을 고르고 등록해요!':'';
   $('endModal').hidden=false;
@@ -1351,6 +1373,9 @@ const NICK_D=['시바','비글','푸들','퍼그','허스키','닥스훈트','�
 const NICK_RE=new RegExp('^('+NICK_A.join('|')+')('+NICK_D.join('|')+')[1-9][0-9]$');
 function randomNick(){return NICK_A[Math.random()*NICK_A.length|0]+NICK_D[Math.random()*NICK_D.length|0]+(10+Math.random()*90|0)}
 const validNick=n=>NICK_RE.test(String(n||''));
+/* 닉네임 칸 글자 크기를 칸 너비에 맞게 자동으로 줄여요 */
+function fitNick(){const i=$('nick');if(!i||!i.offsetParent)return;let f=18;i.style.fontSize=f+'px';while(i.scrollWidth>i.clientWidth&&f>11){f-=.5;i.style.fontSize=f+'px'}}
+addEventListener('resize',fitNick);
 let myEntry=null;
 /* ---- 1인 1기록: 휴대폰마다 고유 번호(플레이어 ID)로 한 줄만 ---- */
 function playerId(){
@@ -1386,7 +1411,7 @@ function upsertLocal(coll,pid,nick){
 }
 async function submitScore(){
   const nick=cleanNick($('nick').value);
-  if(!validNick(nick)){$('nick').value=randomNick();$('submitMsg').textContent='🎲 주사위로 닉네임을 골라 주세요.';return}
+  if(!validNick(nick)){$('nick').value=randomNick();fitNick();$('submitMsg').textContent='🎲 주사위로 닉네임을 골라 주세요.';return}
   if(NickFilter.bad(nick)){$('submitMsg').textContent='모두가 보는 이름이라 고운 말로 지어 주세요. 🎲를 누르면 귀여운 이름을 지어줘요!';$('nick').select();SFX.bad();return}
   ls.set('mung-nick',nick);
   $('submitBtn').disabled=true;$('nick').disabled=true;$('submitMsg').textContent='등록하는 중...';
@@ -1580,7 +1605,7 @@ $('quitBtn').onclick=()=>{stopGame();showScreen('menu')};
 $('homeBtn').onclick=()=>{stopGame();showScreen('menu')};
 $('submitBtn').onclick=submitScore;
 $('nick').addEventListener('keydown',e=>{if(e.key==='Enter')submitScore()});
-$('diceBtn').addEventListener('click',()=>{$('nick').value=randomNick();$('submitMsg').textContent='마음에 들면 점수 등록을 눌러요!'});
+$('diceBtn').addEventListener('click',()=>{$('nick').value=randomNick();fitNick();$('submitMsg').textContent='마음에 들면 점수 등록을 눌러요!'});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
 updateTime();syncSnd();
 
