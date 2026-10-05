@@ -427,6 +427,7 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .btnlike{display:inline-block;font-family:"Jua",sans-serif;font-size:1.25rem;border-radius:999px;padding:13px 30px;text-decoration:none}
 .btnlike.sub{background:var(--card);color:var(--ink);box-shadow:0 4px 0 var(--frame)}
 #adModal .card{color:#24384D}#adModal .btnlike.sub{background:#fff;color:#24384D;box-shadow:0 4px 0 #C9DCEE}
+#nick[readonly]{cursor:default;font-family:"Jua",sans-serif;text-align:center;color:#E0703A;background:#FFF8F2}
 </style>
 </head>
 <body>
@@ -590,7 +591,7 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
     <p id="metMsg"></p>
     <p class="endsub" id="unlockMsg" style="color:#3DBA6F"></p>
     <div class="submit">
-      <input id="nick" maxlength="10" placeholder="닉네임 (10자까지)" autocomplete="nickname">
+      <input id="nick" maxlength="10" readonly aria-label="내 닉네임 (주사위로 바꾸기)" title="주사위를 눌러 바꿀 수 있어요">
       <button class="sub dice" id="diceBtn" aria-label="랜덤 닉네임">🎲</button>
       <button id="submitBtn">점수 등록</button>
     </div>
@@ -1306,9 +1307,9 @@ function endGame(reason){
     const newly=THEMES.filter(t=>t.lv>maxLv&&t.lv<=level);ls.set('mung-maxlv',level);
     if(newly.length)um.textContent='새 배경이 열렸어요: '+newly.map(t=>t.name).join(', ');
   }
-  $('nick').value=ls.get('mung-nick','')||randomNick();
+  {const sv=ls.get('mung-nick','');$('nick').value=validNick(sv)?sv:randomNick()}
   $('submitBtn').disabled=score<=0;$('nick').disabled=false;
-  $('submitMsg').textContent=score>0?'닉네임을 적고 순위표에 올려 보세요.':'';
+  $('submitMsg').textContent=score>0?'🎲를 눌러 마음에 드는 닉네임을 고르고 등록해요!':'';
   $('endModal').hidden=false;
 }
 
@@ -1344,12 +1345,12 @@ const NickFilter=(()=>{
 })();
 const safeNick=n=>NickFilter.bad(n)?'익명의 강아지':n;
 /* 랜덤 닉네임 */
-function randomNick(){
-  const A=['용감한','졸린','신나는','배고픈','꼬리치는','폴짝','동글동글','반짝이는','느긋한','씩씩한','귀여운','뽀송한'];
-  const D=['시바','비글','푸들','퍼그','허스키','닥스훈트','보더콜리','달마시안','치와와','말티즈','킹찰스'];
-  for(let k=0;k<20;k++){const n=A[Math.random()*A.length|0]+D[Math.random()*D.length|0]+(10+Math.random()*90|0);if(n.length<=10)return n}
-  return '멍멍이'+(100+Math.random()*900|0);
-}
+/* 닉네임은 정해진 단어로만 자동으로 만들어요 (직접 입력 없음 → 나쁜 말이 원천 차단) */
+const NICK_A=['용감한','졸린','신나는','배고픈','꼬리치는','폴짝','동글동글','반짝이는','느긋한','씩씩한','귀여운','뽀송한','행복한','수줍은','장난치는','똑똑한','말랑한','포근한','발랄한','깜찍한'];
+const NICK_D=['시바','비글','푸들','퍼그','허스키','닥스훈트','보더콜리','달마시안','치와와','말티즈','킹찰스'];
+const NICK_RE=new RegExp('^('+NICK_A.join('|')+')('+NICK_D.join('|')+')[1-9][0-9]$');
+function randomNick(){return NICK_A[Math.random()*NICK_A.length|0]+NICK_D[Math.random()*NICK_D.length|0]+(10+Math.random()*90|0)}
+const validNick=n=>NICK_RE.test(String(n||''));
 let myEntry=null;
 /* ---- 1인 1기록: 휴대폰마다 고유 번호(플레이어 ID)로 한 줄만 ---- */
 function playerId(){
@@ -1366,12 +1367,14 @@ function seasonInfo(offset=0){
   const next=Date.UTC(y,m+1,1)-9*3600e3;
   return{key:'m'+y+String(m+1).padStart(2,'0'),label:`${y}년 ${m+1}월`,daysLeft:Math.max(1,Math.ceil((next-now)/86400e3))};
 }
+const REPORT_HIDE=10;   // 서로 다른 플레이어 10명이 신고하면 자동으로 이름을 가려요
 let submitNote={month:'',all:''};
 async function upsertShared(coll,pid,nick){
   const ref=db.collection(coll).doc(pid),snap=await ref.get();
   const old=snap.exists?snap.data():null,oldScore=old?Math.floor(Number(old.score)||0):-1;
-  if(old&&oldScore>=lastScore){if(old.nick!==nick)await ref.update({nick});return{newBest:false,best:oldScore}}
-  const rec={nick,score:Math.floor(lastScore),level:Math.floor(level),at:Date.now(),ver:2};
+  const reset=old&&old.nick!==nick&&(Number(old.reports)||0)>0?{reports:0}:{};   // 닉네임을 바꾸면 신고 수 초기화
+  if(old&&oldScore>=lastScore){if(old.nick!==nick)await ref.update({nick,...reset});return{newBest:false,best:oldScore}}
+  const rec={nick,score:Math.floor(lastScore),level:Math.floor(level),at:Date.now(),ver:2,...(old?reset:{})};
   if(old)await ref.update(rec);else await ref.set(rec);
   return{newBest:true,best:lastScore};
 }
@@ -1383,7 +1386,7 @@ function upsertLocal(coll,pid,nick){
 }
 async function submitScore(){
   const nick=cleanNick($('nick').value);
-  if(!nick){$('submitMsg').textContent='닉네임을 한 글자 이상 적어 주세요.';$('nick').focus();return}
+  if(!validNick(nick)){$('nick').value=randomNick();$('submitMsg').textContent='🎲 주사위로 닉네임을 골라 주세요.';return}
   if(NickFilter.bad(nick)){$('submitMsg').textContent='모두가 보는 이름이라 고운 말로 지어 주세요. 🎲를 누르면 귀여운 이름을 지어줘요!';$('nick').select();SFX.bad();return}
   ls.set('mung-nick',nick);
   $('submitBtn').disabled=true;$('nick').disabled=true;$('submitMsg').textContent='등록하는 중...';
@@ -1401,16 +1404,17 @@ async function submitScore(){
 let rankTab='month';
 async function readTop(coll,n){
   if(db){try{const snap=await db.collection(coll).where('ver','==',2).orderBy('score','desc').limit(n).get();
-    return{shared:true,rows:snap.docs.map(d=>{const v=d.data()||{};return{id:d.id,nick:(Number(v.reports)||0)>=3?'익명의 강아지':safeNick(cleanNick(v.nick)||'익명'),score:Math.max(0,Math.floor(Number(v.score)||0))}})}}catch(e){}}
+    return{shared:true,rows:snap.docs.map(d=>{const v=d.data()||{};return{id:d.id,nick:(Number(v.reports)||0)>=REPORT_HIDE?'익명의 강아지':safeNick(cleanNick(v.nick)||'익명'),score:Math.max(0,Math.floor(Number(v.score)||0))}})}}catch(e){}}
   return{shared:false,rows:ls.get('mung-local-'+coll,[]).filter(v=>v.ver===2).slice(0,n).map(v=>({id:v.id,nick:safeNick(cleanNick(v.nick)||'익명'),score:Number(v.score)||0}))};
 }
 async function readMine(coll,pid,shared){
   if(shared){try{const sn=await db.collection(coll).doc(pid).get();if(!sn.exists)return null;const v=sn.data();
       const sc=Math.floor(Number(v.score)||0);
       const hq=db.collection(coll).where('ver','==',2).where('score','>',sc),aq=db.collection(coll).where('ver','==',2);
-      if(typeof hq.count==='function'){const h=await hq.count(),t=await aq.count();return{score:sc,nick:cleanNick(v.nick),rank:h+1,capped:false,total:t}}
+      const rp=Number(v.reports)||0;
+      if(typeof hq.count==='function'){const h=await hq.count(),t=await aq.count();return{score:sc,nick:cleanNick(v.nick),rank:h+1,capped:false,total:t,reports:rp}}
       const higher=await hq.limit(1000).get(),all=await aq.limit(1000).get();
-      return{score:sc,nick:cleanNick(v.nick),rank:higher.docs.length+1,capped:higher.docs.length>=1000,total:all.docs.length}}catch(e){return null}}
+      return{score:sc,nick:cleanNick(v.nick),rank:higher.docs.length+1,capped:higher.docs.length>=1000,total:all.docs.length,reports:rp}}catch(e){return null}}
   const list=ls.get('mung-local-'+coll,[]).filter(v=>v.ver===2),me=list.find(v=>v.id===pid);if(!me)return null;
   return{score:me.score,nick:me.nick,rank:list.filter(v=>v.score>me.score).length+1,capped:false,total:list.length};
 }
@@ -1450,7 +1454,6 @@ async function openRank(tab){
     li.append(no,nm,sc);return li};
   let shown=false;
   rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe)shown=true;const li=rowEl(medals[i]||String(i+1),r.nick,r.score,isMe);
-    if(!isMe&&fbOk&&window.__FB.report&&r.nick!=='익명의 강아지'){li.classList.add('can-report');li.onclick=()=>reportName(coll,r)}
     list.appendChild(li)});
   if(me&&!shown){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);list.appendChild(rowEl(String(me.rank),safeNick(me.nick),me.score,true))}
   box.hidden=false;box.className='myrank';box.textContent='';
@@ -1461,12 +1464,14 @@ async function openRank(tab){
     const c=document.createElement('div');c.className='pts';c.textContent=me.score.toLocaleString()+'점';
     const d=document.createElement('div');d.className='who';d.textContent=safeNick(me.nick);
     box.append(a,b,c,d);
+    if((me.reports||0)>=REPORT_HIDE){const w=document.createElement('div');w.className='lab';w.style.gridColumn='1 / -1';w.textContent='⚠️ 신고가 많이 쌓여 다른 사람에게는 이름이 가려져 보여요. 닉네임을 바꿔 등록하면 다시 보여요.';box.appendChild(w)}
   }else{box.classList.add('none');box.textContent=rankTab==='month'?'이번 달 첫 기록을 남겨 보세요! 게임 후 점수를 등록하면 여기 나와요.':'게임이 끝나고 점수를 등록하면 내 순위가 여기 나와요!'}
-  $('rankNote').textContent=rows.length?(shared?(fbOk?'모든 플레이어의 기록이에요. 부적절한 이름은 눌러서 신고할 수 있어요.':'모든 플레이어의 기록이에요.'):'이 기기에 저장된 기록이에요.'):(rankTab==='month'?'이번 달은 아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!':'아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!');
+  $('rankNote').textContent=rows.length?(shared?'모든 플레이어의 기록이에요.':'이 기기에 저장된 기록이에요.'):(rankTab==='month'?'이번 달은 아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!':'아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!');
   const meEl=list.querySelector('.me');if(meEl&&shown)meEl.scrollIntoView({block:'center'});
 }
 async function reportName(coll,r){
-  if(!confirm(`'${r.nick}' 닉네임을 부적절한 이름으로 신고할까요?\n3명 이상 신고하면 순위표에서 이름이 가려져요.`))return;
+  try{const mine=await db.collection('scores').doc(FBUID).get();if(!mine.exists){$('rankNote').textContent='점수를 한 번 등록한 플레이어만 신고할 수 있어요.';return}}catch(e){}
+  if(!confirm(`'${r.nick}' 닉네임을 부적절한 이름으로 신고할까요?\n여러 플레이어의 신고가 쌓이면 순위표에서 이름이 가려져요.`))return;
   try{await window.__FB.report(coll,r.id);$('rankNote').textContent='신고가 접수됐어요. 깨끗한 순위표를 만들어 줘서 고마워요!'}
   catch(e){$('rankNote').textContent=(e&&/permission|already/i.test(String(e.code||e.message)))?'이미 신고한 이름이에요.':'신고를 보내지 못했어요. 잠시 후 다시 시도해 주세요.'}
 }
