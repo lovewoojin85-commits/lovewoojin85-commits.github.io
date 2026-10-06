@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<meta name="darkreader-lock">
 <title>멍멍 톡톡</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#8DBDE6">
@@ -660,6 +662,9 @@ main>.screen:not(#game):not(#menu){padding-bottom:calc(28px + env(safe-area-inse
 .revpic svg{width:100%;height:100%;filter:drop-shadow(0 0 10px rgba(255,210,80,.8))}
 @keyframes revFloat{50%{transform:translateY(-8px) rotate(-6deg)}}
 #revUse{width:100%}
+
+/* 휴대폰 다크 모드에서 브라우저가 강제로 어둡게 바꾸지 않도록: 항상 밝은 화면 */
+:root,html,body{color-scheme:only light}
 </style>
 </head>
 <body>
