@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.woojin.mungmungtoktok",
+        "sha256_cert_fingerprints": ["3D:32:13:5E:4D:91:3F:1D:F5:F9:92:F1:47:A4:A4:A4:13:39:38:36:45:DB:32:37:E6:A7:2F:C9:12:81:24:D3"]
+      }
+    }]
