@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="color-scheme" content="only light">
+<meta name="color-scheme" content="light dark">
 <meta name="darkreader-lock">
 <title>멍멍 톡톡</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -664,7 +664,13 @@ main>.screen:not(#game):not(#menu){padding-bottom:calc(28px + env(safe-area-inse
 #revUse{width:100%}
 
 /* 휴대폰 다크 모드에서 브라우저가 강제로 어둡게 바꾸지 않도록: 항상 밝은 화면 */
-:root,html,body{color-scheme:only light}
+:root,html,body{color-scheme:light dark}
+/* 다크 모드 브라우저에게 "이 게임은 자체 다크 디자인이 있어요"라고 알려서 강제 변환을 막아요.
+   (게임 화면은 다크 모드에서도 강아지가 또렷하게 보이도록 밝은 게임판을 유지) */
+@media (prefers-color-scheme: dark){
+  html{background:#1E2A44}
+  body{color:var(--ink)}
+}
 </style>
 </head>
 <body>
