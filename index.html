@@ -789,6 +789,10 @@ body[data-bg="palace"]{background:linear-gradient(170deg,#FFF6D8 0%,#FFE7A3 35%,
 /* ---- 부드러운 게임을 위한 성능 설정 ---- */
 .ad{background:rgba(255,255,255,.9)}
 body.lite .fxring{display:none}
+/* 힌트: 붉은 후광 + 붉은 테두리로 눈에 확 띄게 (transform·opacity만 움직여 가볍게) */
+.tile.shine::before{inset:-12%;background:radial-gradient(circle,rgba(255,70,90,.95) 0%,rgba(255,40,70,.6) 42%,rgba(255,40,70,0) 70%);animation:glow .55s ease-in-out infinite alternate;will-change:transform,opacity}
+.tile.shine::after{content:"";position:absolute;inset:1%;border-radius:50%;background:none;border:4px solid #FF2E4D;box-shadow:0 0 12px 3px rgba(255,46,77,.85),inset 0 0 8px rgba(255,46,77,.6);pointer-events:none;z-index:2;animation:hring .55s ease-in-out infinite alternate;will-change:transform,opacity}
+@keyframes hring{from{opacity:.6;transform:scale(.9)}to{opacity:1;transform:scale(1.06)}}
 body.eco #bgfx,body.eco #bgfx *{animation-play-state:paused!important}
 body.eco .menu-friends svg,body.eco .tile.friend .in,body.eco .tile.friend .in::before,body.eco .tile.friend::after,body.eco .ring{animation-play-state:paused!important}
 
@@ -1446,10 +1450,30 @@ const BGM=(()=>{
     const c=ctx();if(!c||!cur)return;const tr=TR[cur],e=60/(tr.bpm*tempoMul)/2;
     while(nextT<c.currentTime+.15){playStep(tr,step,nextT,e);step=(step+1)%64;nextT+=e}
   }
-  function stopNow(){clearInterval(timer);timer=null;if(gain){const c=ctx(),g=gain;g.gain.cancelScheduledValues(c.currentTime);g.gain.setValueAtTime(g.gain.value,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+.4);setTimeout(()=>{try{g.disconnect()}catch(e){}},600)}gain=null;cur=null}
+  /* 미리 녹음해 둔 배경음악 파일(bgm/*.mp3)을 반복 재생해요. 음을 실시간으로 만들지 않아 휴대폰이 덜 뜨거워져요.
+     파일을 못 불러오면(웹 미리보기 등) 예전처럼 실시간 합성으로 연주해요. */
+  const BUFM={menu:{L:20.000000000,g:0.08533},game:{L:14.545454545,g:0.13990},fast:{L:11.636363636,g:0.14421}},PAD=.5,BUF={};let src=null,loading=false;
+  const bufKey=()=>cur==='game'&&tempoMul>1?'fast':cur;
+  function loadBufs(){
+    if(loading||!ctx()||!/^https?:/.test(location.protocol))return;loading=true;
+    Object.keys(BUFM).forEach(k=>fetch('bgm/'+k+'.mp3').then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()})
+      .then(a=>new Promise((ok,no)=>ctx().decodeAudioData(a,ok,no))).then(b=>{BUF[k]=b;
+        if(cur&&!src&&timer&&bufKey()===k){clearInterval(timer);timer=null;playBuf(k,step/64)}}).catch(()=>{}));
+  }
+  function playBuf(k,phase,fade){
+    const c=ctx(),m=BUFM[k],s=c.createBufferSource(),sg=c.createGain(),t=c.currentTime+.03;
+    s.buffer=BUF[k];s.loop=true;s.loopStart=PAD;s.loopEnd=PAD+m.L;
+    const v=m.g/TR[cur].vol;if(fade){sg.gain.setValueAtTime(0,t);sg.gain.linearRampToValueAtTime(v,t+fade)}else sg.gain.value=v;
+    s.connect(sg);sg.connect(gain);s.start(t,PAD+(phase%1)*m.L);src={s,sg,k,t0:t-(phase%1)*m.L,L:m.L};
+  }
+  function dropBuf(fade){if(!src)return;const c=ctx(),o=src;src=null;const t=c.currentTime;
+    o.sg.gain.cancelScheduledValues(t);o.sg.gain.setValueAtTime(o.sg.gain.value,t);o.sg.gain.linearRampToValueAtTime(0,t+fade);try{o.s.stop(t+fade+.05)}catch(e){}}
+  function stopNow(){dropBuf(.4);clearInterval(timer);timer=null;if(gain){const c=ctx(),g=gain;g.gain.cancelScheduledValues(c.currentTime);g.gain.setValueAtTime(g.gain.value,c.currentTime);g.gain.linearRampToValueAtTime(0,c.currentTime+.4);setTimeout(()=>{try{g.disconnect()}catch(e){}},600)}gain=null;cur=null}
   function startNow(name){
     const c=ctx();if(!c||!SFX.out)return;stopNow();
     cur=name;gain=c.createGain();gain.gain.setValueAtTime(0,c.currentTime);gain.gain.linearRampToValueAtTime(TR[name].vol*duckTo,c.currentTime+.8);gain.connect(SFX.out);
+    loadBufs();
+    if(BUF[bufKey()]){playBuf(bufKey(),0);return}
     step=0;nextT=c.currentTime+.08;tick();timer=setInterval(tick,40);
   }
   function apply(){
@@ -1462,7 +1486,8 @@ const BGM=(()=>{
     kick(){apply()},
     get on(){return on},get cur(){return cur},
     setOn(v){on=!!v;ls.set('mung-bgm',on);apply()},
-    fever(f){tempoMul=f?1.25:1},
+    fever(f){const was=tempoMul;tempoMul=f?1.25:1;
+      if(src&&cur==='game'&&was!==tempoMul&&BUF[bufKey()]){const c=ctx(),ph=((c.currentTime-src.t0)/src.L)%1;dropBuf(.15);playBuf(bufKey(),ph,.15)}},
     duck(d){duckTo=d?.35:1;if(gain&&cur){const c=ctx();gain.gain.cancelScheduledValues(c.currentTime);gain.gain.linearRampToValueAtTime(TR[cur].vol*duckTo,c.currentTime+.3)}}
   };
 })();
@@ -1684,16 +1709,14 @@ function levelInfo(L){
 }
 const mult=()=>levelInfo(level).mult*(feverOn?2:1);
 function updateScore(){$('score').textContent=score.toLocaleString();checkLevel();checkBone()}
-const BONE_EVERY=5000,BONE_MAX=5;let nextBoneAt=BONE_EVERY;
+const BONE_EVERY=100000;let nextBoneAt=BONE_EVERY;   // 10만 점마다 1개, 개수 제한 없음
 function checkBone(){
   if(!running)return;
   while(score>=nextBoneAt){
     nextBoneAt+=BONE_EVERY;
-    if(bones<BONE_MAX){
-      bones++;updateBones();
-      const b=$('boneBtn'),pl=$('bplus');b.classList.remove('got');pl.classList.remove('show');void b.offsetWidth;b.classList.add('got');pl.classList.add('show');
-      SFX.hint();
-    }
+    bones++;updateBones();
+    {const b=$('boneBtn'),pl=$('bplus');b.classList.remove('got');pl.classList.remove('show');void b.offsetWidth;b.classList.add('got');pl.classList.add('show')}
+    SFX.hint();
   }
 }
 function iconToast(icon,text){const t=$('toast');t.innerHTML=icon||'';const sp=document.createElement('span');sp.innerHTML=text;t.appendChild(sp);restartShow(t)}
@@ -1788,7 +1811,7 @@ function useBone(){
     if(!hintCells)return clearInterval(shineTimer);
     hintCells.forEach(([r,c])=>{
       const p=document.createElement('div');p.className='p star';const sz=7+Math.random()*7;
-      p.style.width=p.style.height=sz+'px';p.style.marginLeft=p.style.marginTop=(-sz/2)+'px';p.style.background=Math.random()<.5?'#FFE066':'#fff';
+      p.style.width=p.style.height=sz+'px';p.style.marginLeft=p.style.marginTop=(-sz/2)+'px';p.style.background=Math.random()<.6?'#FF3B55':'#FFD0D6';
       p.style.left=((c+.15+Math.random()*.7)/N*100)+'%';p.style.top=((r+.15+Math.random()*.7)/N*100)+'%';fx.appendChild(p);
       p.animate([{transform:'scale(0) rotate(0)',opacity:1},{transform:'scale(1.2) rotate(90deg)',opacity:1,offset:.4},{transform:'scale(0) rotate(180deg)',opacity:0}],{duration:600}).onfinish=()=>p.remove();
     });
@@ -2846,7 +2869,7 @@ function openThemes(){
     ['<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#FFE7A3"/><text x="50" y="64" text-anchor="middle" font-family="Jua,sans-serif" font-size="38" fill="#FF8A4C">+</text></svg>','<b>무지개 친구 둘이 나란히 붙으면</b> 더 크게 반짝여요. 그때 누르면 판 전체가 한 번에 터져요! 세 친구가 한 판에 모이면 보너스와 피버 타임도 시작돼요.'],
     ['<svg viewBox="0 0 100 100"><defs><linearGradient id="hf" x1="0" x2="1"><stop offset="0" stop-color="#FF8A8A"/><stop offset=".5" stop-color="#FFE66B"/><stop offset="1" stop-color="#7DB8F0"/></linearGradient></defs><rect x="10" y="40" width="80" height="20" rx="10" fill="url(#hf)"/></svg>','<b>피버 게이지</b>가 가득 차면 10초 동안 점수 2배, 시간도 멈춰요.'],
     ['<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#FFE7A3"/><image href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23FFE88A%27/%3E%3Cstop%20offset%3D%27.55%27%20stop-color%3D%27%23FFC93C%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23E39B12%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2716%27%20r%3D%2715%27%20fill%3D%27%23D08A0E%27/%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2715%27%20r%3D%2714%27%20fill%3D%27url%28%23g%29%27/%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2715%27%20r%3D%2710%27%20fill%3D%27none%27%20stroke%3D%27%23E8A520%27%20stroke-width%3D%271.6%27/%3E%3Cg%20fill%3D%27%23C9820C%27%3E%3Cellipse%20cx%3D%2716%27%20cy%3D%2718%27%20rx%3D%273.6%27%20ry%3D%273%27/%3E%3Ccircle%20cx%3D%2712.2%27%20cy%3D%2714%27%20r%3D%271.6%27/%3E%3Ccircle%20cx%3D%2714.6%27%20cy%3D%2712.4%27%20r%3D%271.6%27/%3E%3Ccircle%20cx%3D%2717.4%27%20cy%3D%2712.4%27%20r%3D%271.6%27/%3E%3Ccircle%20cx%3D%2719.8%27%20cy%3D%2714%27%20r%3D%271.6%27/%3E%3C/g%3E%3Cpath%20d%3D%27M7%2010%20Q10%205%2016%204%27%20stroke%3D%27%23FFF6C8%27%20stroke-width%3D%271.8%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%20opacity%3D%27.9%27/%3E%3C/svg%3E" x="20" y="20" width="60" height="60"/></svg>','<b>출석 도장, 오늘의 미션, 게임 점수</b>로 코인을 모아요. 상점에서 개껌, 무지개 친구, 간식 시계, 피버 간식 같은 아이템을 사서 게임 중 🎒 가방에서 꺼내 써요.'],
-    [document.querySelector('#boneBtn svg').outerHTML,'<b>개껌 힌트</b>를 누르면 가장 좋은 자리가 반짝여요. 5천 점마다 1개씩 생겨요.'],
+    [document.querySelector('#boneBtn svg').outerHTML,'<b>개껌 힌트</b>를 누르면 가장 좋은 자리가 반짝여요. 10만 점마다 1개씩 생겨요.'],
     ['<svg viewBox="0 0 100 100"><rect x="18" y="12" width="64" height="76" rx="10" fill="#FFF4D6" stroke="#F2C14E" stroke-width="4"/><text x="50" y="62" text-anchor="middle" font-size="36">📖</text></svg>','<b>강아지 도감</b>: 같은 강아지를 많이 터뜨리면 흑백 카드가 컬러로 바뀌며 견종 이야기가 열려요. 카드마다 '+COIN+' 300, 모두 모으면 '+COIN+' 2,000 보너스!'],
     [SAND_ART,'<b>레벨 5</b>부터 강아지가 파헤친 흙더미가 나와요. 움직일 수 없고, 옆에서 맞추면 부서지며 숨겨둔 뼈다귀가 튀어나와요.'],
     [SHELL_ICON,'<b>레벨 6</b>부터 목욕 거품을 뒤집어쓴 친구가 나와요. 움직일 순 없지만 같은 강아지를 옆으로 끌어와 맞추면 거품째 터져요. 옆에서 두 번 터뜨려 풀어줄 수도 있어요.'],
