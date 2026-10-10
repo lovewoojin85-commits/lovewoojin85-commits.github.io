@@ -74,7 +74,7 @@ button.small{font-size:1rem;padding:8px 18px}
 .time.bump{animation:bump .25s ease-out}
 @keyframes bump{50%{transform:scale(1.25);color:#3DBA6F}}
 .bar{height:12px;border-radius:5px;background:var(--bar-bg);overflow:hidden}
-.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FFC36B,#FF9F6B);border-radius:5px;transition:width .1s linear}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FFC36B,#FF9F6B);border-radius:5px;transform-origin:0 50%;transition:transform .1s linear;will-change:transform}
 .bar.low i{background:#FF6B6B;animation:blink .5s steps(2) infinite}
 @keyframes blink{50%{opacity:.4}}
 .frame{position:relative;padding:8px;border-radius:22px;background:var(--frame);box-shadow:0 5px 0 var(--frame-deep),0 12px 24px rgba(36,56,77,.2)}
@@ -789,6 +789,8 @@ body[data-bg="palace"]{background:linear-gradient(170deg,#FFF6D8 0%,#FFE7A3 35%,
 /* ---- 부드러운 게임을 위한 성능 설정 ---- */
 .ad{background:rgba(255,255,255,.9)}
 body.lite .fxring{display:none}
+body.eco #bgfx,body.eco #bgfx *{animation-play-state:paused!important}
+body.eco .menu-friends svg,body.eco .tile.friend .in,body.eco .tile.friend .in::before,body.eco .tile.friend::after,body.eco .ring{animation-play-state:paused!important}
 
 /* 표정 바꿀 때 그림을 새로 그리느라 1프레임 사라지는 현상 방지: 두 표정을 미리 그려두고 투명도로만 전환 */
 
@@ -1084,6 +1086,7 @@ body.native-ads .ad #adSlot{display:none}
       <button class="setrow" id="optBgm" role="switch"><span class="si">🎵</span><span class="st">배경음악</span><span class="sw"><i></i></span></button>
       <button class="setrow" id="optSfx" role="switch"><span class="si">🔔</span><span class="st">효과음</span><span class="sw"><i></i></span></button>
       <button class="setrow" id="optVib" role="switch"><span class="si">📳</span><span class="st">진동</span><span class="sw"><i></i></span></button>
+      <button class="setrow" id="optEco" role="switch"><span class="si">🔋</span><span class="st">절전 모드 (발열 줄이기)</span><span class="sw"><i></i></span></button>
       <button class="setrow" id="optCloud" hidden><span class="si">☁️</span><span class="st" id="cloudTxt">Play 게임즈 연결</span><span class="cl" id="cloudSt">연결하기</span></button>
     </div>
     <p class="msg" id="vibNote"></p>
@@ -1745,7 +1748,7 @@ function endFever(){
 
 /* ---- 시간 ---- */
 var lastLowSec=null;
-function updateTime(){const t=Math.max(0,time),sec=Math.ceil(t);$('time').textContent=sec+'초';$('barFill').style.width=Math.min(100,t/MAX_T*100)+'%';
+function updateTime(){const t=Math.max(0,time),sec=Math.ceil(t);$('time').textContent=sec+'초';$('barFill').style.transform='scaleX('+Math.min(1,t/MAX_T).toFixed(4)+')';
   const low=t<=20&&t>0;$('bar').classList.toggle('low',low);$('timeBox').classList.toggle('low',low);
   // 20초부터: 1초 줄어들 때마다 숫자가 붉게 커지며 흔들리고 "띠~"
   if(low&&running&&!paused&&!feverOn&&lastLowSec!==null&&sec<lastLowSec){
@@ -2428,7 +2431,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('#adSlot a.house,
 /* ---- 설정 ---- */
 let setResume=false;
 function syncSettings(){
-  $('optBgm').setAttribute('aria-checked',BGM.on);$('optSfx').setAttribute('aria-checked',SFX.on);$('optVib').setAttribute('aria-checked',VIB_ON);
+  $('optBgm').setAttribute('aria-checked',BGM.on);$('optSfx').setAttribute('aria-checked',SFX.on);$('optVib').setAttribute('aria-checked',VIB_ON);$('optEco').setAttribute('aria-checked',ECO_ON);
   $('vibNote').textContent=navigator.vibrate?'':'이 기기에서는 진동을 지원하지 않아요.';
 }
 function openSettings(){
@@ -2440,6 +2443,7 @@ function closeSettings(){$('setModal').hidden=true;if(setResume){setResume=false
 $('optBgm').onclick=()=>{SFX.init();BGM.setOn(!BGM.on);syncSettings()};
 $('optSfx').onclick=()=>{SFX.init();SFX.setOn(!SFX.on);syncSettings();SFX.click()};
 $('optVib').onclick=()=>{VIB_ON=!VIB_ON;ls.set('mung-vib',VIB_ON);syncSettings();buzz(40)};
+$('optEco').onclick=()=>{ECO_ON=!ECO_ON;ls.set('mung-eco',ECO_ON);applyEco();syncSettings();toast(ECO_ON?'절전 모드: 배경 움직임과 반짝이 효과를 줄였어요 🔋':'절전 모드를 껐어요')};
 $('closeSet').onclick=closeSettings;
 $('setModal').addEventListener('click',e=>{if(e.target.id==='setModal')closeSettings()});
 BGM.play('menu');
@@ -2611,12 +2615,14 @@ $('dexBack').onclick=()=>showScreen('menu');
   $('darkTipOk').onclick=()=>{$('darkTip').hidden=true;ls.set('mung-darktip',true)};
 })();
 /* 프레임 감시: 폰이 버거워하면 자동으로 가벼운 모드로 */
-var PERF_LITE=false;
-(function(){let last=0,acc=0,n=0,slow=0;
+var PERF_LITE=false,ECO_ON=ls.get('mung-eco',false);
+function applyEco(){document.body.classList.toggle('eco',ECO_ON);PERF_LITE=ECO_ON;document.body.classList.toggle('lite',ECO_ON)}
+applyEco();
+(function(){let last=0,acc=0,n=0,slow=0,on=false;
   function tick(ts){
-    if(running&&!paused&&!document.hidden){if(last){const d=ts-last;if(d<250){acc+=d;n++;if(n>=90){const avg=acc/n;slow=avg>21?slow+1:0;if(slow>=2&&!PERF_LITE){PERF_LITE=true;document.body.classList.add('lite')}acc=0;n=0}}}last=ts}else last=0;
+    if(running&&!paused&&!document.hidden){if(last){const d=ts-last;if(d<250){acc+=d;n++;if(n>=90){const avg=acc/n;slow=avg>21?slow+1:0;if(slow>=2&&!PERF_LITE){PERF_LITE=true;document.body.classList.add('lite')}acc=0;n=0}}}last=ts}else{last=0;on=false;return}
     requestAnimationFrame(tick)}
-  requestAnimationFrame(tick)})();
+  setInterval(()=>{if(!on&&running&&!paused&&!document.hidden){on=true;requestAnimationFrame(tick)}},1000)})();   // 게임 중에만 감시 (메뉴에서는 쉬게)
 setTimeout(()=>{try{prewarmTiles()}catch(e){}},300);
 /* 콤보·피버 글씨를 처음 띄울 때 생기는 버벅임 방지: 게임 시작 때 보이지 않게 한 번 그려 두기 */
 function warmTextLayers(){
