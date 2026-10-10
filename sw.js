@@ -1,6 +1,6 @@
 /* 멍멍 톡톡 서비스 워커: 게임 파일을 저장해 두고 오프라인에서도 실행
    게임을 업데이트할 때마다 아래 버전 숫자를 1씩 올려 주세요. */
-const VERSION='mungmung-v48';
+const VERSION='mungmung-v49';
 const FILES=['./','./index.html','./manifest.webmanifest','./privacy.html','./icons/icon-192.png','./icons/icon-512.png','./icons/maskable-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});

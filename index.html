@@ -849,6 +849,17 @@ body.lite .fsp:nth-child(odd){display:none}
 .fsp:nth-child(even){clip-path:none;border-radius:50%;width:18px;height:18px;background:radial-gradient(circle,#fff 0 18%,var(--c) 32%,transparent 70%)}
 @media (prefers-reduced-motion: reduce){.fvfx .fsp{display:none}.fvglow{animation:none;opacity:.6}}
 .dcard .prog{line-height:1.6}.dcard .prog .rw{white-space:nowrap}
+
+/* ---- 광고 보고 코인 받기 카드 ---- */
+.scard.adcard{grid-column:1 / -1;flex-direction:row;gap:12px;text-align:left;background:linear-gradient(110deg,#FFF1C9,#FFE0EE 60%,#E6EEFF);box-shadow:0 0 0 2px #FFD27A inset}
+.scard.adcard .ic{font-size:2.4rem;flex:none}
+.scard.adcard .tx{flex:1;min-width:0}
+.scard.adcard .nm2{white-space:nowrap;font-size:1rem}
+.scard.adcard button::before{content:"▶ "!important;background:none!important;width:auto!important;height:auto!important;margin:0!important}
+.scard.adcard button{white-space:nowrap}
+/* 앱에서 구글 배너가 보일 때: 아래 자리를 배너 높이만큼 비워 두기 */
+body.native-ads .ad{height:var(--banner-h,60px);padding:0!important;background:#fff!important}
+body.native-ads .ad #adSlot{display:none}
 </style>
 </head>
 <body>
@@ -2024,6 +2035,7 @@ function addInv(k){const v=getInv();if(v[k]>=ITEM_CAP)return false;v[k]++;setInv
 function openShop(){
   $('shopCoin').textContent=getCoin().toLocaleString();
   const L=$('shopList');L.innerHTML='';
+  if(ADS.native)L.appendChild(rewardCard());
   SHOP.forEach(it=>{const c=document.createElement('div');c.className='scard';
     c.innerHTML=`<div class="ic">${it.ic()}</div><div class="nm2"></div><div class="ds"></div><div class="own"></div>`;
     c.querySelector('.nm2').textContent=it.name;c.querySelector('.ds').textContent=it.ds;c.querySelector('.own').textContent='가진 개수 '+it.own();
@@ -2635,6 +2647,71 @@ addEventListener('popstate',()=>{
 });
 (function(){const _show=showScreen;showScreen=function(id){_show(id);if(id==='menu'){if(!document.querySelector('.modal:not([hidden])'))dropBackGuard()}else ensureBackGuard()}})();
 new MutationObserver(()=>{if(document.querySelector('.modal:not([hidden])'))ensureBackGuard()}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['hidden']});
+/* ================= 구글 AdMob 광고 (앱에서만) =================
+   ★ 정식 출시 직전에 ADS_TEST 를 false 로 바꿔 진짜 광고로 전환해요 */
+var ADS_TEST=true;
+const ADMOB={banner:'ca-app-pub-6517296511812589/9081270285',reward:'ca-app-pub-6517296511812589/3828943607'};
+const AD_REWARD=100,AD_DAILY=3,AD_COOLDOWN=180;   // 100코인, 하루 3번, 3분 대기
+const ADS={native:false,ready:false,plugin:null,bannerOn:false,rewardLoaded:false,busy:false};
+(function(){
+  try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.AdMob){ADS.native=true;ADS.plugin=C.Plugins.AdMob}}catch(e){}
+  if(!ADS.native)return;
+  document.body.classList.add('native-ads');
+  const A=ADS.plugin;
+  A.addListener&&A.addListener('bannerAdSizeChanged',info=>{const h=Math.max(0,Math.round((info&&info.height)||0));document.documentElement.style.setProperty('--banner-h',(h||60)+'px')});
+  (async()=>{
+    try{await A.initialize({initializeForTesting:ADS_TEST})}catch(e){}
+    try{const ci=await A.requestConsentInfo();if(ci&&ci.isConsentFormAvailable&&ci.status==='REQUIRED')await A.showConsentForm()}catch(e){}
+    ADS.ready=true;preloadReward();
+    const tryBanner=()=>{if(!document.getElementById('opening'))showBanner();else setTimeout(tryBanner,800)};tryBanner();
+  })();
+})();
+async function showBanner(){
+  if(!ADS.native||!ADS.ready||ADS.bannerOn)return;
+  try{await ADS.plugin.showBanner({adId:ADMOB.banner,adSize:'ADAPTIVE_BANNER',position:'BOTTOM_CENTER',margin:0,isTesting:ADS_TEST});ADS.bannerOn=true}catch(e){}
+}
+async function preloadReward(){
+  if(!ADS.native||!ADS.ready||ADS.rewardLoaded)return;
+  try{await ADS.plugin.prepareRewardVideoAd({adId:ADMOB.reward,isTesting:ADS_TEST});ADS.rewardLoaded=true}catch(e){ADS.rewardLoaded=false}
+}
+function adState(){const t=dayKey();let v=ls.get('mung-adrew',null);if(!v||v.date!==t)v={date:t,n:0,last:0};return v}
+function adLeft(){return Math.max(0,AD_DAILY-adState().n)}
+function adWait(){const v=adState();return Math.max(0,Math.ceil((v.last+AD_COOLDOWN*1000-Date.now())/1000))}
+let adCardTimer=null;
+function rewardCard(){
+  const c=document.createElement('div');c.className='scard adcard';
+  c.innerHTML=`<div class="ic">🎬</div><div class="tx"><div class="nm2">광고 보고 코인 받기</div><div class="ds">끝까지 보면 ${COIN} ${AD_REWARD}</div><div class="own"></div></div>`;
+  const b=document.createElement('button');c.appendChild(b);
+  const sync=()=>{const left=adLeft(),w=adWait();
+    c.querySelector('.own').textContent=left?`오늘 ${left}번 남음`:'오늘은 모두 봤어요. 내일 다시 만나요!';
+    if(ADS.busy){b.textContent='불러오는 중…';b.disabled=true}
+    else if(!left){b.textContent='내일 다시';b.disabled=true}
+    else if(w>0){b.textContent=`${Math.floor(w/60)}:${String(w%60).padStart(2,'0')}`;b.disabled=true}
+    else{b.textContent='광고 보기';b.disabled=false}};
+  sync();clearInterval(adCardTimer);adCardTimer=setInterval(()=>{if(!c.isConnected||$('shop').hidden){clearInterval(adCardTimer);return}sync()},1000);
+  b.onclick=()=>watchRewardAd(sync);
+  return c;
+}
+async function watchRewardAd(sync){
+  if(!ADS.native||ADS.busy||!adLeft()||adWait()>0)return;
+  ADS.busy=true;sync&&sync();let got=false;
+  const A=ADS.plugin,subs=[];
+  const grant=()=>{if(got)return;got=true;const v=adState();v.n++;v.last=Date.now();ls.set('mung-adrew',v);addCoin(AD_REWARD);
+    setTimeout(()=>{SFX.levelup();buzz([30,30,60]);$('shopNote').innerHTML=`광고를 봐 줘서 고마워요! ${COIN} ${AD_REWARD}코인을 받았어요 🎉`;openShop()},300)};
+  try{
+    if(A.addListener){const h=await A.addListener('onRewardedVideoAdReward',grant);subs.push(h)}
+    const c=SFX.ctx;BGM.duck(true);c&&c.suspend&&c.suspend();
+    if(!ADS.rewardLoaded)await A.prepareRewardVideoAd({adId:ADMOB.reward,isTesting:ADS_TEST});
+    ADS.rewardLoaded=false;
+    const r=await A.showRewardVideoAd();
+    if(r&&(r.amount||r.type))grant();
+  }catch(e){if(!got)$('shopNote').textContent='광고를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'}
+  finally{
+    subs.forEach(h=>{try{h.remove()}catch(e){}});
+    const c=SFX.ctx;c&&c.resume&&c.resume();BGM.duck(false);
+    ADS.busy=false;sync&&sync();setTimeout(preloadReward,1500);
+  }
+}
 $('playBtn').onclick=startGame;
 $('againBtn').onclick=startGame;
 $('rankBtn').onclick=()=>{myEntry=null;submitNote={month:'',all:''};openRank('month')};
