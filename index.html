@@ -477,6 +477,9 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .setrow .sw i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s}
 .setrow[aria-checked="true"] .sw{background:#FF9F6B}
 .setrow[aria-checked="true"] .sw i{transform:translateX(22px)}
+.setrow .cl{flex:none;font-size:.85rem;padding:6px 12px;border-radius:999px;background:#FF9F6B;color:#fff;font-family:"Jua",sans-serif}
+.setrow .cl.ok{background:#E3F4E8;color:#2F8A4C}
+.setrow .st{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ---- 오늘의 미션 · 출석 ---- */
 .mission-btn{position:relative;width:100%}
@@ -1081,6 +1084,7 @@ body.native-ads .ad #adSlot{display:none}
       <button class="setrow" id="optBgm" role="switch"><span class="si">🎵</span><span class="st">배경음악</span><span class="sw"><i></i></span></button>
       <button class="setrow" id="optSfx" role="switch"><span class="si">🔔</span><span class="st">효과음</span><span class="sw"><i></i></span></button>
       <button class="setrow" id="optVib" role="switch"><span class="si">📳</span><span class="st">진동</span><span class="sw"><i></i></span></button>
+      <button class="setrow" id="optCloud" hidden><span class="si">☁️</span><span class="st" id="cloudTxt">Play 게임즈 연결</span><span class="cl" id="cloudSt">연결하기</span></button>
     </div>
     <p class="msg" id="vibNote"></p>
     <button id="closeSet">닫기</button>
@@ -2711,6 +2715,81 @@ async function watchRewardAd(sync){
     const c=SFX.ctx;c&&c.resume&&c.resume();BGM.duck(false);
     ADS.busy=false;sync&&sync();setTimeout(preloadReward,1500);
   }
+}
+/* ===== Google Play 게임즈: 자동 로그인 + 클라우드 저장 (앱에서만 동작) ===== */
+const CLOUD={plugin:null,on:false,loaded:false,name:'',dirty:false,saving:false,t:null};
+const CLOUD_SLOT='mung-save';
+const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','mung-bonus','mung-dex','mung-pops','mung-themes-owned','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick'];
+(function(){
+  try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.PlayGames)CLOUD.plugin=C.Plugins.PlayGames}catch(e){}
+  if(!CLOUD.plugin)return;
+  const lsSet0=ls.set;
+  ls.set=function(k,v){lsSet0(k,v);if(CLOUD_KEYS.includes(k))cloudDirty()};
+  $('optCloud').hidden=false;
+  $('optCloud').onclick=()=>{if(!CLOUD.on)cloudSignIn(false)};
+  cloudUI();
+  setTimeout(()=>cloudSignIn(true),1500);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cloudSaveNow()});
+})();
+function cloudUI(){
+  const t=$('cloudTxt'),s=$('cloudSt');if(!t)return;
+  if(CLOUD.on){t.textContent='Play 게임즈 연결됨';s.textContent=CLOUD.loaded?'자동 저장':'불러오는 중';s.className='cl ok'}
+  else{t.textContent='Play 게임즈 연결';s.textContent='연결하기';s.className='cl'}
+}
+async function cloudSignIn(silent){
+  try{
+    const r=await CLOUD.plugin.signIn({silent});
+    CLOUD.on=!!(r&&r.signedIn);CLOUD.name=(r&&r.name)||'';cloudUI();
+    if(CLOUD.on){if(!silent)toast('Play 게임즈에 연결됐어요! ☁️');await cloudLoad()}
+    else if(!silent)toast('연결하지 못했어요. 잠시 후 다시 해 주세요');
+  }catch(e){if(!silent)toast('연결하지 못했어요. 잠시 후 다시 해 주세요')}
+}
+function cloudLocal(){flushSaves();const o={};CLOUD_KEYS.forEach(k=>{const v=ls.get(k,null);if(v!==null)o[k]=v});return o}
+const popSum=o=>(Array.isArray(o['mung-pops'])?o['mung-pops']:[]).reduce((a,b)=>a+(b|0),0);
+function cloudMerge(L,R){
+  /* 계속 늘어나기만 하는 기록은 큰 값/합집합, 코인·아이템 같은 소모품은 더 많이 플레이한 쪽 */
+  const main=popSum(R)>popSum(L)||(popSum(R)===popSum(L)&&(R._t||0)>(L._t||0))?R:L, M={};
+  ['mung-coin','mung-inv','mung-items','mung-bonus','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick'].forEach(k=>{if(main[k]!==undefined)M[k]=main[k];else if(L[k]!==undefined)M[k]=L[k];else if(R[k]!==undefined)M[k]=R[k]});
+  M['mung-best']=Math.max(L['mung-best']|0,R['mung-best']|0);
+  M['mung-maxlv']=Math.max(L['mung-maxlv']|0,R['mung-maxlv']|0,1);
+  const lp=L['mung-pops']||[],rp=R['mung-pops']||[];M['mung-pops']=DEX.map((_,i)=>Math.max(lp[i]|0,rp[i]|0));
+  const ld=L['mung-dex']||{got:[],seen:[]},rd=R['mung-dex']||{got:[],seen:[]};
+  M['mung-dex']={got:[...new Set([...(ld.got||[]),...(rd.got||[])])],seen:[...new Set([...(ld.seen||[]),...(rd.seen||[])])]};
+  M['mung-themes-owned']=[...new Set([...(L['mung-themes-owned']||[]),...(R['mung-themes-owned']||[])])];
+  return{M,fromCloud:main===R};
+}
+async function cloudLoad(){
+  if(running&&!ended){setTimeout(cloudLoad,3000);return}      // 게임 중에는 끝난 뒤에 합쳐요
+  let R=null;
+  try{const r=await CLOUD.plugin.load({name:CLOUD_SLOT});if(r&&r.data)R=JSON.parse(r.data)}catch(e){CLOUD.on=false;cloudUI();return}
+  if(running&&!ended){setTimeout(cloudLoad,3000);return}
+  const L=cloudLocal();
+  if(R&&typeof R==='object'){
+    const {M,fromCloud}=cloudMerge(L,R);
+    const changed=CLOUD_KEYS.some(k=>JSON.stringify(M[k])!==JSON.stringify(L[k]));
+    if(changed){
+      CLOUD_KEYS.forEach(k=>{if(M[k]!==undefined)try{localStorage.setItem(k,JSON.stringify(M[k]))}catch(e){}});
+      POPS_MEM=null;MST_MEM=null;best=M['mung-best']|0;showBest();
+      {let id=M['mung-theme']||'paw';const t=THEMES.find(x=>x.id===id);if(!t||!themeOpen(t))id='paw';applyTheme(id)}
+      try{refreshMenuBadges()}catch(e){}
+      if(fromCloud)toast('☁️ 저장된 기록을 불러왔어요!');
+    }
+  }
+  CLOUD.loaded=true;cloudUI();
+  CLOUD.dirty=true;cloudSaveNow();
+}
+function cloudDirty(){
+  if(!CLOUD.on||!CLOUD.loaded)return;
+  CLOUD.dirty=true;clearTimeout(CLOUD.t);CLOUD.t=setTimeout(cloudSaveNow,8000);
+}
+async function cloudSaveNow(){
+  clearTimeout(CLOUD.t);
+  if(!CLOUD.on||!CLOUD.loaded||!CLOUD.dirty||CLOUD.saving)return;
+  CLOUD.saving=true;CLOUD.dirty=false;
+  try{const o=cloudLocal();o._t=Date.now();o._v=1;
+    await CLOUD.plugin.save({name:CLOUD_SLOT,data:JSON.stringify(o),desc:'최고 '+(o['mung-best']|0).toLocaleString()+'점'})}
+  catch(e){CLOUD.dirty=true}
+  finally{CLOUD.saving=false;if(CLOUD.dirty){clearTimeout(CLOUD.t);CLOUD.t=setTimeout(cloudSaveNow,15000)}}
 }
 $('playBtn').onclick=startGame;
 $('againBtn').onclick=startGame;
