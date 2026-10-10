@@ -813,6 +813,42 @@ body.lite .fxring{display:none}
 #time{display:inline-block;transform-origin:50% 60%;will-change:transform}
 /* 강아지 칸을 처음부터 별도 층으로 준비 → 많이 내려와도 매번 새로 그리지 않아요 */
 #board .tile{will-change:transform}
+
+/* ===== 화려한 피버 타임 (모두 투명도·이동·회전만 써서 폰에서도 가볍게) ===== */
+.fvfx{position:absolute;inset:0;pointer-events:none;z-index:3;display:none}
+#game .frame.fever .fvfx{display:block}
+.fvglow{position:absolute;inset:-6px;border-radius:26px;opacity:0;will-change:opacity}
+.fvglow.g1{box-shadow:0 0 22px 6px rgba(255,120,200,.85),inset 0 0 18px 4px rgba(255,120,200,.45);animation:fvPulse 1.5s ease-in-out infinite}
+.fvglow.g2{box-shadow:0 0 22px 6px rgba(255,214,90,.85),inset 0 0 18px 4px rgba(255,214,90,.45);animation:fvPulse 1.5s ease-in-out -.5s infinite}
+.fvglow.g3{box-shadow:0 0 22px 6px rgba(110,200,255,.85),inset 0 0 18px 4px rgba(110,200,255,.45);animation:fvPulse 1.5s ease-in-out -1s infinite}
+@keyframes fvPulse{0%,100%{opacity:0}33%{opacity:1}66%{opacity:0}}
+.fsp{position:absolute;bottom:4%;width:16px;height:16px;opacity:0;will-change:transform,opacity;
+  background:var(--c);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:fvRise 2.2s linear infinite}
+@keyframes fvRise{0%{transform:translateY(0) scale(.4) rotate(0);opacity:0}15%{opacity:1}80%{opacity:.9}100%{transform:translateY(-330px) scale(1.2) rotate(200deg);opacity:0}}
+/* 등장 문구: 게임판 위쪽에서 무지개 글씨로 팡! */
+.feverBanner{background:linear-gradient(90deg,#7A3CE0,#E04BB0,#FF7A59)!important;box-shadow:0 0 0 3px #fff,0 6px 22px rgba(160,60,200,.45)!important;overflow:visible}
+.feverBanner span{background:linear-gradient(90deg,#FFF6A8,#FFFFFF,#FFE0F4);-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-stroke:0!important;font-size:2.2rem!important;letter-spacing:.02em;filter:none}
+.feverBanner .fbstar{position:absolute;left:50%;top:50%;width:260px;height:260px;margin:-130px 0 0 -130px;z-index:-1;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,rgba(255,240,150,.55) 0 8deg,transparent 8deg 22deg);border-radius:50%;
+  -webkit-mask:radial-gradient(circle,#000 18%,transparent 62%);mask:radial-gradient(circle,#000 18%,transparent 62%);opacity:0;will-change:transform,opacity}
+.feverBanner.show .fbstar{animation:fbStar 1.5s ease-out forwards}
+@keyframes fbStar{0%{opacity:0;transform:scale(.3) rotate(0)}20%{opacity:1;transform:scale(1) rotate(30deg)}100%{opacity:0;transform:scale(1.3) rotate(110deg)}}
+.feverBanner.show{animation:fbIn3 1.5s cubic-bezier(.2,.9,.3,1.2) forwards!important}
+@keyframes fbIn3{0%{opacity:0;transform:translate(-50%,-50%) scale(.4) rotate(-8deg)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(3deg)}24%{transform:translate(-50%,-50%) scale(.96) rotate(-1deg)}32%{transform:translate(-50%,-50%) scale(1.04)}40%,82%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-90%) scale(.95)}}
+/* 피버 중 상단: 라벨과 무지개 게이지가 반짝반짝 */
+body.fevering #fLabel{color:#E0479E;font-family:"Jua",sans-serif}
+body.fevering #fLabel::before{content:"🔥";margin-right:2px}
+body.fevering .fbar{position:relative;overflow:hidden}
+body.fevering #feverFill{background:linear-gradient(90deg,#FF8A8A,#FFC36B,#FFE66B,#8EDB8A,#7DB8F0,#B596F0)!important}
+body.fevering .fbar::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);animation:fvShine 1s linear infinite;will-change:transform}
+@keyframes fvShine{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+body.fevering #score{color:#E0479E}
+body.fevering #score::after{content:" ×2";font-size:.5em;color:#fff;background:linear-gradient(90deg,#E04BB0,#7A3CE0);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle;display:inline-block;animation:x2pop .6s ease-in-out infinite alternate;will-change:transform}
+@keyframes x2pop{to{transform:scale(1.15)}}
+body.lite .fsp:nth-child(odd){display:none}
+.fsp:nth-child(even){clip-path:none;border-radius:50%;width:18px;height:18px;background:radial-gradient(circle,#fff 0 18%,var(--c) 32%,transparent 70%)}
+@media (prefers-reduced-motion: reduce){.fvfx .fsp{display:none}.fvglow{animation:none;opacity:.6}}
+.dcard .prog{line-height:1.6}.dcard .prog .rw{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -942,10 +978,11 @@ body.lite .fxring{display:none}
     <div class="feverrow" id="frow"><span id="fLabel">피버</span><div class="fbar" id="fbar"><i id="feverFill"></i></div></div>
     <div class="msgline"><div class="toast" id="toast" role="status"></div></div>
     <div class="frame">
+      <div class="fvfx" aria-hidden="true"><i class="fvglow g1"></i><i class="fvglow g2"></i><i class="fvglow g3"></i><i class="fsp" style="left:34%;animation-delay:-1.42s;animation-duration:1.93s;--c:#9BF0A0"></i><i class="fsp" style="left:64%;animation-delay:-1.50s;animation-duration:1.87s;--c:#FFE066"></i><i class="fsp" style="left:64%;animation-delay:-0.62s;animation-duration:2.03s;--c:#FFFFFF"></i><i class="fsp" style="left:64%;animation-delay:-1.30s;animation-duration:2.35s;--c:#B59CFF"></i><i class="fsp" style="left:85%;animation-delay:-2.07s;animation-duration:2.03s;--c:#FF8FC8"></i><i class="fsp" style="left:70%;animation-delay:-0.94s;animation-duration:1.82s;--c:#FFE066"></i><i class="fsp" style="left:24%;animation-delay:-1.82s;animation-duration:2.39s;--c:#8FE3FF"></i><i class="fsp" style="left:7%;animation-delay:-1.98s;animation-duration:2.07s;--c:#9BF0A0"></i><i class="fsp" style="left:53%;animation-delay:-1.71s;animation-duration:2.72s;--c:#B59CFF"></i><i class="fsp" style="left:77%;animation-delay:-1.07s;animation-duration:2.74s;--c:#8FE3FF"></i><i class="fsp" style="left:16%;animation-delay:-0.09s;animation-duration:2.29s;--c:#8FE3FF"></i><i class="fsp" style="left:90%;animation-delay:-1.05s;animation-duration:2.43s;--c:#8FE3FF"></i></div>
       <div id="board" aria-label="게임판"></div>
       <div id="fx"></div>
       <div class="combo" id="combo"></div>
-      <div class="feverBanner" id="feverBanner" aria-hidden="true"><span class="fb1">FEVER</span><span class="fb2">TIME!</span><small>점수 2배 · 시간 멈춤</small></div>
+      <div class="feverBanner" id="feverBanner" aria-hidden="true"><i class="fbstar"></i><span class="fb1">FEVER</span><span class="fb2">TIME!</span><small>점수 2배 · 시간 멈춤</small></div>
     </div>
   </section>
 
@@ -2502,14 +2539,14 @@ $('missionBack').onclick=()=>showScreen('menu');
 refreshMenuBadges();
 /* ================= 강아지 도감 ================= */
 const DEX=[
-  {name:'시바',need:2000,tags:['일본','소형~중형','여우 얼굴'],txt:'일본에서 온 오래된 견종이에요. 여우를 닮은 얼굴과 동그랗게 말린 꼬리가 매력이에요. 깔끔하고 독립적인 성격이라 "고양이 같은 강아지"라는 말도 들어요.'},
-  {name:'비글',need:2500,tags:['영국','중형','사냥개'],txt:'토끼 사냥을 하던 영국의 사냥개예요. 냄새를 맡는 능력이 아주 뛰어나서 공항에서 검역 탐지견으로도 활약해요. 호기심과 에너지가 넘치는 장난꾸러기예요.'},
-  {name:'푸들',need:3000,tags:['유럽','토이~스탠더드','곱슬 털'],txt:'원래 물에 떨어진 새를 물어 오던 사냥개였어요. 무척 영리하고, 곱슬곱슬한 털이 잘 빠지지 않아 많은 가정에서 사랑받아요. 크기에 따라 토이, 미니어처, 스탠더드로 나뉘어요.'},
-  {name:'퍼그',need:3500,tags:['중국','소형','주름 얼굴'],txt:'중국에서 오래전부터 사랑받던 반려견이에요. 주름진 얼굴과 동그란 눈, 말린 꼬리가 특징이에요. 애교가 많고 사람을 좋아하지만, 코가 짧아 더위에 약해요.'},
-  {name:'허스키',need:4000,tags:['시베리아','중형~대형','썰매견'],txt:'추운 시베리아에서 썰매를 끌던 개예요. 두툼한 이중 털 덕분에 추위에 강하고, 파란 눈이나 양쪽 색이 다른 눈을 가진 경우도 많아요. 체력이 좋고 "아우~" 하는 소리로 말을 많이 해요.'},
-  {name:'닥스훈트',need:3000,tags:['독일','소형','짧은 다리'],txt:'이름이 독일어로 "오소리 사냥개"라는 뜻이에요. 짧은 다리와 긴 허리로 굴속까지 들어가 사냥했어요. 용감하고 호기심이 많은데, 허리가 길어서 계단은 조심해야 해요.'},
-  {name:'보더콜리',need:2000,tags:['영국','중형','양치기 개'],txt:'영국과 스코틀랜드 국경 지역에서 양 떼를 몰던 양치기 개예요. 모든 견종 중에서도 손꼽히게 똑똑해요. 운동과 일하는 걸 아주 좋아해서 함께 뛰어놀 시간이 많이 필요해요.'},
-  {name:'달마시안',need:1500,tags:['크로아티아','대형','점박이'],txt:'크로아티아의 달마티아 지방에서 이름이 유래했어요. 신기하게도 태어날 땐 하얗고, 자라면서 검은 점이 생겨요. 옛날엔 마차를 호위했고, 지금도 소방서의 마스코트로 유명해요.'}
+  {name:'시바',need:6000,tags:['일본','소형~중형','여우 얼굴'],txt:'일본에서 온 오래된 견종이에요. 여우를 닮은 얼굴과 동그랗게 말린 꼬리가 매력이에요. 깔끔하고 독립적인 성격이라 "고양이 같은 강아지"라는 말도 들어요.'},
+  {name:'비글',need:7500,tags:['영국','중형','사냥개'],txt:'토끼 사냥을 하던 영국의 사냥개예요. 냄새를 맡는 능력이 아주 뛰어나서 공항에서 검역 탐지견으로도 활약해요. 호기심과 에너지가 넘치는 장난꾸러기예요.'},
+  {name:'푸들',need:9000,tags:['유럽','토이~스탠더드','곱슬 털'],txt:'원래 물에 떨어진 새를 물어 오던 사냥개였어요. 무척 영리하고, 곱슬곱슬한 털이 잘 빠지지 않아 많은 가정에서 사랑받아요. 크기에 따라 토이, 미니어처, 스탠더드로 나뉘어요.'},
+  {name:'퍼그',need:10500,tags:['중국','소형','주름 얼굴'],txt:'중국에서 오래전부터 사랑받던 반려견이에요. 주름진 얼굴과 동그란 눈, 말린 꼬리가 특징이에요. 애교가 많고 사람을 좋아하지만, 코가 짧아 더위에 약해요.'},
+  {name:'허스키',need:12000,tags:['시베리아','중형~대형','썰매견'],txt:'추운 시베리아에서 썰매를 끌던 개예요. 두툼한 이중 털 덕분에 추위에 강하고, 파란 눈이나 양쪽 색이 다른 눈을 가진 경우도 많아요. 체력이 좋고 "아우~" 하는 소리로 말을 많이 해요.'},
+  {name:'닥스훈트',need:9000,tags:['독일','소형','짧은 다리'],txt:'이름이 독일어로 "오소리 사냥개"라는 뜻이에요. 짧은 다리와 긴 허리로 굴속까지 들어가 사냥했어요. 용감하고 호기심이 많은데, 허리가 길어서 계단은 조심해야 해요.'},
+  {name:'보더콜리',need:6000,tags:['영국','중형','양치기 개'],txt:'영국과 스코틀랜드 국경 지역에서 양 떼를 몰던 양치기 개예요. 모든 견종 중에서도 손꼽히게 똑똑해요. 운동과 일하는 걸 아주 좋아해서 함께 뛰어놀 시간이 많이 필요해요.'},
+  {name:'달마시안',need:4500,tags:['크로아티아','대형','점박이'],txt:'크로아티아의 달마티아 지방에서 이름이 유래했어요. 신기하게도 태어날 땐 하얗고, 자라면서 검은 점이 생겨요. 옛날엔 마차를 호위했고, 지금도 소방서의 마스코트로 유명해요.'}
 ];
 const DEX_REWARD=300,DEX_ALL=2000;
 /* 저장은 모아서 가끔만 (게임 중 매번 저장하면 폰이 멈칫해요) */
@@ -2540,7 +2577,7 @@ function openDex(){
     const pr=c.querySelector('p');
     if(got)pr.textContent=b.txt;
     else{pr.textContent=v[i]>0?'이 친구를 더 많이 터뜨리면 카드가 컬러로 바뀌고 이야기가 열려요!':'아직 만나지 못한 친구예요. 레벨을 올리면 만날 수 있어요.';
-      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`${Math.min(v[i],b.need).toLocaleString()} / ${b.need} 마리 터뜨림 · 획득 보상 ${COIN} ${DEX_REWARD}`;
+      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`${Math.min(v[i],b.need).toLocaleString()} / ${b.need.toLocaleString()}마리 터뜨림<br><span class="rw">획득 보상 ${COIN} ${DEX_REWARD}</span>`;
       const bar=document.createElement('div');bar.className='pbar';const bi=document.createElement('i');bi.style.width=Math.min(100,v[i]/b.need*100)+'%';bar.appendChild(bi);
       pr.after(pg,bar)}
     L.appendChild(c)});
@@ -2572,6 +2609,32 @@ function warmTextLayers(){
   f.style.opacity='.01';f.style.transform='translate(-50%,-50%)';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{c.style.opacity='';c.style.transform='';c.innerHTML='';f.style.opacity='';f.style.transform=''}));
 }
+/* 안드로이드 뒤로가기: 앱을 바로 끄지 않고 일시정지 / 창 닫기 / 메인으로 */
+var BACK_IGNORE=false;
+function ensureBackGuard(){try{if(!(history.state&&history.state.mung))history.pushState({mung:1},'')}catch(e){}}
+function dropBackGuard(){try{if(history.state&&history.state.mung){BACK_IGNORE=true;history.back()}}catch(e){}}
+addEventListener('popstate',()=>{
+  if(BACK_IGNORE){BACK_IGNORE=false;return}
+  const open=id=>{const m=$(id);return m&&!m.hidden};
+  let handled=true;
+  if(document.getElementById('opening')){const sk=$('skipBtn');sk&&sk.click()}
+  else if(open('setModal'))closeSettings();
+  else if(open('bagModal'))closeBag();
+  else if(open('adModal'))$('adModal').hidden=true;
+  else if(open('darkTip'))$('darkTipOk').click();
+  else if(open('attendModal'))$('attendModal').hidden=true;
+  else if(open('reviveModal')){}                       // 부활 선택 중에는 그대로
+  else if(!$('game').hidden){
+    if(open('endModal')){stopGame();showScreen('menu')}
+    else if(running&&!paused&&!ended)pause();           // 게임 중 → 일시정지
+    // 이미 일시정지 화면이면 그대로 둬요
+  }
+  else if($('menu').hidden)showScreen('menu');          // 순위표·상점 등 → 메인으로
+  else handled=false;                                   // 메인 화면에서는 앱 종료
+  if(handled&&!(($('menu')&&!$('menu').hidden)&&!document.querySelector('.modal:not([hidden])')))ensureBackGuard();
+});
+(function(){const _show=showScreen;showScreen=function(id){_show(id);if(id==='menu'){if(!document.querySelector('.modal:not([hidden])'))dropBackGuard()}else ensureBackGuard()}})();
+new MutationObserver(()=>{if(document.querySelector('.modal:not([hidden])'))ensureBackGuard()}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['hidden']});
 $('playBtn').onclick=startGame;
 $('againBtn').onclick=startGame;
 $('rankBtn').onclick=()=>{myEntry=null;submitNote={month:'',all:''};openRank('month')};
