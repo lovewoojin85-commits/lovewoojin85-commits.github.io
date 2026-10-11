@@ -1265,13 +1265,17 @@ showBest();
 
 /* ================= 효과음 (Web Audio로 직접 합성) ================= */
 const SFX=(()=>{
-  let ctx=null,master=null,echo=null,noiseBuf=null,comp=null,on=ls.get('mung-sound',true);
+  let ctx=null,master=null,popBus=null,echo=null,noiseBuf=null,comp=null,on=ls.get('mung-sound',true);
   function init(){
     if(ctx){if(ctx.state==='suspended')ctx.resume();return}
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
     ctx=new AC();master=ctx.createGain();master.gain.value=.7;
     comp=ctx.createDynamicsCompressor();comp.threshold.value=-8;comp.knee.value=6;comp.ratio.value=6;comp.attack.value=.002;comp.release.value=.15;master.gain.value=.9;master.connect(comp);   // 예전 기본값(-24dB)은 효과음을 너무 눌렀어요
     comp.connect(ctx.destination);
+    // 강아지 터지는 소리·콤보 전용 통로: 크게 키우고, 깨지지 않게 리미터만 걸어요 (다른 소리 볼륨과 무관)
+    popBus=ctx.createGain();popBus.gain.value=5;const lim=ctx.createDynamicsCompressor();lim.threshold.value=-6;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.001;lim.release.value=.12;
+    const sat=ctx.createWaveShaper(),cv=new Float32Array(1025);for(let i=0;i<1025;i++)cv[i]=Math.tanh((i/512-1)*2.2)*.92;sat.curve=cv;   // 부드럽게 눌러서 절대 깨지지 않게
+    popBus.connect(lim);lim.connect(sat);sat.connect(ctx.destination);
     // 반짝이는 잔향(에코) 버스
     echo=ctx.createGain();echo.gain.value=.28;
     const dl=ctx.createDelay(1);dl.delayTime.value=.11;const fb=ctx.createGain();fb.gain.value=.32;
@@ -1281,19 +1285,19 @@ const SFX=(()=>{
     const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
     setTimeout(renderPops,300);
   }
-  function tone(f,{type='sine',dur=.15,vol=.3,to=null,toAt=null,delay=0,attack=.004,fx=false}={}){
+  function tone(f,{type='sine',dur=.15,vol=.3,to=null,toAt=null,delay=0,attack=.004,fx=false,bus=false}={}){
     if(!on||!ctx)return;const t=ctx.currentTime+delay;
     const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;
     o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+(toAt||dur));
     g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-    o.connect(g);g.connect(master);if(fx&&echo)g.connect(echo);o.start(t);o.stop(t+dur+.03);
+    o.connect(g);g.connect(bus&&popBus?popBus:master);if(fx&&echo)g.connect(echo);o.start(t);o.stop(t+dur+.03);
   }
-  function noise({dur=.08,vol=.2,freq=2000,to=null,q=1,type='bandpass',delay=0,fx=false}={}){
+  function noise({dur=.08,vol=.2,freq=2000,to=null,q=1,type='bandpass',delay=0,fx=false,bus=false}={}){
     if(!on||!ctx)return;const t=ctx.currentTime+delay;
     const src=ctx.createBufferSource();src.buffer=noiseBuf;
     const fl=ctx.createBiquadFilter();fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(freq,t);if(to)fl.frequency.exponentialRampToValueAtTime(to,t+dur);
     const g=ctx.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-    src.connect(fl);fl.connect(g);g.connect(master);if(fx&&echo)g.connect(echo);src.start(t);src.stop(t+dur+.03);
+    src.connect(fl);fl.connect(g);g.connect(bus&&popBus?popBus:master);if(fx&&echo)g.connect(echo);src.start(t);src.stop(t+dur+.03);
   }
   const SC=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760,2093];
   /* pop_2 소리의 설계도: 짧은 '퐁'(공기) + 맑은 '띵', 4마리면 화음 하나, 5마리면 두 개 더. 콤보마다 음이 올라가요 */
@@ -1333,10 +1337,10 @@ const SFX=(()=>{
     pop(combo,size){   // 터지는 소리 'pop_2': 미리 만들어 둔 소리를 재생만 해요 (가볍고 발열이 적어요)
       if(!on||!ctx)return;
       const b=POPB[popKey(combo,size)];
-      if(b){const src=ctx.createBufferSource();src.buffer=b;src.connect(master);src.start();return}
-      renderPops();popRecipe(combo,size,tone,noise);      // 아직 준비 전이면 같은 소리를 바로 합성
+      if(b){const src=ctx.createBufferSource();src.buffer=b;src.connect(popBus||master);src.start();return}
+      renderPops();popRecipe(combo,size,(f,o)=>tone(f,{...o,bus:true}),o=>noise({...o,bus:true}));      // 아직 준비 전이면 같은 소리를 바로 합성
     },
-    combo(n){[0,2,4,7].forEach((k,i)=>{tone(note(n+k)*2,{dur:.26,vol:.22,delay:.07+i*.05,fx:true});tone(note(n+k),{type:'triangle',dur:.2,vol:.12,delay:.07+i*.05})});noise({dur:.3,vol:.14,freq:2000,to:9000,q:.8,delay:.05,fx:true})},
+    combo(n){[0,2,4,7].forEach((k,i)=>{tone(note(n+k)*2,{dur:.26,vol:.22,delay:.07+i*.05,fx:true,bus:true});tone(note(n+k),{type:'triangle',dur:.2,vol:.12,delay:.07+i*.05,bus:true})});noise({dur:.3,vol:.14,freq:2000,to:9000,q:.8,delay:.05,fx:true,bus:true})},
     swap(){noise({dur:.1,vol:.14,freq:500,to:2600,q:2})},
     bad(){tone(240,{type:'triangle',dur:.08,vol:.25});tone(190,{type:'triangle',dur:.12,vol:.25,delay:.09})},
     select(){tone(990,{dur:.05,vol:.14})},
