@@ -1549,7 +1549,8 @@ const BGM=(()=>{
   }
   function restart(k){if(el[k])try{el[k].currentTime=0}catch(e){}}
   return{
-    play(name){if(failed)return BGM_SYNTH.play(name);if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
+    play(name){if(name!==want)duckTo=1;   // 화면이 바뀌면 '작게 줄이기'는 항상 풀어요 (일시정지·부활 창에서 메인으로 나갈 때 작아지던 문제)
+      if(failed){BGM_SYNTH.duck(duckTo<1);return BGM_SYNTH.play(name)}if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
     allow(){allowed=true;if(failed)return BGM_SYNTH.allow();apply()},
     kick(){if(failed)return BGM_SYNTH.kick();const t=target();if(t&&el[t].paused)apply()},
     get on(){return on},get cur(){return failed?BGM_SYNTH.cur:cur},
@@ -2268,7 +2269,7 @@ let lastScore=0;
 function endGame(reason){
   if(ended)return;ended=true;lastScore=score;setTimeout(flushSaves,1500);
   {const cg=score>0?Math.max(1,Math.min(50,Math.floor(score/1000))+Math.max(0,Math.floor((score-50000)/10000))):0;if(cg)addCoin(cg);$('coinGet').innerHTML=cg?`${COIN} ${cg}코인을 모았어요!`:''}
-  trackM('score',score);trackM('level',level);trackM('games',1);SFX.end();endFever();setTimeout(()=>{if(ended)BGM.play('menu')},900);
+  trackM('score',score);trackM('level',level);trackM('games',1);SFX.end();endFever();BGM.duck(false);setTimeout(()=>{if(ended)BGM.play('menu')},900);
   $('endReason').textContent=reason==='nomove'?'더 이상 움직일 수 있는 강아지가 없어요':'시간이 다 됐어요';
   const isBest=score>best;
   if(isBest){best=score;ls.set('mung-best',best);showBest()}
