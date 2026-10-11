@@ -1270,7 +1270,8 @@ const SFX=(()=>{
     if(ctx){if(ctx.state==='suspended')ctx.resume();return}
     const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
     ctx=new AC();master=ctx.createGain();master.gain.value=.7;
-    comp=ctx.createDynamicsCompressor();master.connect(comp);comp.connect(ctx.destination);
+    comp=ctx.createDynamicsCompressor();comp.threshold.value=-8;comp.knee.value=6;comp.ratio.value=6;comp.attack.value=.002;comp.release.value=.15;master.gain.value=.9;master.connect(comp);   // 예전 기본값(-24dB)은 효과음을 너무 눌렀어요
+    comp.connect(ctx.destination);
     // 반짝이는 잔향(에코) 버스
     echo=ctx.createGain();echo.gain.value=.28;
     const dl=ctx.createDelay(1);dl.delayTime.value=.11;const fb=ctx.createGain();fb.gain.value=.32;
@@ -1296,7 +1297,8 @@ const SFX=(()=>{
   }
   const SC=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760,2093];
   /* pop_2 소리의 설계도: 짧은 '퐁'(공기) + 맑은 '띵', 4마리면 화음 하나, 5마리면 두 개 더. 콤보마다 음이 올라가요 */
-  function popRecipe(combo,size,T,N){
+  function popRecipe(combo,size,T0_,N0_){
+    const K=4,T=(fr,o)=>T0_(fr,{...o,vol:o.vol*K}),N=o=>N0_({...o,vol:o.vol*K});   // 음악이 커져서 터지는 소리도 4배
     const f=SC[Math.min(Math.max(combo-1,0),SC.length-1)]*2;
     N({dur:.06,vol:.4,freq:1600,to:880,q:.35});N({dur:.036,vol:.14,freq:7000,type:'highpass'});
     T(f*.5,{dur:.08,vol:.3,to:f*.9,toAt:.03,attack:.003});
@@ -1334,7 +1336,7 @@ const SFX=(()=>{
       if(b){const src=ctx.createBufferSource();src.buffer=b;src.connect(master);src.start();return}
       renderPops();popRecipe(combo,size,tone,noise);      // 아직 준비 전이면 같은 소리를 바로 합성
     },
-    combo(n){[0,2,4,7].forEach((k,i)=>tone(note(n+k)*2,{dur:.22,vol:.07,delay:.07+i*.05,fx:true}));noise({dur:.3,vol:.05,freq:2000,to:9000,q:.8,delay:.05,fx:true})},
+    combo(n){[0,2,4,7].forEach((k,i)=>{tone(note(n+k)*2,{dur:.26,vol:.22,delay:.07+i*.05,fx:true});tone(note(n+k),{type:'triangle',dur:.2,vol:.12,delay:.07+i*.05})});noise({dur:.3,vol:.14,freq:2000,to:9000,q:.8,delay:.05,fx:true})},
     swap(){noise({dur:.1,vol:.14,freq:500,to:2600,q:2})},
     bad(){tone(240,{type:'triangle',dur:.08,vol:.25});tone(190,{type:'triangle',dur:.12,vol:.25,delay:.09})},
     select(){tone(990,{dur:.05,vol:.14})},
