@@ -1524,7 +1524,7 @@ const BGM_SYNTH=(()=>{   // 예비용: 음악 파일을 못 불러올 때(미리
    메인·게임 음악은 끝나면 처음부터 다시, 피버 음악은 피버 때마다 이어서 재생돼요.
    파일을 못 불러오면 예전 실시간 합성(BGM_SYNTH)으로 자동으로 바꿔 연주해요. */
 const BGM=(()=>{
-  const FILES={menu:'bgm/main.mp3',game:'bgm/play.mp3',fever:'bgm/fever.mp3'},VOL={menu:1,game:.9,fever:1};
+  const FILES={menu:'bgm/main.mp3?v=2',game:'bgm/play.mp3?v=2',fever:'bgm/fever.mp3?v=2'},VOL={menu:1,game:.9,fever:1};
   let on=ls.get('mung-bgm',true),allowed=false,want=null,feverOn=false,duckTo=1,failed=!/^https?:/.test(location.protocol),cur=null,asleep=false;
   const el={},fades={};
   if(!failed)Object.keys(FILES).forEach(k=>{const a=new Audio();a.preload='auto';a.loop=true;a.src=FILES[k];a.volume=0;
@@ -1556,7 +1556,7 @@ const BGM=(()=>{
 })();
 /* 오프닝 음악 (영상 길이에 맞춰 11.6초로 잘라 둔 파일) */
 const OPMUSIC=(()=>{
-  let a=null;if(/^https?:/.test(location.protocol)){a=new Audio();a.preload='auto';a.src='bgm/opening.mp3';a.addEventListener('error',()=>{a=null})}
+  let a=null;if(/^https?:/.test(location.protocol)){a=new Audio();a.preload='auto';a.src='bgm/opening.mp3?v=2';a.addEventListener('error',()=>{a=null})}
   return{play(){if(!a||!BGM.on)return null;try{a.currentTime=0;a.volume=1;const pr=a.play();pr&&pr.catch&&pr.catch(()=>{})}catch(e){return null}
     return{stop(){const v0=a.volume,t0=Date.now();const iv=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/800);a.volume=v0*(1-u);if(u>=1){clearInterval(iv);a.pause()}},40)}}}};
 })();
