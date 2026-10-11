@@ -41,6 +41,9 @@ h1,h2,.jua{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400}
 
 /* ---------- 메인 화면 ---------- */
 #menu{justify-content:center;align-items:center;text-align:center;gap:18px;min-height:100%}
+/* 세로로 긴 폰: 판을 남는 공간의 가운데로 (위아래 여백을 똑같이) */
+@media (orientation:portrait){#game .frame{margin-top:auto;margin-bottom:auto}}
+@media (orientation:portrait) and (min-height:700px){#game::after{content:"";flex:0 0 44px}}   /* 위쪽 안내 글줄만큼 아래도 띄워 보이는 여백을 맞춰요 */
 .logo{font-size:3.4rem;line-height:1.05;margin:0;color:var(--ink)}
 .logo span{display:block;color:var(--accent);-webkit-text-stroke:2px var(--card);paint-order:stroke fill}
 .tag{margin:0;color:var(--ink-soft)}
@@ -507,13 +510,13 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .mcard.claimed{opacity:.6}
 .mcard.all{background:linear-gradient(100deg,#FFE3EC,#FFF4D6 50%,#DDF1FF)}
 
-@media (max-height:800px){
+@media (max-height:720px){
   #menu{gap:11px}
   .menu-friends svg{width:4.4rem;height:4.4rem}.menu-friends svg:nth-child(2){width:5rem;height:5rem}
   .logo{font-size:2.9rem}
   .menu-btns{gap:8px}.menu-btns>button,.menu-grid button{padding-top:10px;padding-bottom:10px}
 }
-@media (max-height:660px){
+@media (max-height:620px){
   #menu{gap:8px}
   .menu-friends svg{width:3.6rem;height:3.6rem}.menu-friends svg:nth-child(2){width:4.1rem;height:4.1rem}
   .logo{font-size:2.4rem}
@@ -789,6 +792,9 @@ body[data-bg="palace"]{background:linear-gradient(170deg,#FFF6D8 0%,#FFE7A3 35%,
 /* ---- 부드러운 게임을 위한 성능 설정 ---- */
 .ad{background:rgba(255,255,255,.9)}
 body.lite .fxring{display:none}
+.exittip{position:fixed;left:50%;bottom:calc(var(--banner-h,0px) + 22px);transform:translateX(-50%);z-index:60;background:rgba(36,56,77,.88);color:#fff;font-family:"Jua",sans-serif;font-size:1.05rem;padding:10px 20px;border-radius:999px;opacity:0;pointer-events:none;white-space:nowrap}
+.exittip.show{animation:exitTip 2s ease forwards}
+@keyframes exitTip{0%{opacity:0;transform:translate(-50%,8px)}10%,80%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
 /* 힌트: 붉은 후광 + 붉은 테두리로 눈에 확 띄게 (transform·opacity만 움직여 가볍게) */
 .tile.shine::before{inset:-12%;background:radial-gradient(circle,rgba(255,70,90,.95) 0%,rgba(255,40,70,.6) 42%,rgba(255,40,70,0) 70%);animation:glow .55s ease-in-out infinite alternate;will-change:transform,opacity}
 .tile.shine::after{content:"";position:absolute;inset:1%;border-radius:50%;background:none;border:4px solid #FF2E4D;box-shadow:0 0 12px 3px rgba(255,46,77,.85),inset 0 0 8px rgba(255,46,77,.6);pointer-events:none;z-index:2;animation:hring .55s ease-in-out infinite alternate;will-change:transform,opacity}
@@ -1083,6 +1089,7 @@ body.native-ads .ad #adSlot{display:none}
 </div>
 
 <!-- 설정 -->
+<div class="exittip" id="exitTip" aria-live="polite">한 번 더 누르면 종료돼요</div>
 <div class="modal" id="setModal" hidden>
   <div class="card">
     <h2>설정</h2>
@@ -1272,6 +1279,7 @@ const SFX=(()=>{
     echo.connect(dl);dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(master);
     noiseBuf=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate);
     const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    setTimeout(renderPops,300);
   }
   function tone(f,{type='sine',dur=.15,vol=.3,to=null,toAt=null,delay=0,attack=.004,fx=false}={}){
     if(!on||!ctx)return;const t=ctx.currentTime+delay;
@@ -1288,23 +1296,44 @@ const SFX=(()=>{
     src.connect(fl);fl.connect(g);g.connect(master);if(fx&&echo)g.connect(echo);src.start(t);src.stop(t+dur+.03);
   }
   const SC=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.51,1567.98,1760,2093];
+  /* pop_2 소리의 설계도: 짧은 '퐁'(공기) + 맑은 '띵', 4마리면 화음 하나, 5마리면 두 개 더. 콤보마다 음이 올라가요 */
+  function popRecipe(combo,size,T,N){
+    const f=SC[Math.min(Math.max(combo-1,0),SC.length-1)]*2;
+    N({dur:.06,vol:.4,freq:1600,to:880,q:.35});N({dur:.036,vol:.14,freq:7000,type:'highpass'});
+    T(f*.5,{dur:.08,vol:.3,to:f*.9,toAt:.03,attack:.003});
+    const ping=(fr,v,d=.18,dl=0)=>{T(fr,{dur:d,vol:v,attack:.002,fx:true,delay:dl});T(fr*2,{dur:d*.5,vol:v*.3,attack:.002,delay:dl})};
+    ping(f,.14,.22,.01);
+    if(size>=4)ping(f*1.26,.11,.18,.05);
+    if(size>=5){ping(f*1.5,.11,.18,.1);ping(f*2,.1,.35,.15)}
+  }
+  const POPB={};let popBusy=false;
+  const popKey=(c,z)=>Math.min(Math.max(c|0,1),11)+'_'+(z>=5?5:z>=4?4:3);
+  function renderPops(){
+    if(popBusy||!ctx||!window.OfflineAudioContext)return;popBusy=true;const sr=ctx.sampleRate;
+    (async()=>{for(let c=1;c<=11;c++)for(const z of [3,4,5]){const k=popKey(c,z);if(POPB[k])continue;
+      try{const oc=new OfflineAudioContext(1,Math.ceil(sr*.8),sr);
+        const ec=oc.createGain();ec.gain.value=.28;const dl=oc.createDelay(1);dl.delayTime.value=.11;const fb=oc.createGain();fb.gain.value=.32;
+        const lp=oc.createBiquadFilter();lp.type='lowpass';lp.frequency.value=5000;ec.connect(dl);dl.connect(lp);lp.connect(fb);fb.connect(dl);lp.connect(oc.destination);
+        const nb=oc.createBuffer(1,sr,sr);{const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+        const T0=.005;
+        const T=(fr,{type='sine',dur=.15,vol=.3,to=null,toAt=null,delay=0,attack=.004,fx=false}={})=>{const t=T0+delay,o=oc.createOscillator(),g=oc.createGain();o.type=type;o.frequency.setValueAtTime(fr,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+(toAt||dur));
+          g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+attack);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(oc.destination);if(fx)g.connect(ec);o.start(t);o.stop(t+dur+.03)};
+        const N=({dur=.08,vol=.2,freq=2000,to=null,q=1,type='bandpass',delay=0,fx=false}={})=>{const t=T0+delay,sN=oc.createBufferSource();sN.buffer=nb;const fl=oc.createBiquadFilter();fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(freq,t);if(to)fl.frequency.exponentialRampToValueAtTime(to,t+dur);
+          const g=oc.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);sN.connect(fl);fl.connect(g);g.connect(oc.destination);if(fx)g.connect(ec);sN.start(t,Math.random()*.5);sN.stop(t+dur+.03)};
+        popRecipe(c,z,T,N);POPB[k]=await oc.startRendering();
+      }catch(e){}
+      await new Promise(r=>setTimeout(r,0));
+    }})();
+  }
   const note=i=>SC[Math.min(Math.max(i,0),SC.length-1)];
   return{
     init,get on(){return on},toggle(){on=!on;ls.set('mung-sound',on);return on},setOn(v){on=!!v;ls.set('mung-sound',on)},
     get ctx(){return ctx},get out(){return comp},get echo(){return echo},get noise(){return noiseBuf},
-    pop(combo,size){
-      const f=note(combo-1);
-      // 1) 뽁! 하고 위로 튀는 물방울 소리
-      tone(f*.55,{dur:.13,vol:.42,to:f*1.6,toAt:.05,attack:.002});
-      // 2) 맑게 울리는 종소리 (반짝이는 잔향)
-      tone(f*2,{dur:.45,vol:.13,fx:true,attack:.003});
-      tone(f*3,{dur:.3,vol:.06,fx:true,attack:.003});
-      tone(f*4.02,{dur:.18,vol:.035,fx:true});
-      // 3) 탄산처럼 사르르 흩어지는 소리
-      noise({dur:.16,vol:.07,freq:7000,type:'highpass',fx:true});
-      // 4) 4개 이상: 또르르 올라가는 화음
-      if(size>=4)[1.25,1.5,2,2.5].forEach((m,i)=>tone(f*m,{type:'triangle',dur:.2,vol:.13,delay:.05+i*.045,fx:true}));
-      if(size>=5)tone(f*4,{dur:.6,vol:.08,delay:.25,fx:true});
+    pop(combo,size){   // 터지는 소리 'pop_2': 미리 만들어 둔 소리를 재생만 해요 (가볍고 발열이 적어요)
+      if(!on||!ctx)return;
+      const b=POPB[popKey(combo,size)];
+      if(b){const src=ctx.createBufferSource();src.buffer=b;src.connect(master);src.start();return}
+      renderPops();popRecipe(combo,size,tone,noise);      // 아직 준비 전이면 같은 소리를 바로 합성
     },
     combo(n){[0,2,4,7].forEach((k,i)=>tone(note(n+k)*2,{dur:.22,vol:.07,delay:.07+i*.05,fx:true}));noise({dur:.3,vol:.05,freq:2000,to:9000,q:.8,delay:.05,fx:true})},
     swap(){noise({dur:.1,vol:.14,freq:500,to:2600,q:2})},
@@ -1402,7 +1431,7 @@ function syncSnd(){$('sndBtn').textContent='⚙️';$('sndBtn2').textContent='�
 
 /* ================= 배경음악 (직접 작곡해서 코드로 연주하는 오리지널 곡) =================
    메뉴: 느긋한 오르골 산책 곡 / 게임: 통통 튀는 신나는 곡 (피버 때는 빨라져요) */
-const BGM=(()=>{
+const BGM_SYNTH=(()=>{   // 예비용: 음악 파일을 못 불러올 때(미리보기 등)만 실시간 합성으로 연주
   let on=ls.get('mung-bgm',true),allowed=false,want=null,cur=null,gain=null,timer=null,step=0,nextT=0,tempoMul=1,duckTo=1;
   const mf=m=>440*Math.pow(2,(m-69)/12),_=null;
   const TR={
@@ -1454,7 +1483,7 @@ const BGM=(()=>{
      파일을 못 불러오면(웹 미리보기 등) 예전처럼 실시간 합성으로 연주해요. */
   const BUFM={menu:{L:20.000000000,g:0.08533},game:{L:14.545454545,g:0.13990},fast:{L:11.636363636,g:0.14421}},PAD=.5,BUF={};let src=null,loading=false;
   const bufKey=()=>cur==='game'&&tempoMul>1?'fast':cur;
-  function loadBufs(){
+  function loadBufs(){return;   // 지금은 음악 파일(아래 BGM)을 써서 이 합성 모듈은 파일을 불러오지 않아요
     if(loading||!ctx()||!/^https?:/.test(location.protocol))return;loading=true;
     Object.keys(BUFM).forEach(k=>fetch('bgm/'+k+'.mp3').then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()})
       .then(a=>new Promise((ok,no)=>ctx().decodeAudioData(a,ok,no))).then(b=>{BUF[k]=b;
@@ -1490,6 +1519,47 @@ const BGM=(()=>{
       if(src&&cur==='game'&&was!==tempoMul&&BUF[bufKey()]){const c=ctx(),ph=((c.currentTime-src.t0)/src.L)%1;dropBuf(.15);playBuf(bufKey(),ph,.15)}},
     duck(d){duckTo=d?.35:1;if(gain&&cur){const c=ctx();gain.gain.cancelScheduledValues(c.currentTime);gain.gain.linearRampToValueAtTime(TR[cur].vol*duckTo,c.currentTime+.3)}}
   };
+})();
+
+/* ================= 배경음악: 음악 파일 (메인 · 게임 · 피버) =================
+   메인·게임 음악은 끝나면 처음부터 다시, 피버 음악은 피버 때마다 이어서 재생돼요.
+   파일을 못 불러오면 예전 실시간 합성(BGM_SYNTH)으로 자동으로 바꿔 연주해요. */
+const BGM=(()=>{
+  const FILES={menu:'bgm/main.mp3',game:'bgm/play.mp3',fever:'bgm/fever.mp3'},VOL={menu:.5,game:.45,fever:.5};
+  let on=ls.get('mung-bgm',true),allowed=false,want=null,feverOn=false,duckTo=1,failed=!/^https?:/.test(location.protocol),cur=null,asleep=false;
+  const el={},fades={};
+  if(!failed)Object.keys(FILES).forEach(k=>{const a=new Audio();a.preload='auto';a.loop=true;a.src=FILES[k];a.volume=0;
+    a.addEventListener('error',()=>fail());el[k]=a});
+  function fail(){if(failed)return;failed=true;Object.values(el).forEach(a=>{try{a.pause()}catch(e){}});
+    BGM_SYNTH.setOn(on);if(allowed)BGM_SYNTH.allow();if(want)BGM_SYNTH.play(want);BGM_SYNTH.fever(feverOn);BGM_SYNTH.duck(duckTo<1)}
+  function fadeTo(k,v,ms,done){const a=el[k];clearInterval(fades[k]);const from=a.volume,t0=Date.now();
+    fades[k]=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/ms);a.volume=Math.max(0,Math.min(1,from+(v-from)*u));if(u>=1){clearInterval(fades[k]);done&&done()}},40)}
+  const target=()=>(!on||!allowed||!want||asleep)?null:(want==='game'&&feverOn?'fever':want);
+  function apply(){
+    if(failed)return;const t=target();
+    Object.keys(el).forEach(k=>{const a=el[k];
+      if(k===t){if(a.paused){a.volume=0;const pr=a.play();pr&&pr.catch&&pr.catch(()=>{})}fadeTo(k,VOL[k]*duckTo,t==='fever'?150:600)}
+      else if(!a.paused)fadeTo(k,0,k==='fever'||t==='fever'?150:400,()=>{if(target()!==k)a.pause()})});
+    cur=t;
+  }
+  function restart(k){if(el[k])try{el[k].currentTime=0}catch(e){}}
+  return{
+    play(name){if(failed)return BGM_SYNTH.play(name);if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
+    allow(){allowed=true;if(failed)return BGM_SYNTH.allow();apply()},
+    kick(){if(failed)return BGM_SYNTH.kick();const t=target();if(t&&el[t].paused)apply()},
+    get on(){return on},get cur(){return failed?BGM_SYNTH.cur:cur},
+    setOn(v){on=!!v;ls.set('mung-bgm',on);if(failed)return BGM_SYNTH.setOn(on);apply()},
+    fever(f){feverOn=!!f;if(failed)return BGM_SYNTH.fever(f);apply()},
+    duck(d){duckTo=d?.35:1;if(failed)return BGM_SYNTH.duck(d);const t=target();if(t)fadeTo(t,VOL[t]*duckTo,300)},
+    sleep(){asleep=true;if(failed)return;Object.keys(el).forEach(k=>{clearInterval(fades[k]);try{el[k].pause()}catch(e){}})},
+    wake(){asleep=false;if(failed)return;apply()}
+  };
+})();
+/* 오프닝 음악 (영상 길이에 맞춰 11.6초로 잘라 둔 파일) */
+const OPMUSIC=(()=>{
+  let a=null;if(/^https?:/.test(location.protocol)){a=new Audio();a.preload='auto';a.src='bgm/opening.mp3';a.addEventListener('error',()=>{a=null})}
+  return{play(){if(!a||!BGM.on)return null;try{a.currentTime=0;a.volume=.6;const pr=a.play();pr&&pr.catch&&pr.catch(()=>{})}catch(e){return null}
+    return{stop(){const v0=a.volume,t0=Date.now();const iv=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/800);a.volume=v0*(1-u);if(u>=1){clearInterval(iv);a.pause()}},40)}}}};
 })();
 document.addEventListener('pointerdown',()=>{SFX.init();BGM.kick()},{passive:true});
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.classList.contains('snd'))SFX.click()});
@@ -1821,23 +1891,9 @@ $('boneBtn').addEventListener('click',useBone);
 
 /* ---- 젤리처럼 탱글탱글 떨어지기 ---- */
 const FALL_MS=300;
-function jellyDrop(tiles,withSound){
-  const n=tiles.length,lite=n>12||PERF_LITE,none=n>30;   // 많이 떨어질수록 출렁임을 줄여 부드럽게
-  tiles.forEach(t=>{t.el.classList.add('falling');
-    if(lite)return;const s=inner(t);if(s&&s.animate){t.stretch&&t.stretch.cancel();t.stretch=s.animate([{transform:'scale(1)'},{transform:'scale(.88,1.14)'}],{duration:FALL_MS,easing:'ease-in',fill:'forwards'})}});
-  setTimeout(()=>{
-    if(withSound)SFX.land();
-    tiles.forEach((t,i)=>{
-      t.el.classList.remove('falling');
-      const s=inner(t);t.stretch&&t.stretch.cancel();t.stretch=null;
-      if(!s||!s.animate||!t.el.isConnected)return;
-      if(none||(lite&&i%2))return;
-      t.el.classList.add('wob');
-      const kf=lite?[{transform:'scale(1,1)'},{transform:'scale(1.18,.82)',offset:.3},{transform:'scale(.96,1.04)',offset:.65},{transform:'scale(1,1)'}]
-                   :[{transform:'scale(1,1)'},{transform:'scale(1.28,.72)',offset:.14},{transform:'scale(.86,1.16)',offset:.32},{transform:'scale(1.12,.9)',offset:.5},{transform:'scale(.95,1.06)',offset:.68},{transform:'scale(1.03,.97)',offset:.84},{transform:'scale(1,1)'}];
-      s.animate(kf,{duration:lite?320:560+((i%3)*40),delay:lite?(i%4)*25:0,easing:'ease-out'}).onfinish=()=>t.el.classList.remove('wob');
-    });
-  },FALL_MS-10);
+function jellyDrop(tiles,withSound){   // 애니팡처럼 툭툭: 출렁임 없이 깔끔하게 떨어져요
+  tiles.forEach(t=>t.el.classList.add('falling'));
+  setTimeout(()=>{tiles.forEach(t=>t.el.classList.remove('falling'))},FALL_MS-10);
 }
 
 /* ---- 장애물 ---- */
@@ -2658,26 +2714,52 @@ function warmTextLayers(){
 var BACK_IGNORE=false;
 function ensureBackGuard(){try{if(!(history.state&&history.state.mung))history.pushState({mung:1},'')}catch(e){}}
 function dropBackGuard(){try{if(history.state&&history.state.mung){BACK_IGNORE=true;history.back()}}catch(e){}}
-addEventListener('popstate',()=>{
-  if(BACK_IGNORE){BACK_IGNORE=false;return}
+/* 뒤로가기 한 번에 할 일: 처리했으면 true, 메인 화면이라 처리할 게 없으면 false */
+function backAction(){
   const open=id=>{const m=$(id);return m&&!m.hidden};
-  let handled=true;
-  if(document.getElementById('opening')){const sk=$('skipBtn');sk&&sk.click()}
-  else if(open('setModal'))closeSettings();
-  else if(open('bagModal'))closeBag();
-  else if(open('adModal'))$('adModal').hidden=true;
-  else if(open('darkTip'))$('darkTipOk').click();
-  else if(open('attendModal'))$('attendModal').hidden=true;
-  else if(open('reviveModal')){}                       // 부활 선택 중에는 그대로
-  else if(!$('game').hidden){
+  if(document.getElementById('opening')){const sk=$('skipBtn');sk&&sk.click();return true}
+  if(open('setModal')){closeSettings();return true}
+  if(open('bagModal')){closeBag();return true}
+  if(open('adModal')){$('adModal').hidden=true;return true}
+  if(open('darkTip')){$('darkTipOk').click();return true}
+  if(open('attendModal')){$('attendModal').hidden=true;return true}
+  if(open('reviveModal'))return true;                    // 부활 선택 중에는 그대로
+  if(!$('game').hidden){
     if(open('endModal')){stopGame();showScreen('menu')}
     else if(running&&!paused&&!ended)pause();           // 게임 중 → 일시정지
-    // 이미 일시정지 화면이면 그대로 둬요
+    return true;                                          // 이미 일시정지 화면이면 그대로 둬요
   }
-  else if($('menu').hidden)showScreen('menu');          // 순위표·상점 등 → 메인으로
-  else handled=false;                                   // 메인 화면에서는 앱 종료
+  const om=document.querySelector('.modal:not([hidden])');if(om){om.hidden=true;return true}
+  if($('menu').hidden){showScreen('menu');return true}  // 순위표·상점 등 → 메인으로
+  return false;
+}
+addEventListener('popstate',()=>{
+  if(BACK_IGNORE){BACK_IGNORE=false;return}
+  const handled=backAction();
   if(handled&&!(($('menu')&&!$('menu').hidden)&&!document.querySelector('.modal:not([hidden])')))ensureBackGuard();
 });
+/* 앱(1.4.0~)이 직접 보내는 신호: 뒤로가기 버튼, 백그라운드로 가기/돌아오기 */
+let exitAskAt=0;
+window.mungBack=function(){
+  if(backAction())return true;
+  const now=Date.now();
+  if(now-exitAskAt<2000)return false;                  // 2초 안에 한 번 더 → 앱 종료
+  exitAskAt=now;const t=$('exitTip');t.classList.remove('show');void t.offsetWidth;t.classList.add('show');
+  return true;
+};
+window.mungPause=function(){
+  try{if(running&&!paused&&!ended)pause()}catch(e){}
+  try{flushSaves()}catch(e){}
+  try{typeof cloudSaveNow==='function'&&cloudSaveNow()}catch(e){}
+  try{const c=SFX.ctx;c&&c.suspend&&c.suspend()}catch(e){}
+  try{BGM.sleep()}catch(e){}
+  try{if(ADS.native&&ADS.bannerOn)ADS.plugin.hideBanner().catch(()=>{})}catch(e){}
+};
+window.mungResume=function(){
+  try{const c=SFX.ctx;c&&c.resume&&c.resume()}catch(e){}
+  try{BGM.wake()}catch(e){}
+  try{if(ADS.native&&ADS.bannerOn)ADS.plugin.resumeBanner().catch(()=>{})}catch(e){}
+};
 (function(){const _show=showScreen;showScreen=function(id){_show(id);if(id==='menu'){if(!document.querySelector('.modal:not([hidden])'))dropBackGuard()}else ensureBackGuard()}})();
 new MutationObserver(()=>{if(document.querySelector('.modal:not([hidden])'))ensureBackGuard()}).observe(document.body,{subtree:true,attributes:true,attributeFilter:['hidden']});
 /* ================= 구글 AdMob 광고 (앱에서만) =================
@@ -2733,7 +2815,7 @@ async function watchRewardAd(sync){
     setTimeout(()=>{SFX.levelup();buzz([30,30,60]);$('shopNote').innerHTML=`광고를 봐 줘서 고마워요! ${COIN} ${AD_REWARD}코인을 받았어요 🎉`;openShop()},300)};
   try{
     if(A.addListener){const h=await A.addListener('onRewardedVideoAdReward',grant);subs.push(h)}
-    const c=SFX.ctx;BGM.duck(true);c&&c.suspend&&c.suspend();
+    const c=SFX.ctx;BGM.duck(true);BGM.sleep();c&&c.suspend&&c.suspend();
     if(!ADS.rewardLoaded)await A.prepareRewardVideoAd({adId:ADMOB.reward,isTesting:ADS_TEST});
     ADS.rewardLoaded=false;
     const r=await A.showRewardVideoAd();
@@ -2741,7 +2823,7 @@ async function watchRewardAd(sync){
   }catch(e){if(!got)$('shopNote').textContent='광고를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'}
   finally{
     subs.forEach(h=>{try{h.remove()}catch(e){}});
-    const c=SFX.ctx;c&&c.resume&&c.resume();BGM.duck(false);
+    const c=SFX.ctx;c&&c.resume&&c.resume();BGM.duck(false);BGM.wake();
     ADS.busy=false;sync&&sync();setTimeout(preloadReward,1500);
   }
 }
@@ -2885,7 +2967,7 @@ $('homeBtn').onclick=()=>{stopGame();showScreen('menu')};
 $('submitBtn').onclick=submitScore;
 $('nick').addEventListener('keydown',e=>{if(e.key==='Enter')submitScore()});
 $('diceBtn').addEventListener('click',()=>{$('nick').value=randomNick();fitNick();$('submitMsg').textContent='마음에 들면 점수 등록을 눌러요!'});
-document.addEventListener('visibilitychange',()=>{const c=SFX.ctx;if(document.hidden){pause();c&&c.suspend&&c.suspend()}else{c&&c.resume&&c.resume()}});
+document.addEventListener('visibilitychange',()=>{const c=SFX.ctx;if(document.hidden){pause();c&&c.suspend&&c.suspend();BGM.sleep()}else{c&&c.resume&&c.resume();BGM.wake()}});
 updateTime();syncSnd();
 
 /* ================= 오프닝 ================= */
@@ -2980,7 +3062,7 @@ updateTime();syncSnd();
   function finish(){if(done)return;done=true;try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();if(wv)wv.stop();if(mb)mb.stop();setTimeout(()=>BGM.allow(),1300);setTimeout(checkAttendance,1000);op.classList.add('fade','out');setTimeout(()=>op.remove(),750)}
   function go(){
     if(started)return;started=true;SFX.init();op.classList.add('go');
-    mb=SFX.musicbox();   // 바람 소리는 파도처럼 들려서 빼고 오르골만
+    mb=OPMUSIC.play()||SFX.musicbox();   // 오프닝 음악 파일 (못 불러오면 예전 오르골)
     [[2,.35],[1,.85],[0,1.35]].forEach(([k,dl])=>SFX.bark(k,dl));   // 해피, 뭉치, 샌드가 밝게 한 번씩
     requestAnimationFrame(frame);
   }
