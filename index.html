@@ -42,8 +42,7 @@ h1,h2,.jua{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400}
 /* ---------- 메인 화면 ---------- */
 #menu{justify-content:center;align-items:center;text-align:center;gap:18px;min-height:100%}
 /* 세로로 긴 폰: 판을 남는 공간의 가운데로 (위아래 여백을 똑같이) */
-@media (orientation:portrait){#game .frame{margin-top:auto;margin-bottom:auto}}
-@media (orientation:portrait) and (min-height:700px){#game::after{content:"";flex:0 0 44px}}   /* 위쪽 안내 글줄만큼 아래도 띄워 보이는 여백을 맞춰요 */
+@media (orientation:portrait){#game{justify-content:center}}   /* 버튼·막대·게임판을 한 덩어리로 화면 세로 가운데에 */   /* 위쪽 안내 글줄만큼 아래도 띄워 보이는 여백을 맞춰요 */
 .logo{font-size:3.4rem;line-height:1.05;margin:0;color:var(--ink)}
 .logo span{display:block;color:var(--accent);-webkit-text-stroke:2px var(--card);paint-order:stroke fill}
 .tag{margin:0;color:var(--ink-soft)}
