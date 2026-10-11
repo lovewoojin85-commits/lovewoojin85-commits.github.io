@@ -1349,10 +1349,10 @@ const SFX=(()=>{
     select(){tone(990,{dur:.05,vol:.14})},
     land(){tone(620,{dur:.06,vol:.05,to:820,toAt:.03})},
     spawn(){[1046.5,1318.5,1568,2093].forEach((f,i)=>tone(f,{dur:.3,vol:.14,delay:i*.07}))},
-    friend(){
-      tone(120,{dur:.45,vol:.55,to:40});
-      noise({dur:.4,vol:.28,freq:250,to:5000,q:.7});
-      [784,988,1175,1568,2093].forEach((f,i)=>tone(f,{type:'triangle',dur:.22,vol:.17,delay:.08+i*.06}));
+    friend(){   // 히든 강아지: 터지는 소리 통로로 크게
+      tone(120,{dur:.45,vol:.28,to:40,bus:true});
+      noise({dur:.4,vol:.14,freq:250,to:5000,q:.7,bus:true});
+      [784,988,1175,1568,2093].forEach((f,i)=>tone(f,{type:'triangle',dur:.22,vol:.085,delay:.08+i*.06,bus:true}));
     },
     tick(){tone(1250,{type:'square',dur:.03,vol:.06})},
     hint(){[1568,2093,2637,3136,2637,3136].forEach((f,i)=>tone(f,{dur:.18,vol:.1,delay:i*.05}))},
@@ -1361,7 +1361,7 @@ const SFX=(()=>{
     crack(){noise({dur:.09,vol:.28,freq:1800,q:1.5});tone(900,{type:'triangle',dur:.08,vol:.12,to:450})},
     bubble(){[0,.06,.12].forEach((d,i)=>tone(700+i*260,{dur:.07,vol:.16,to:1500+i*300,toAt:.05,delay:d}))},
     dig(){noise({dur:.14,vol:.3,freq:420,type:'lowpass'});tone(1568,{dur:.2,vol:.1,delay:.08,fx:true});tone(2093,{dur:.25,vol:.08,delay:.14,fx:true})},
-    fever(){[523,659,784,1046,1318,1568,2093].forEach((f,i)=>tone(f,{type:'triangle',dur:.18,vol:.14,delay:i*.05,fx:true}));noise({dur:.6,vol:.08,freq:800,to:8000,q:.7,fx:true})},
+    fever(){[523,659,784,1046,1318,1568,2093].forEach((f,i)=>tone(f,{type:'triangle',dur:.18,vol:.18,delay:i*.05,fx:true}));noise({dur:.6,vol:.104,freq:800,to:8000,q:.7,fx:true})},
     /* 피버 타임 징글: "피-버-타-임!" 박자에 맞춘 오르골 멜로디 + 강아지의 '왕!' */
     voiceFever(){
       if(!on||!ctx)return;
@@ -1533,7 +1533,7 @@ const BGM_SYNTH=(()=>{   // 예비용: 음악 파일을 못 불러올 때(미리
    메인·게임 음악은 끝나면 처음부터 다시, 피버 음악은 피버 때마다 이어서 재생돼요.
    파일을 못 불러오면 예전 실시간 합성(BGM_SYNTH)으로 자동으로 바꿔 연주해요. */
 const BGM=(()=>{
-  const FILES={menu:'bgm/main.mp3?v=2',game:'bgm/play.mp3?v=2',fever:'bgm/fever.mp3?v=2'},VOL={menu:1,game:.9,fever:1};
+  const FILES={menu:'bgm/main.mp3?v=2',game:'bgm/play.mp3?v=2',fever:'bgm/fever.mp3?v=3'},VOL={menu:1,game:.9,fever:1};
   let on=ls.get('mung-bgm',true),allowed=false,want=null,feverOn=false,duckTo=1,failed=!/^https?:/.test(location.protocol),cur=null,asleep=false;
   const el={},fades={};
   if(!failed)Object.keys(FILES).forEach(k=>{const a=new Audio();a.preload='auto';a.loop=true;a.src=FILES[k];a.volume=0;
