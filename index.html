@@ -1273,7 +1273,8 @@ const SFX=(()=>{
     comp=ctx.createDynamicsCompressor();comp.threshold.value=-8;comp.knee.value=6;comp.ratio.value=6;comp.attack.value=.002;comp.release.value=.15;master.gain.value=.9;master.connect(comp);   // 예전 기본값(-24dB)은 효과음을 너무 눌렀어요
     comp.connect(ctx.destination);
     // 강아지 터지는 소리·콤보 전용 통로: 크게 키우고, 깨지지 않게 리미터만 걸어요 (다른 소리 볼륨과 무관)
-    popBus=ctx.createGain();popBus.gain.value=5;const lim=ctx.createDynamicsCompressor();lim.threshold.value=-6;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.001;lim.release.value=.12;
+    popBus=ctx.createGain();popBus.gain.value=.8;   // v60(5)은 너무 컸고 v59는 너무 작아서 그 사이
+    const lim=ctx.createDynamicsCompressor();lim.threshold.value=-6;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.001;lim.release.value=.12;
     const sat=ctx.createWaveShaper(),cv=new Float32Array(1025);for(let i=0;i<1025;i++)cv[i]=Math.tanh((i/512-1)*2.2)*.92;sat.curve=cv;   // 부드럽게 눌러서 절대 깨지지 않게
     popBus.connect(lim);lim.connect(sat);sat.connect(ctx.destination);
     // 반짝이는 잔향(에코) 버스
