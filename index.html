@@ -1616,25 +1616,31 @@ const BGM=(()=>{
   const el={},fades={},blob={},P={},waited={};let lastPlay=0,lastErr='';
   // 지킴이: 틀어야 하는 음악이 멈춰 있으면 2초마다 다시 틀어요 (다른 앱·시스템이 멈춘 경우 대비, 아주 가벼움)
   setInterval(()=>{if(failed||document.hidden)return;const t=target();if(t&&el[t].paused&&!(P[t]&&!blob[t]&&!waited[t])){apply()}},2000);
-  if(!failed)Object.keys(FILES).forEach(k=>{const a=new Audio();a.preload='none';a.loop=true;a.src=FILES[k];   // 저장해 둔 음악이 준비되면 그걸로 바꿔요a.volume=0;
-    a.addEventListener('error',()=>fail());el[k]=a;
-    P[k]=MUSIC_CACHE.get(FILES[k]).then(u=>{blob[k]=u;if(a.paused&&target()!==k){a.src=u}}).catch(()=>{})});
+  const errs={};let held=false;
+  if(!failed)Object.keys(FILES).forEach(k=>{const a=new Audio();a.preload='none';a.loop=true;a.src=FILES[k];a.volume=0;   // 저장해 둔 음악이 준비되면 그걸로 바꿔요
+    // 한 번 실패했다고 음악을 포기하지 않고, 저장본·인터넷으로 두 번 더 시도해요
+    a.addEventListener('error',()=>{errs[k]=(errs[k]||0)+1;lastErr='파일 오류 '+errs[k];if(errs[k]>=3){fail();return}
+      setTimeout(()=>{try{a.src=blob[k]&&errs[k]<2?blob[k]:FILES[k]+'&r='+Date.now();if(target()===k){a.pause();apply()}}catch(e){}},800)});
+    el[k]=a});
+  // 메인 음악을 먼저 꺼내 오고, 나머지는 그다음에 (처음 소리가 빨리 나오게)
+  const getBlob=k=>P[k]=MUSIC_CACHE.get(FILES[k]).then(u=>{blob[k]=u;const a=el[k];if(a.paused&&target()!==k){a.src=u}}).catch(()=>{});
+  if(!failed){getBlob('menu');P.menu.then(()=>{getBlob('game');getBlob('fever')})}
   function fail(){if(failed)return;failed=true;Object.values(el).forEach(a=>{try{a.pause()}catch(e){}});
     BGM_SYNTH.setOn(on);if(allowed)BGM_SYNTH.allow();if(want)BGM_SYNTH.play(want);BGM_SYNTH.fever(feverOn);BGM_SYNTH.duck(duckTo<1)}
   function fadeTo(k,v,ms,done){const a=el[k];clearInterval(fades[k]);const from=a.volume,t0=Date.now();
     fades[k]=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/ms);a.volume=Math.max(0,Math.min(1,from+(v-from)*u));if(u>=1){clearInterval(fades[k]);done&&done()}},40)}
-  const target=()=>(!on||!allowed||!want||asleep)?null:(want==='game'&&feverOn?'fever':want);
+  const target=()=>(!on||!allowed||!want||asleep||held)?null:(want==='game'&&feverOn?'fever':want);
   function apply(){
     if(failed)return;const t=target();
     Object.keys(el).forEach(k=>{const a=el[k];
-      if(k===t){if(a.paused&&!blob[k]&&P[k]&&!waited[k]){waited[k]=true;Promise.race([P[k],new Promise(r=>setTimeout(r,1500))]).then(()=>apply());return}   // 저장된 음악을 잠깐(최대 1.5초) 기다려요
-        if(a.paused){if(blob[k]&&a.src!==blob[k])a.src=blob[k];a.volume=0;lastPlay=Date.now();const pr=a.play();pr&&pr.catch&&pr.catch(e=>{lastErr=String(e&&e.name||e)})}fadeTo(k,VOL[k]*duckTo,t==='fever'?150:600)}
+      if(k===t){if(a.paused&&!blob[k]&&P[k]&&!waited[k]){waited[k]=true;Promise.race([P[k],new Promise(r=>setTimeout(r,500))]).then(()=>apply());return}   // 저장된 음악을 잠깐(최대 1.5초) 기다려요
+        if(a.paused){if(blob[k]&&a.src!==blob[k])a.src=blob[k];a.volume=0;lastPlay=Date.now();const pr=a.play();pr&&pr.catch&&pr.catch(e=>{lastErr=String(e&&e.name||e)})}fadeTo(k,VOL[k]*duckTo,t==='fever'?150:cur?600:250)}
       else if(!a.paused)fadeTo(k,0,k==='fever'||t==='fever'?150:400,()=>{if(target()!==k)a.pause()})});
     cur=t;
   }
   function restart(k){if(el[k])try{el[k].currentTime=0}catch(e){}}
   return{
-    play(name){if(name!==want)duckTo=1;   // 화면이 바뀌면 '작게 줄이기'는 항상 풀어요 (일시정지·부활 창에서 메인으로 나갈 때 작아지던 문제)
+    play(name){if(name!==want){duckTo=1;held=false}   // 화면이 바뀌면 '작게 줄이기'는 항상 풀어요 (일시정지·부활 창에서 메인으로 나갈 때 작아지던 문제)
       if(failed){BGM_SYNTH.duck(duckTo<1);return BGM_SYNTH.play(name)}if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
     allow(){allowed=true;if(failed)return BGM_SYNTH.allow();apply()},
     kick(){if(failed)return BGM_SYNTH.kick();const t=target();if(t&&el[t].paused)apply()},
@@ -1643,6 +1649,7 @@ const BGM=(()=>{
     fever(f){feverOn=!!f;if(failed)return BGM_SYNTH.fever(f);apply()},
     duck(d){duckTo=d?.35:1;if(failed)return BGM_SYNTH.duck(d);const t=target();if(t)fadeTo(t,VOL[t]*duckTo,300)},
     get lastPlay(){return lastPlay},
+    hold(v){held=!!v;if(failed)return BGM_SYNTH.duck(v);apply()},   // 일시정지 중에는 음악을 완전히 멈춰요
     state(){const t=target();return failed?'합성 모드':!on?'꺼짐':!allowed?'대기':asleep?'쉬는 중':!t?'없음':(el[t].paused?'멈춤':'재생 중')+' · '+t+(blob[t]?' · 저장됨':' · 받는 중')+(lastErr?' · '+lastErr:'')},
     sleep(){asleep=true;if(failed)return;Object.keys(el).forEach(k=>{clearInterval(fades[k]);try{el[k].pause()}catch(e){}})},
     wake(){asleep=false;if(failed)return;apply()}
@@ -2180,7 +2187,7 @@ function askRevive(kind='nomove'){
     const inv=getInv(),left=REVIVE_PER_GAME-revivesUsed,canCoin=getCoin()>=REVIVE_ONSPOT;
     $('revPic').innerHTML=GOLD_BONE;
     const use=$('revUse');
-    if(left<=0){$('revMsg').textContent='이번 판에서는 황금 뼈다귀를 모두 썼어요. 정말 잘했어요!';use.hidden=true}
+    if(left<=0){$('revMsg').textContent='황금 뼈다귀 이어하기는 한 판에 한 번만 할 수 있어요. 정말 잘했어요!';use.hidden=true}
     else if(inv.revive>0){$('revMsg').textContent=`황금 뼈다귀를 보면 강아지들이 벌떡 일어나요! 판을 섞고 ${REVIVE_TIME}초로 다시 시작할까요? (가진 개수 ${inv.revive}개)`;use.hidden=false;use.textContent='🦴 황금 뼈다귀로 이어하기'}
     else if(canCoin){$('revMsg').innerHTML=`황금 뼈다귀가 없어요. 지금 코인으로 바로 이어서 할 수 있어요. 상점에서 미리 사두면 ${COIN} ${REVIVE_PRICE}로 더 싸요! (내 코인 ${COIN} ${getCoin().toLocaleString()})`;use.hidden=false;use.innerHTML=`${COIN} ${REVIVE_ONSPOT} 내고 이어하기`}
     else{$('revMsg').innerHTML=`상점에서 황금 뼈다귀(${COIN} ${REVIVE_PRICE})를 미리 사두면 다음엔 이어서 할 수 있어요.`;use.hidden=true}
@@ -2274,7 +2281,7 @@ async function runEffect(starts,{extra=null,msg=null,consumed=[]}={}){
 /* ---- 무지개 친구 아이템: 가방에서 꺼내 원하는 자리에 불러내기 (한 판 최대 3번) ---- */
 let placing=null,itemsUsed=0;
 /* ---- 상점 목록 ---- */
-const REVIVE_PRICE=150,REVIVE_ONSPOT=200,REVIVE_PER_GAME=2;   // 미리 사두면 150, 그 자리에서 사면 200
+const REVIVE_PRICE=150,REVIVE_ONSPOT=200,REVIVE_PER_GAME=1;   // 황금 뼈다귀 이어하기는 한 판에 한 번만   // 미리 사두면 150, 그 자리에서 사면 200
 const GOLD_BONE='<svg viewBox="-30 -22 60 44" aria-hidden="true"><defs><linearGradient id="gbone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4B8"/><stop offset=".5" stop-color="#FFD24D"/><stop offset="1" stop-color="#E9A21F"/></linearGradient></defs><g fill="url(#gbone)" stroke="#C98A1A" stroke-width="2.4"><circle cx="-17" cy="-6" r="7"/><circle cx="-17" cy="6" r="7"/><circle cx="17" cy="-6" r="7"/><circle cx="17" cy="6" r="7"/><rect x="-17" y="-6" width="34" height="12" rx="3"/></g><rect x="-16" y="-4.4" width="32" height="8.8" fill="url(#gbone)"/><path d="M-10 -1.5 H10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".85"/><path d="M22 -19 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6Z" fill="#FFE066"/><path d="M-24 13 l1.2 3 3 1.2 -3 1.2 -1.2 3 -1.2 -3 -3 -1.2 3 -1.2Z" fill="#FFE066"/></svg>';
 const BONE_ICON=()=>document.querySelector('#boneBtn svg').outerHTML;
 const SHOP=[
@@ -2286,7 +2293,7 @@ const SHOP=[
   {id:'shuffle', name:'강아지 섞기', ds:'시간 손해 없이 판을 섞어요', price:40, ic:()=>'🔀', own:()=>getInv().shuffle, add:()=>addInv('shuffle')},
   {id:'fever', name:'피버 간식', ds:'바로 피버 타임 시작!', price:100, ic:()=>'🔥', own:()=>getInv().fever, add:()=>addInv('fever')},
   {id:'clean', name:'깨끗이 목욕', ds:'흙더미·거품·낮잠을 한 번에 정리', price:70, ic:()=>'🧼', own:()=>getInv().clean, add:()=>addInv('clean')},
-  {id:'revive', name:'황금 뼈다귀', ds:'시간이 끝나거나 움직일 곳이 없을 때 판을 섞고 60초로 이어하기 · 미리 사두면 50코인 이득!', price:REVIVE_PRICE, ic:()=>GOLD_BONE, own:()=>getInv().revive, add:()=>addInv('revive')}
+  {id:'revive', name:'황금 뼈다귀', ds:'시간이 끝나거나 움직일 곳이 없을 때 판을 섞고 60초로 이어하기 (한 판 1번) · 미리 사두면 50코인 이득!', price:REVIVE_PRICE, ic:()=>GOLD_BONE, own:()=>getInv().revive, add:()=>addInv('revive')}
 ];
 function addItemF(f){const it=getItems();if(it[f]>=ITEM_CAP)return false;it[f]++;setItems(it);return true}
 function addInv(k){const v=getInv();if(v[k]>=ITEM_CAP)return false;v[k]++;setInv(v);return true}
@@ -2332,7 +2339,7 @@ function renderBag(){
     {k:'shuffle',n:v.shuffle,name:'강아지 섞기',ds:'시간 손해 없이 판 섞기',ic:'🔀'},
     {k:'fever',n:v.fever,name:'피버 간식',ds:'바로 피버 타임',ic:'🔥'},
     {k:'clean',n:v.clean,name:'깨끗이 목욕',ds:'장애물 한 번에 정리',ic:'🧼'},
-    {k:'revive',auto:true,n:v.revive,name:'황금 뼈다귀',ds:'시간이 끝나거나 움직일 곳이 없을 때 판을 섞고 60초로 이어할 수 있어요',ic:GOLD_BONE},
+    {k:'revive',auto:true,n:v.revive,name:'황금 뼈다귀',ds:'시간이 끝나거나 움직일 곳이 없을 때 판을 섞고 60초로 이어할 수 있어요 (한 판 1번)',ic:GOLD_BONE},
     ...(bagView?[{k:'bone',auto:true,n:getBonus(),name:'개껌 힌트',ds:'다음 판 시작 때 힌트 개수에 더해져요',ic:BONE_ICON()}]:[])
   ].filter(r=>r.n>0);
   $('bagMsg').textContent=bagView&&rows.length?'아이템은 게임 중에 🎒 버튼을 눌러 사용할 수 있어요.':'';
@@ -2492,14 +2499,15 @@ function startGame(){
   },100);
 }
 function stopGame(){clearInterval(tick);running=false;paused=false;ended=true;endFever();$('pauseModal').hidden=true;$('endModal').hidden=true}
-function pause(){if(!running||paused||ended)return;if(placing!==null)cancelPlacing();paused=true;BGM.duck(true);$('quitNote').textContent=score>0?'그만하면 지금까지의 점수를 순위표에 등록할 수 있어요.':'';$('pauseModal').hidden=false;$('resumeBtn').focus()}
-function resume(){paused=false;BGM.duck(false);lastAct=Date.now();lastT=performance.now();$('pauseModal').hidden=true}
+function pause(){if(!running||paused||ended)return;if(placing!==null)cancelPlacing();paused=true;BGM.hold(true);   // 게임이 멈추면 음악도 멈춰요 (전화가 와서 멈춘 경우 포함)
+  $('quitNote').textContent=score>0?'그만하면 지금까지의 점수를 순위표에 등록할 수 있어요.':'';$('pauseModal').hidden=false;$('resumeBtn').focus()}
+function resume(){paused=false;BGM.hold(false);BGM.duck(false);lastAct=Date.now();lastT=performance.now();$('pauseModal').hidden=true}
 
 let lastScore=0;
 function endGame(reason){
   if(ended)return;ended=true;lastScore=score;setTimeout(flushSaves,1500);
   {const cg=score>0?Math.max(1,Math.min(50,Math.floor(score/1000))+Math.max(0,Math.floor((score-50000)/10000))):0;if(cg)addCoin(cg);$('coinGet').innerHTML=cg?`${COIN} ${cg}코인을 모았어요!`:''}
-  trackM('score',score);trackM('level',level);trackM('games',1);SFX.end();endFever();BGM.duck(false);setTimeout(()=>{if(ended)BGM.play('menu')},900);
+  trackM('score',score);trackM('level',level);trackM('games',1);SFX.end();endFever();BGM.duck(false);BGM.hold(false);setTimeout(()=>{if(ended)BGM.play('menu')},900);
   $('endReason').textContent=reason==='nomove'?'더 이상 움직일 수 있는 강아지가 없어요':reason==='quit'?'여기까지! 지금 점수로 기록을 남겨요':'시간이 다 됐어요';
   const isBest=score>best;
   if(isBest){best=score;ls.set('mung-best',best);showBest()}
@@ -3406,7 +3414,7 @@ updateTime();syncSnd();
     requestAnimationFrame(frame);
   }
   let started=false,wv=null,mb=null;
-  function finish(){if(done)return;done=true;try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();if(wv)wv.stop();if(mb)mb.stop();setTimeout(()=>BGM.allow(),1300);setTimeout(checkAttendance,1000);op.classList.add('fade','out');setTimeout(()=>op.remove(),750)}
+  function finish(){if(done)return;done=true;try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();if(wv)wv.stop();if(mb)mb.stop();setTimeout(()=>BGM.allow(),450);setTimeout(checkAttendance,1000);op.classList.add('fade','out');setTimeout(()=>op.remove(),750)}
   function go(){
     if(started)return;started=true;SFX.init();op.classList.add('go');
     mb=OPMUSIC.play()||SFX.musicbox();   // 오프닝 음악 파일 (못 불러오면 예전 오르골)
