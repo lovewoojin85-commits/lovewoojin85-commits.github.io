@@ -537,7 +537,7 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .tabs.three .tab{font-size:.98rem}
 .rankcta{display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center;background:var(--card);border-radius:18px;padding:16px}
 .rankcta[hidden]{display:none}
-.rankcta p{margin:0}
+.rankcta p{margin:0;white-space:pre-line;overflow-wrap:anywhere}
 
 /* ---- 오늘의 미션 · 출석 ---- */
 .mission-btn{position:relative;width:100%}
@@ -2815,7 +2815,7 @@ async function openFriendRank(){
   if(!r||!r.ok){note.textContent='';
     if(r&&r.loggedOut){kakaoClear(true);openFriendRank();return}
     if(r&&r.denied)cta('카톡 친구 목록 제공에 동의하면 친구들의 순위를 볼 수 있어요.','친구 목록 동의하기',()=>openRank('friend'));
-    else cta('친구 목록을 불러오지 못했어요. 잠시 후 다시 해 주세요.','다시 불러오기',()=>openRank('friend'));
+    else cta('친구 목록을 불러오지 못했어요. 잠시 후 다시 해 주세요.'+(r&&r.error?`\n(오류: ${String(r.error).slice(0,160)})`:''),'다시 불러오기',()=>openRank('friend'));
     return}
   const fr=(r.friends||[]).filter(f=>/^[0-9]{1,20}$/.test(String(f.id)));
   const fmap={};fr.forEach(f=>{fmap[String(f.id)]=f});
