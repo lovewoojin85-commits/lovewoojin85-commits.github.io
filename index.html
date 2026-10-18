@@ -2807,7 +2807,7 @@ const starsOf=(W,id,kid)=>W?(kid?(W.kid[kid]||0)+(W.id[id]||0):(W.id[id]||0)):0;
 async function openFriendRank(){
   const si=$('seasonInfo'),list=$('rankList'),box=$('myRank'),note=$('rankNote');
   si.textContent='카톡 친구들의 역대 최고 기록이에요.';list.innerHTML='';box.hidden=true;$('champs').hidden=true;note.textContent='';
-  const cta=(txt,btn,fn)=>{$('rankCtaTxt').textContent=txt;const b=$('rankCtaBtn');b.innerHTML=KK_SVG+btn;b.onclick=fn;$('rankCta').hidden=false};
+  const cta=(txt,btn,fn)=>{$('rankCtaTxt').textContent=txt;const b=$('rankCtaBtn');b.hidden=false;b.innerHTML=KK_SVG+btn;b.onclick=fn;$('rankCta').hidden=false};
   if(!KAKAO.me){cta('카카오로 로그인하면 카톡 친구들과 순위를 겨룰 수 있어요!','카카오로 시작하기',async()=>{if(await kakaoLogin())openRank('friend')});return}
   note.textContent='친구 목록을 불러오는 중...';
   let r=null;try{r=await KAKAO.plugin.friends({ask:true})}catch(e){}
@@ -2815,6 +2815,7 @@ async function openFriendRank(){
   if(!r||!r.ok){note.textContent='';
     if(r&&r.loggedOut){kakaoClear(true);openFriendRank();return}
     if(r&&r.denied)cta('카톡 친구 목록 제공에 동의하면 친구들의 순위를 볼 수 있어요.','친구 목록 동의하기',()=>openRank('friend'));
+    else if(r&&/team member|unreviewed/i.test(String(r.error||''))){$('rankCtaTxt').textContent='🐾 카톡 친구 순위는 준비 중이에요!\n카카오 확인이 끝나면 곧 열려요.';$('rankCtaBtn').hidden=true;$('rankCta').hidden=false}
     else cta('친구 목록을 불러오지 못했어요. 잠시 후 다시 해 주세요.'+(r&&r.error?`\n(오류: ${String(r.error).slice(0,160)})`:''),'다시 불러오기',()=>openRank('friend'));
     return}
   const fr=(r.friends||[]).filter(f=>/^[0-9]{1,20}$/.test(String(f.id)));
