@@ -76,7 +76,7 @@ button.small{font-size:1rem;padding:8px 18px}
 .time.bump{animation:bump .25s ease-out}
 @keyframes bump{50%{transform:scale(1.25);color:#3DBA6F}}
 .bar{height:12px;border-radius:5px;background:var(--bar-bg);overflow:hidden}
-.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FFC36B,#FF9F6B);border-radius:5px;transform-origin:0 50%;transition:transform .1s linear;will-change:transform}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FFC36B,#FF9F6B);border-radius:5px;transform-origin:0 50%;will-change:transform}
 .bar.low i{background:#FF6B6B;animation:blink .5s steps(2) infinite}
 @keyframes blink{50%{opacity:.4}}
 .frame{position:relative;padding:8px;border-radius:22px;background:var(--frame);box-shadow:0 5px 0 var(--frame-deep),0 12px 24px rgba(36,56,77,.2)}
@@ -140,7 +140,24 @@ body.ingame .house .ring{animation-play-state:paused}
 .msgline .toast{display:inline-flex;align-items:center;gap:6px}
 .msgline .toast svg{width:1.7em;height:1.7em}
 .lv{display:inline-block;margin-left:6px;padding:0 8px;border-radius:999px;background:var(--frame);color:#fff;font-family:"Jua",sans-serif;font-size:.85rem}
-.lv.up{animation:bump .4s ease-out 2}
+.lv{position:relative;z-index:2;transform-origin:30% 50%}
+.lv.up{animation:lvPop 1.1s cubic-bezier(.2,.9,.3,1)}
+@keyframes lvPop{0%{transform:scale(1)}22%{transform:scale(1.9) rotate(-4deg);background:#FFC93C;color:#6B4200;box-shadow:0 0 0 4px rgba(255,201,60,.35),0 0 18px rgba(255,190,40,.9)}45%{transform:scale(1.45) rotate(3deg);background:#FFC93C;color:#6B4200;box-shadow:0 0 0 3px rgba(255,201,60,.3),0 0 12px rgba(255,190,40,.7)}70%{transform:scale(1.6);background:#FFC93C;color:#6B4200}100%{transform:scale(1)}}
+/* 레벨업 큰 안내 (게임판 가운데) */
+.lvfx{position:absolute;inset:0;z-index:31;pointer-events:none;display:flex;align-items:center;justify-content:center;border-radius:inherit;overflow:hidden}
+.lvfx .lvdim{position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,.0) 0 20%,rgba(40,30,70,.38) 75%)}
+.lvfx .lvglow{position:absolute;left:50%;top:44%;width:78%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,255,255,.95) 0 22%,rgba(255,230,140,.75) 40%,rgba(255,200,120,0) 70%)}
+.lvfx .lvcard{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px}
+.lvfx .lvicon{width:min(46vw,190px);aspect-ratio:1;filter:drop-shadow(0 6px 10px rgba(60,30,0,.3))}
+.lvfx .lvicon svg{width:100%;height:100%}
+.lvfx .lvtag{font-family:"Jua",sans-serif;font-size:1rem;color:#fff;background:#FF8A4C;border-radius:999px;padding:2px 12px;box-shadow:0 3px 0 #D9682E}
+.lvfx .lvtitle{font-family:"Jua",sans-serif;font-size:clamp(1.9rem,9vw,2.8rem);color:#fff;-webkit-text-stroke:6px #FF7A3D;paint-order:stroke fill;line-height:1.1;text-align:center;white-space:nowrap}
+.lvfx .lvsub{font-family:"Jua",sans-serif;font-size:1.05rem;color:#fff;-webkit-text-stroke:4px #7A5AC8;paint-order:stroke fill}
+.lvfx.plain .lvtitle{font-size:clamp(2.4rem,12vw,3.4rem);-webkit-text-stroke-color:#FFB020}
+/* 우승 별 (월간 1위 횟수) */
+.avw{display:inline-flex;flex-direction:column;align-items:center;flex:none;gap:1px}
+.stars{font-size:13px;line-height:1;margin-top:-3px;color:#F5B400;letter-spacing:-1px;text-shadow:0 0 2px #fff,0 1px 0 #B07800;white-space:nowrap}
+.stars.many{letter-spacing:0;font-family:"Jua",sans-serif}
 .msgline .toast.show{animation:toast 2.2s ease-out}
 @keyframes toast{0%{opacity:0;transform:translateY(6px)}12%,80%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-4px)}}
 .items{display:flex;justify-content:center}
@@ -745,7 +762,7 @@ body[data-bg="aurora"] #bgfx .fx-aurora,body[data-bg="ocean"] #bgfx .fx-ocean,bo
 /* ---- 일반 배경에도 은은한 움직임 (발자국 배경은 그대로) ---- */
 body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],[data-bg="autumn"],[data-bg="snow"],[data-bg="cloud"],[data-bg="night"],[data-bg="rainbow"]) #bgfx{display:block}
 #bgfx .fx-lite{display:none;position:absolute;inset:0}
-body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],[data-bg="autumn"],[data-bg="snow"],[data-bg="cloud"],[data-bg="night"],[data-bg="rainbow"]) #bgfx .fx-lite{display:block}
+body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],[data-bg="autumn"],[data-bg="snow"],[data-bg="cloud"],[data-bg="night"],[data-bg="rainbow"],[data-bg="aurora"]) #bgfx .fx-lite{display:block}
 #bgfx .fx-lite i{position:absolute;width:var(--s);height:var(--s);background:var(--img) center/contain no-repeat;opacity:var(--o,.8);animation:var(--an) var(--d) linear var(--dl) infinite}
 #bgfx .fx-lite i.fall{top:-60px;left:var(--x)}
 #bgfx .fx-lite i.rise{bottom:-60px;left:var(--x)}
@@ -760,6 +777,7 @@ body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],
 #bgfx .fx-lite i.wave{left:0;top:auto;width:200vw;height:60px;background:var(--img) left bottom/50% 100% repeat-x}
 #bgfx .fx-lite i.sweep{inset:-20% -60%;width:auto;height:auto;background:var(--img);opacity:var(--o)}
 @keyframes lshoot{0%,70%{transform:translate(-30vw,-20vh) rotate(25deg);opacity:0}74%{opacity:1}86%{transform:translate(40vw,15vh) rotate(25deg);opacity:0}100%{transform:translate(40vw,15vh) rotate(25deg);opacity:0}}
+@keyframes lbob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-3vh) rotate(8deg)}}
 @keyframes lwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes lsweep{0%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
 
@@ -1135,7 +1153,7 @@ body.native-ads .ad #adSlot{display:none}
 
   <section class="screen" id="credits" hidden>
     <div class="shead"><h2>만든 사람</h2><button class="sub small" id="creditBack">돌아가기</button></div>
-    <div class="maker"><small>기획과 제작</small><strong>정우진</strong>
+    <div class="maker"><small>기획과 제작</small><strong>승아-승비 가족</strong>
       <div class="contact"><small>광고 및 제휴 문의</small><a href="mailto:lovewoojin85@gmail.com?subject=%5B%EB%A9%8D%EB%A9%8D%20%ED%86%A1%ED%86%A1%5D%20%EA%B4%91%EA%B3%A0%20%EB%AC%B8%EC%9D%98">lovewoojin85@gmail.com</a></div></div>
     <div id="friendCards" style="display:flex;flex-direction:column;gap:8px"></div>
     <p class="dedi">이 게임은 먼저 떠난<br>샌드, 뭉치, 해피를 기억하며 만들었어요.<br>게임 속에서 언제든 다시 만나요.</p>
@@ -1921,6 +1939,9 @@ function levelInfo(L){
   return{score:sc,types:L<4?5:L<9?6:L<12?7:8,mult:L<=4?[1,1.2,1.5,2][L-1]:2+(L-4)*.25};
 }
 const mult=()=>levelInfo(level).mult*(feverOn?2:1);
+/* 어려운 강아지·방해물은 더 많은 점수 (레벨 배율 곱함): 닥스훈트 < 보더콜리 < 달마시안, 흙더미 < 거품 < 낮잠 */
+const RARE_PTS={5:30,6:50,7:80},SAND_PTS=40,SHELL_PTS=60,SLEEP_PTS=80;
+function bonusPts(keys){let b=0;keys.forEach(k=>{const[r,c]=keyRC(k),t=board[r]&&board[r][c];if(!t)return;b+=RARE_PTS[t.type]||0;if(t.shell>0)b+=SHELL_PTS;if(t.sleep)b+=SLEEP_PTS});return b}
 function updateScore(){$('score').textContent=score.toLocaleString();checkLevel();checkBone()}
 const BONE_EVERY=100000;let nextBoneAt=BONE_EVERY;   // 10만 점마다 1개, 개수 제한 없음
 function checkBone(){
@@ -1939,16 +1960,36 @@ function checkLevel(){
     level++;activeTypes=levelInfo(level).types;trackM('level',level);
     const lv=$('lvl');lv.textContent='레벨 '+level;lv.classList.remove('up');void lv.offsetWidth;lv.classList.add('up');
     const prevTypes=levelInfo(level-1).types;
-    if(activeTypes>prevTypes){const idx=activeTypes-1;iconToast(svgFor(idx),`레벨 ${level}! 새 친구 ${DOG_NAMES[idx]} 합류`)}
-    else if(level===5)iconToast(SAND_ART,'레벨 5! 흙더미 등장');
-    else if(level===6)iconToast(SHELL_ICON,'레벨 6! 목욕 거품 친구 등장');
-    else if(level===7)iconToast(ZZ_ICON,'레벨 7! 낮잠 자는 친구 등장');
-    else iconToast('',`레벨 ${level}! 점수 ${levelInfo(level).mult}배`);
+    const mx=`점수 ${levelInfo(level).mult}배`;
+    if(activeTypes>prevTypes){const idx=activeTypes-1;levelSplash(svgFor(idx),`${DOG_NAMES[idx]} 등장!`,'새 친구 합류 · '+mx)}
+    else if(level===5)levelSplash(SAND_ART,'흙더미 등장!','옆에서 맞춰 부숴요 · '+mx);
+    else if(level===6)levelSplash(SHELL_ICON,'거품 친구 등장!','옆에서 맞춰 거품을 벗겨요 · '+mx);
+    else if(level===7)levelSplash(ZZ_ICON,'낮잠 친구 등장!','옆에서 맞춰 깨워요 · '+mx);
+    else levelSplash('',`LEVEL ${level}`,mx);
     SFX.levelup();buzz([30,40,30]);flash();
     setTimeout(()=>addTime(5),0);
   }
 }
 
+/* 레벨업: 게임판 가운데에 크게 (1.6초, 판은 그대로 움직일 수 있어요) */
+function levelSplash(icon,title,sub){
+  const frame=document.querySelector('#game .frame');if(!frame)return;
+  frame.querySelectorAll('.lvfx').forEach(e=>e.remove());
+  const box=document.createElement('div');box.className='lvfx'+(icon?'':' plain');
+  const dim=document.createElement('div');dim.className='lvdim';const glow=document.createElement('div');glow.className='lvglow';
+  const card=document.createElement('div');card.className='lvcard';
+  const tag=document.createElement('div');tag.className='lvtag';tag.textContent='LEVEL '+level;
+  if(icon){const ic=document.createElement('div');ic.className='lvicon';ic.innerHTML=icon;card.append(tag,ic)}
+  const t=document.createElement('div');t.className='lvtitle';t.textContent=title;
+  const sb=document.createElement('div');sb.className='lvsub';sb.textContent=sub;card.append(t,sb);
+  box.append(dim,glow,card);frame.appendChild(box);
+  const T=1700;
+  if(!box.animate){setTimeout(()=>box.remove(),T);return}
+  box.animate([{opacity:0},{opacity:1,offset:.1},{opacity:1,offset:.82},{opacity:0}],{duration:T,easing:'linear'});
+  card.animate([{transform:'scale(.3)'},{transform:'scale(1.12)',offset:.14},{transform:'scale(1)',offset:.22},{transform:'scale(1)',offset:.82},{transform:'scale(1.08) translateY(-8%)'}],{duration:T,easing:'ease-out'});
+  glow.animate([{transform:'translate(-50%,-50%) scale(.4)',opacity:0},{transform:'translate(-50%,-50%) scale(1.1)',opacity:1,offset:.18},{transform:'translate(-50%,-50%) scale(1)',opacity:.85,offset:.8},{transform:'translate(-50%,-50%) scale(1.2)',opacity:0}],{duration:T,easing:'ease-out'});
+  setTimeout(()=>box.remove(),T+30);
+}
 /* ---- 피버 ---- */
 function updateFever(){
   $('feverFill').style.width=(feverOn?feverLeft/FEVER_SEC*100:fever)+'%';$('fbar').classList.toggle('on',feverOn);
@@ -1985,7 +2026,10 @@ function endFever(){
 
 /* ---- 시간 ---- */
 var lastLowSec=null;
-function updateTime(){const t=Math.max(0,time),sec=Math.ceil(t);$('time').textContent=sec+'초';$('barFill').style.transform='scaleX('+Math.min(1,t/MAX_T).toFixed(4)+')';
+/* 배터리 절약: 글자는 숫자가 바뀔 때만, 막대는 눈에 보일 만큼 줄었을 때만 다시 그려요 (예전엔 0.1초마다 화면 전체를 다시 그렸어요) */
+var lastTimeTxt='',lastBarTx='';
+function updateTime(){const t=Math.max(0,time),sec=Math.ceil(t);const tx=sec+'초';if(tx!==lastTimeTxt){lastTimeTxt=tx;$('time').textContent=tx}
+  const bx='scaleX('+(Math.round(Math.min(1,t/MAX_T)*300)/300).toFixed(4)+')';if(bx!==lastBarTx){lastBarTx=bx;$('barFill').style.transform=bx}
   const low=t<=20&&t>0;$('bar').classList.toggle('low',low);$('timeBox').classList.toggle('low',low);
   // 20초부터: 1초 줄어들 때마다 숫자가 붉게 커지며 흔들리고 "띠~"
   if(low&&running&&!paused&&!feverOn&&lastLowSec!==null&&sec<lastLowSec){
@@ -2068,10 +2112,11 @@ function wake(t){
 async function clearSet(set,gain){
   const hits=new Set();
   set.forEach(k=>{const[r,c]=keyRC(k);[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>{const rr=r+dr,cc=c+dc;if(inB(rr,cc)&&!set.has(rr*N+cc)&&!colLocks[cc].length)hits.add(rr*N+cc)})});   // 다른 정리가 진행 중인 줄은 건드리지 않아요
-  let sandN=0;
+  let sandN=0,hitB=0;
   hits.forEach(k=>{const[r,c]=keyRC(k),t=board[r][c];if(!t)return;
-    if(t.type===SAND){set.add(k);sandN++;boneFly(k)}else if(t.shell)hitShell(t);else if(t.sleep)wake(t)});
-  if(sandN){score+=Math.round(sandN*30*mult());updateScore();SFX.dig();trackM('dirt',sandN)}
+    if(t.type===SAND){set.add(k);sandN++;boneFly(k)}else if(t.shell){hitShell(t);hitB+=SHELL_PTS/2}else if(t.sleep){wake(t);hitB+=SLEEP_PTS}});
+  if(hitB){score+=Math.round(hitB*mult());updateScore()}
+  if(sandN){score+=Math.round(sandN*SAND_PTS*mult());updateScore();SFX.dig();trackM('dirt',sandN)}
   const keys=[...set].filter(k=>{const[r,c]=keyRC(k);return board[r][c]});
   const cells=keys.map(k=>{const[r,c]=keyRC(k);return{r,c,type:board[r][c].type}});
   trackPops(cells);
@@ -2137,7 +2182,7 @@ async function resolve(){
     lastSwap=null;
     trackM('pop',total);trackM('combo',combo);
     const cs=Math.min(combo,10);   // 이어서 옮기면 콤보가 끝없이 커질 수 있어서 점수 배율은 10콤보까지
-    const gain=Math.round((total*10*cs+big*60)*mult());score+=gain;updateScore();
+    const gain=Math.round((total*10*cs+big*60+bonusPts(clear))*mult());score+=gain;updateScore();
     const maxG=Math.max(...groups.map(G=>G.cells.size));
     addTime((maxG>=5?3:maxG>=4?2:1)+(Math.min(combo,5)-1)*.5+(groups.length-1)*.5);
     addFever(3+Math.min(combo,6)*2+big*6);
@@ -2157,7 +2202,7 @@ async function liveClear(groups){
     const clear=new Set(),spawns=[];let total=0,big=0;
     groups.forEach(G=>{total+=G.cells.size;const f=friendKind(G);let sk=-1;if(f>=0){sk=spawnCell(G);spawns.push([sk,f]);big++}G.cells.forEach(k=>{if(k!==sk)clear.add(k)})});
     lastSwap=null;trackM('pop',total);trackM('combo',combo);
-    const cs=Math.min(combo,10),gain=Math.round((total*10*cs+big*60)*mult());score+=gain;updateScore();
+    const cs=Math.min(combo,10),gain=Math.round((total*10*cs+big*60+bonusPts(clear))*mult());score+=gain;updateScore();
     const maxG=Math.max(...groups.map(G=>G.cells.size));
     addTime((maxG>=5?3:maxG>=4?2:1)+(Math.min(combo,5)-1)*.5);addFever(3+Math.min(combo,6)*2+big*6);
     SFX.pop(combo,maxG);buzz(combo>=3?25:12);if(combo>1)showCombo(combo);
@@ -2657,7 +2702,7 @@ async function submitScore(){
 let rankTab='month';
 async function readTop(coll,n){
   if(db){try{const snap=await db.collection(coll).where('ver','==',2).orderBy('score','desc').limit(n).get();
-    return{shared:true,rows:snap.docs.map(d=>{const v=d.data()||{};return{id:d.id,nick:shownName(v),img:kkPhoto(v.kp),kk:!!v.kid,score:Math.max(0,Math.floor(Number(v.score)||0))}})}}catch(e){}}
+    return{shared:true,rows:snap.docs.map(d=>{const v=d.data()||{};return{id:d.id,nick:shownName(v),img:kkPhoto(v.kp),kk:!!v.kid,kid:v.kid?String(v.kid):'',score:Math.max(0,Math.floor(Number(v.score)||0))}})}}catch(e){}}
   return{shared:false,rows:ls.get('mung-local-'+coll,[]).filter(v=>v.ver===2).slice(0,n).map(v=>({id:v.id,nick:safeNick(cleanNick(v.nick)||'익명'),score:Number(v.score)||0}))};
 }
 async function readMine(coll,pid,shared){
@@ -2665,10 +2710,10 @@ async function readMine(coll,pid,shared){
       const sc=Math.floor(Number(v.score)||0);
       const hq=db.collection(coll).where('ver','==',2).where('score','>',sc),aq=db.collection(coll).where('ver','==',2);
       const rp=Number(v.reports)||0;
-      const nm=v.kn?shownName(v):cleanNick(v.nick),im=kkPhoto(v.kp),kk=!!v.kid;
-      if(typeof hq.count==='function'){const h=await hq.count(),t=await aq.count();return{score:sc,nick:nm,img:im,kk,rank:h+1,capped:false,total:t,reports:rp}}
+      const nm=v.kn?shownName(v):cleanNick(v.nick),im=kkPhoto(v.kp),kk=!!v.kid,kid=v.kid?String(v.kid):'';
+      if(typeof hq.count==='function'){const h=await hq.count(),t=await aq.count();return{score:sc,nick:nm,img:im,kk,kid,rank:h+1,capped:false,total:t,reports:rp}}
       const higher=await hq.limit(1000).get(),all=await aq.limit(1000).get();
-      return{score:sc,nick:nm,img:im,kk,rank:higher.docs.length+1,capped:higher.docs.length>=1000,total:all.docs.length,reports:rp}}catch(e){return null}}
+      return{score:sc,nick:nm,img:im,kk,kid,rank:higher.docs.length+1,capped:higher.docs.length>=1000,total:all.docs.length,reports:rp}}catch(e){return null}}
   const list=ls.get('mung-local-'+coll,[]).filter(v=>v.ver===2),me=list.find(v=>v.id===pid);if(!me)return null;
   return{score:me.score,nick:me.nick,rank:list.filter(v=>v.score>me.score).length+1,capped:false,total:list.length};
 }
@@ -2702,18 +2747,19 @@ async function openRank(tab){
     }
   }
   const me=pid?await readMine(coll,pid,shared):null;
+  const CW=shared?await champWins():null;
   const medals=['🥇','🥈','🥉'];
   let shown=false;
-  rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe)shown=true;const li=rankRow(medals[i]||String(i+1),r.nick,r.score,isMe,r.img,r.kk);
+  rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe)shown=true;const li=rankRow(medals[i]||String(i+1),r.nick,r.score,isMe,r.img,r.kk,starsOf(CW,r.id,r.kid));
     list.appendChild(li)});
-  if(me&&!shown){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);list.appendChild(rankRow(String(me.rank),safeNick(me.nick),me.score,true,me.img,me.kk))}
+  if(me&&!shown){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);list.appendChild(rankRow(String(me.rank),safeNick(me.nick),me.score,true,me.img,me.kk,starsOf(CW,pid,me.kid)))}
   box.hidden=false;box.className='myrank';box.textContent='';
   const nt=submitNote[rankTab];
   if(me){
     const a=document.createElement('div');a.className='big2';a.textContent=(me.capped?'1000+':me.rank)+'위';
     const b=document.createElement('div');b.className='lab';b.textContent=(rankTab==='month'?'이번 달 내 순위':'역대 내 순위')+(me.total?` · ${me.total>=1000?'1000명 이상':me.total+'명'} 중`:'')+(nt?' · '+nt:'');
     const c=document.createElement('div');c.className='pts';c.textContent=me.score.toLocaleString()+'점';
-    const d=document.createElement('div');d.className='who';if(me.img||me.kk)d.appendChild(avatarEl(me.img));d.append(safeNick(me.nick));
+    const d=document.createElement('div');d.className='who';{const st=starsOf(CW,pid,me.kid);if(me.img||me.kk||st)d.appendChild(avatarWithStars(me.img,st))}d.append(safeNick(me.nick));
     box.append(a,b,c,d);
     if((me.reports||0)>=REPORT_HIDE){const w=document.createElement('div');w.className='lab';w.style.gridColumn='1 / -1';w.textContent='⚠️ 신고가 많이 쌓여 다른 사람에게는 이름이 가려져 보여요. 닉네임을 바꿔 등록하면 다시 보여요.';box.appendChild(w)}
   }else{box.classList.add('none');box.textContent=rankTab==='month'?'이번 달 첫 기록을 남겨 보세요! 게임 후 점수를 등록하면 여기 나와요.':'게임이 끝나고 점수를 등록하면 내 순위가 여기 나와요!'}
@@ -2735,11 +2781,28 @@ function avatarEl(img){
     im.onerror=()=>{const f=avatarEl('');im.replaceWith(f)};return im}
   const sp=document.createElement('span');sp.className='av';sp.textContent='🐶';return sp;
 }
-function rankRow(rankText,nick,score,isMe,img,kk){const li=document.createElement('li');if(isMe)li.className='me';
+/* 사진(또는 강아지 얼굴) 밑에 월간 1위 횟수만큼 금색 별 */
+function avatarWithStars(img,stars){const av=avatarEl(img);if(!stars)return av;
+  const w=document.createElement('span');w.className='avw';const st=document.createElement('span');st.className='stars'+(stars>3?' many':'');
+  st.textContent=stars>3?'★×'+stars:'★'.repeat(stars);st.title=`월간 1위 ${stars}번`;w.append(av,st);return w}
+function rankRow(rankText,nick,score,isMe,img,kk,stars){const li=document.createElement('li');if(isMe)li.className='me';
   const no=document.createElement('span');no.className='no';no.textContent=rankText;
-  const nm=document.createElement('span');nm.className='nm';if(img||kk)nm.appendChild(avatarEl(img));nm.append(nick);
+  const nm=document.createElement('span');nm.className='nm';if(img||kk||stars)nm.appendChild(avatarWithStars(img,stars));nm.append(nick);
   const sc=document.createElement('span');sc.className='sc';sc.textContent=score.toLocaleString();
   li.append(no,nm,sc);return li}
+/* 지난 시즌 1위 기록 (끝난 달은 바뀌지 않으니 한 번 읽고 기기에 보관) */
+const CHAMP_FROM='m202610';
+async function champWins(){
+  const W={id:{},kid:{}},keys=[];
+  for(let o=-1;o>-60;o--){const k=seasonInfo(o).key;if(k<CHAMP_FROM)break;keys.push(k)}
+  await Promise.all(keys.map(async k=>{
+    let c=ls.get('mung-champ-'+k,null);
+    if(!c&&db){try{const r=await readTop(k,1);if(r.shared){const w=r.rows[0];c=w?{id:w.id,kid:w.kid||''}:{none:1};ls.set('mung-champ-'+k,c)}}catch(e){}}
+    if(c&&c.id){if(c.kid)W.kid[c.kid]=(W.kid[c.kid]||0)+1;else W.id[c.id]=(W.id[c.id]||0)+1}
+  }));
+  return W;
+}
+const starsOf=(W,id,kid)=>W?(kid?(W.kid[kid]||0)+(W.id[id]||0):(W.id[id]||0)):0;
 /* 카톡 친구 순위: 멍멍 톡톡을 하는 카톡 친구들의 역대 최고 기록 */
 async function openFriendRank(){
   const si=$('seasonInfo'),list=$('rankList'),box=$('myRank'),note=$('rankNote');
@@ -2763,20 +2826,21 @@ async function openFriendRank(){
     const chunks=[];for(let i=0;i<ids.length;i+=30)chunks.push(ids.slice(i,i+30));
     try{const res=await Promise.all(chunks.map(c=>db.collection('scores').where('kid','in',c).get()));
       res.forEach(sn=>sn.docs.forEach(d=>{const v=d.data()||{},k=String(v.kid||''),sc=Math.max(0,Math.floor(Number(v.score)||0));
-        if(!k)return;if(!best[k]||best[k].score<sc)best[k]={kid:k,score:sc,nick:shownName(v),img:kkPhoto(v.kp)}}))}
+        if(!k)return;if(!best[k]||best[k].score<sc)best[k]={kid:k,id:d.id,score:sc,nick:shownName(v),img:kkPhoto(v.kp)}}))}
     catch(e){if(rankTab!=='friend')return;note.textContent='';cta('순위를 불러오지 못했어요. 잠시 후 다시 해 주세요.','다시 불러오기',()=>openRank('friend'));return}
   }
   if(rankTab!=='friend')return;
   Object.values(best).forEach(b=>{const f=fmap[b.kid];if(f&&!b.img)b.img=kkPhoto(f.image)});
   const rows=Object.values(best).sort((a,b)=>b.score-a.score);
+  const CW=db?await champWins():null;if(rankTab!=='friend')return;
   const medals=['🥇','🥈','🥉'];let myRank=0;
-  rows.forEach((b,i)=>{const isMe=b.kid===KAKAO.me.id;if(isMe)myRank=i+1;list.appendChild(rankRow(medals[i]||String(i+1),b.nick,b.score,isMe,b.img,true))});
+  rows.forEach((b,i)=>{const isMe=b.kid===KAKAO.me.id;if(isMe)myRank=i+1;list.appendChild(rankRow(medals[i]||String(i+1),b.nick,b.score,isMe,b.img,true,starsOf(CW,b.id,b.kid)))});
   box.className='myrank';box.textContent='';box.hidden=false;
   if(myRank){const m=rows[myRank-1];
     const a=document.createElement('div');a.className='big2';a.textContent=myRank+'위';
     const b=document.createElement('div');b.className='lab';b.textContent=`카톡 친구 중 내 순위 · ${rows.length}명 중`;
     const c=document.createElement('div');c.className='pts';c.textContent=m.score.toLocaleString()+'점';
-    const d=document.createElement('div');d.className='who';d.appendChild(avatarEl(m.img||KAKAO.me.img));d.append(m.nick);
+    const d=document.createElement('div');d.className='who';d.appendChild(avatarWithStars(m.img||KAKAO.me.img,starsOf(CW,m.id,m.kid)));d.append(m.nick);
     box.append(a,b,c,d)}
   else{box.classList.add('none');box.textContent='게임이 끝나고 점수를 등록하면 친구 순위에 내가 나와요!'}
   note.textContent=rows.length>(myRank?1:0)?'멍멍 톡톡을 하는 카톡 친구들이에요.':'아직 멍멍 톡톡을 하는 카톡 친구가 없어요. 친구에게 게임을 알려 주세요!';
@@ -2984,7 +3048,9 @@ const DEX=[
 const DEX_REWARD=300,DEX_ALL=2000,DEX_STEP=1.5,DEX_UP=50;
 /* 카드를 얻은 뒤에도 계속: 단계마다 필요한 수가 약 1.5배, 보상은 50코인씩 올라가요 (k=0 카드 획득, 1부터 별 단계) */
 const dexTarget=(b,k)=>k===0?b.need:Math.round(b.need*Math.pow(DEX_STEP,k)/500)*500;
-const dexReward=k=>DEX_REWARD+DEX_UP*k;
+/* 늦게 나오는 강아지일수록 모으기 어려워서 보상도 더 커요: 닥스훈트 2배, 보더콜리 3배, 달마시안 5배 */
+const DEX_MUL=[1,1,1,1,1,2,3,5];
+const dexReward=(k,i=0)=>(DEX_REWARD+DEX_UP*k)*(DEX_MUL[i]||1);
 const dexTier=(d,i)=>(d.tier&&d.tier[i])|0;
 /* 저장은 모아서 가끔만 (게임 중 매번 저장하면 폰이 멈칫해요) */
 var POPS_MEM=null,MST_MEM=null,saveT=null;   // var: 위쪽 코드에서 먼저 써도 안전
@@ -2999,11 +3065,11 @@ function trackPops(cells){
   cells.forEach(c=>{if(c.type>=0&&c.type<DEX.length){v[c.type]++;any=true}});
   if(!any)return;queueSave();
   const d=getDex();
-  DEX.forEach((b,i)=>{if(!d.got.includes(i)&&v[i]>=b.need){d.got.push(i);ls.set('mung-dex',d);addCoin(DEX_REWARD);
-    setTimeout(()=>{iconToast(svgFor(i),`🎉 ${b.name} 카드 획득! ${COIN} ${DEX_REWARD}`);SFX.levelup();buzz([30,30,60])},600);
+  DEX.forEach((b,i)=>{if(!d.got.includes(i)&&v[i]>=b.need){d.got.push(i);ls.set('mung-dex',d);const rw=dexReward(0,i);addCoin(rw);
+    setTimeout(()=>{iconToast(svgFor(i),`🎉 ${b.name} 카드 획득! ${COIN} ${rw.toLocaleString()}`);SFX.levelup();buzz([30,30,60])},600);
     if(d.got.length===DEX.length){addCoin(DEX_ALL);setTimeout(()=>{toast(`📖 도감 완성! ${COIN} ${DEX_ALL} 보너스`);SFX.mega()},2600)}}});
   DEX.forEach((b,i)=>{if(!d.got.includes(i))return;let k=dexTier(d,i),c=0;
-    while(v[i]>=dexTarget(b,k+1)&&k<99){k++;c+=dexReward(k)}
+    while(v[i]>=dexTarget(b,k+1)&&k<99){k++;c+=dexReward(k,i)}
     if(c){d.tier=Object.assign({},d.tier,{[i]:k});ls.set('mung-dex',d);addCoin(c);
       setTimeout(()=>{iconToast(svgFor(i),`⭐ ${b.name} ${k+1}단계 달성! ${COIN} ${c}`);SFX.levelup();buzz([30,30,60])},700)}});
 }
@@ -3018,11 +3084,11 @@ function openDex(){
     const pr=c.querySelector('p');
     if(got){pr.textContent=b.txt;const k=dexTier(d,i),nx=dexTarget(b,k+1),pv=dexTarget(b,k);
       c.querySelector('.no').textContent='⭐'+(k+1)+'단계 · No.'+String(i+1).padStart(2,'0');
-      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`다음 단계 ${Math.min(v[i],nx).toLocaleString()} / ${nx.toLocaleString()}마리 맞춤<br><span class="rw">단계 보상 ${COIN} ${dexReward(k+1)}</span>`;
+      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`다음 단계 ${Math.min(v[i],nx).toLocaleString()} / ${nx.toLocaleString()}마리 맞춤<br><span class="rw">단계 보상 ${COIN} ${dexReward(k+1,i).toLocaleString()}</span>`;
       const bar=document.createElement('div');bar.className='pbar';const bi=document.createElement('i');bi.style.width=Math.max(0,Math.min(100,(v[i]-pv)/(nx-pv)*100))+'%';bar.appendChild(bi);
       pr.after(pg,bar)}
     else{pr.textContent=v[i]>0?'이 친구를 더 많이 맞추면 카드가 컬러로 바뀌고 이야기가 열려요!':'아직 만나지 못한 친구예요. 레벨을 올리면 만날 수 있어요.';
-      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`${Math.min(v[i],b.need).toLocaleString()} / ${b.need.toLocaleString()}마리 맞춤<br><span class="rw">획득 보상 ${COIN} ${DEX_REWARD}</span>`;
+      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`${Math.min(v[i],b.need).toLocaleString()} / ${b.need.toLocaleString()}마리 맞춤<br><span class="rw">획득 보상 ${COIN} ${dexReward(0,i).toLocaleString()}</span>`;
       const bar=document.createElement('div');bar.className='pbar';const bi=document.createElement('i');bi.style.width=Math.min(100,v[i]/b.need*100)+'%';bar.appendChild(bi);
       pr.after(pg,bar)}
     L.appendChild(c)});
@@ -3064,7 +3130,7 @@ function dropBackGuard(){try{if(history.state&&history.state.mung){BACK_IGNORE=t
 /* 뒤로가기 한 번에 할 일: 처리했으면 true, 메인 화면이라 처리할 게 없으면 false */
 function backAction(){
   const open=id=>{const m=$(id);return m&&!m.hidden};
-  if(previewing){endPreview();openThemes();return true}
+  if(previewing){endPreview();openThemes(true);return true}
   if(document.getElementById('opening')){const sk=$('skipBtn');sk&&sk.click();return true}
   if(open('setModal')){closeSettings();return true}
   if(open('bagModal')){closeBag();return true}
@@ -3406,6 +3472,18 @@ const FXS={
   leafG:SVGU('<path d="M20 3 C33 10 34 27 20 37 C6 27 7 10 20 3Z" fill="#8FD07A"/><path d="M20 6 V35" stroke="#5FA84B" stroke-width="2"/>'),
   flyB:SVGU('<ellipse cx="13" cy="15" rx="9" ry="10" fill="#9CC8FF"/><ellipse cx="27" cy="15" rx="9" ry="10" fill="#9CC8FF"/><ellipse cx="14" cy="27" rx="6" ry="6" fill="#D2B6FF"/><ellipse cx="26" cy="27" rx="6" ry="6" fill="#D2B6FF"/><rect x="18.5" y="9" width="3" height="24" rx="1.5" fill="#5A4A6E"/>'),
   heartB:SVGU('<path d="M20 34 C6 24 4 14 10 9 C14 6 18 8 20 12 C22 8 26 6 30 9 C36 14 34 24 20 34Z" fill="#A9C8FF"/>'),
+  boat:SVGU('<path d="M6 27 H34 L29 34 H11Z" fill="#E86A4A"/><path d="M20 4 V26" stroke="#7A5A3A" stroke-width="1.8"/><path d="M21 6 L33 24 H21Z" fill="#fff"/><path d="M19 9 L10 24 H19Z" fill="#FFE27A"/>'),
+  ball:SVGU('<circle cx="20" cy="20" r="16" fill="#fff"/><path d="M20 4 A16 16 0 0 1 36 20 L20 20Z" fill="#FF6B6B"/><path d="M20 36 A16 16 0 0 1 4 20 L20 20Z" fill="#4DA3FF"/><path d="M36 20 A16 16 0 0 1 20 36 L20 20Z" fill="#FFD84D"/><circle cx="20" cy="20" r="16" fill="none" stroke="#E5E5E5" stroke-width="1"/>'),
+  star5:SVGU('<path d="M20 3 L24.5 14.5 L37 15.5 L27.5 23.5 L30.5 36 L20 29.5 L9.5 36 L12.5 23.5 L3 15.5 L15.5 14.5Z" fill="#FF9A5A" stroke="#E5763A" stroke-width="1.5" stroke-linejoin="round"/><g fill="#FFD2A8"><circle cx="20" cy="12" r="1.4"/><circle cx="27" cy="19" r="1.4"/><circle cx="13" cy="19" r="1.4"/><circle cx="24" cy="27" r="1.4"/><circle cx="16" cy="27" r="1.4"/></g>'),
+  shell:SVGU('<path d="M20 34 C8 34 4 22 8 14 C12 6 28 6 32 14 C36 22 32 34 20 34Z" fill="#FFC2D4"/><g stroke="#F08CAD" stroke-width="1.6" fill="none"><path d="M20 33 V9 M20 33 L12 11 M20 33 L28 11 M20 33 L7 18 M20 33 L33 18"/></g>'),
+  crab:SVGU('<ellipse cx="20" cy="24" rx="12" ry="8" fill="#FF6B5A"/><circle cx="9" cy="13" r="4" fill="#FF6B5A"/><circle cx="31" cy="13" r="4" fill="#FF6B5A"/><g stroke="#FF6B5A" stroke-width="2.4" stroke-linecap="round"><path d="M10 17 L13 20 M30 17 L27 20 M9 27 L3 31 M31 27 L37 31 M11 30 L7 35 M29 30 L33 35"/></g><circle cx="16" cy="19" r="2" fill="#fff"/><circle cx="24" cy="19" r="2" fill="#fff"/><circle cx="16" cy="19" r="1" fill="#333"/><circle cx="24" cy="19" r="1" fill="#333"/>'),
+  flake:SVGU('<g stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M20 3 V37 M5 11.5 L35 28.5 M5 28.5 L35 11.5"/><path d="M15 6 L20 10 L25 6 M15 34 L20 30 L25 34 M6 17 L11 15 L9 9.5 M34 17 L29 15 L31 9.5 M6 23 L11 25 L9 30.5 M34 23 L29 25 L31 30.5"/></g>'),
+  snowman:SVGU('<circle cx="20" cy="28" r="10" fill="#fff"/><circle cx="20" cy="13" r="7" fill="#fff"/><path d="M14 8 H26 L24 2 H16Z" fill="#4A6FA5"/><circle cx="17.5" cy="12" r="1" fill="#333"/><circle cx="22.5" cy="12" r="1" fill="#333"/><path d="M20 14 L25 15 L20 16Z" fill="#FF8A3D"/><path d="M13 19 Q20 22 27 19" stroke="#E5534B" stroke-width="3" fill="none"/>'),
+  moon:SVGU('<path d="M26 4 A16 16 0 1 0 36 26 A13 13 0 1 1 26 4Z" fill="#FFE68A"/><circle cx="17" cy="22" r="1.4" fill="#E8C55A"/><path d="M14 27 Q17 29 20 27" stroke="#E8C55A" stroke-width="1.4" fill="none"/>'),
+  zzz:SVGU('<text x="6" y="34" font-family="Jua,sans-serif" font-size="22" fill="#9C8CF0">Z</text><text x="22" y="18" font-family="Jua,sans-serif" font-size="14" fill="#B8ACF7">z</text>'),
+  starY:SVGU('<path d="M20 3 L24.5 14.5 L37 15.5 L27.5 23.5 L30.5 36 L20 29.5 L9.5 36 L12.5 23.5 L3 15.5 L15.5 14.5Z" fill="#FFE27A"/>'),
+  starB:SVGU('<path d="M20 2 L22.5 17.5 L38 20 L22.5 22.5 L20 38 L17.5 22.5 L2 20 L17.5 17.5Z" fill="#C9F5FF"/><circle cx="20" cy="20" r="3" fill="#fff"/>'),
+  glowG:SVGU('<circle cx="20" cy="20" r="18" fill="#9BFFD6" opacity=".3"/><circle cx="20" cy="20" r="8" fill="#C8FFE8" opacity=".75"/><circle cx="20" cy="20" r="3.5" fill="#fff"/>'),
   firefly:SVGU('<circle cx="20" cy="20" r="18" fill="#FFF3A0" opacity=".35"/><circle cx="20" cy="20" r="9" fill="#FFF7C2" opacity=".7"/><circle cx="20" cy="20" r="4" fill="#fff"/>'),
   shoot:'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 12"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#FFF7C2"/></linearGradient></defs><rect x="0" y="4" width="112" height="4" rx="2" fill="url(#g)"/><circle cx="113" cy="6" r="5" fill="#fff"/></svg>')+'")',
   wave:'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 30 Q50 10 100 30 T200 30 T300 30 T400 30 V60 H0Z" fill="#ffffff" opacity=".55"/><path d="M0 40 Q50 22 100 40 T200 40 T300 40 T400 40 V60 H0Z" fill="#BFE6FF" opacity=".6"/></svg>')+'")',
@@ -3416,11 +3494,12 @@ const LITE={   // 비쌀수록 더 많이, 더 다양하게 (모두 transform/op
   sakura:[{c:'fall',n:14,img:['petal'],s:[16,26],d:[7,11],o:.92},{c:'fall',n:3,img:['petal'],s:[34,44],d:[9,13],o:.7}],
   park:[{c:'drift',an:'lflut',n:5,img:['fly','flyB'],s:[28,38],d:[11,16],o:.95},{c:'rise',n:8,img:['seed'],s:[20,30],d:[10,15],o:.9},{c:'fall',n:6,img:['leafG'],s:[18,26],d:[8,12],o:.85}],
   treat:[{c:'rise',n:12,img:['bone','cookie'],s:[24,36],d:[8,13],o:.85},{c:'tw',n:8,img:['spark'],s:[12,18],d:[2,3.5],o:1}],
-  beach:[{c:'wave',n:2,img:['wave'],s:[60,60],d:[9,13],o:.75},{c:'drift',n:4,img:['gull'],s:[32,44],d:[12,18],o:.85},{c:'tw',n:12,img:['sparkW'],s:[12,20],d:[1.8,3.2],o:1}],
+  beach:[{c:'wave',n:2,img:['wave'],s:[60,60],d:[9,13],o:.75},{c:'drift',an:'lflut',n:5,img:['gull'],s:[32,44],d:[12,18],o:.85},{c:'drift',n:2,img:['boat'],s:[46,60],d:[26,36],o:.95},{c:'tw',an:'lbob',n:6,img:['ball','star5','shell','crab'],s:[26,36],d:[2.6,4.2],o:.95},{c:'rise',n:6,img:['sparkW'],s:[10,16],d:[8,12],o:.8},{c:'tw',n:12,img:['sparkW'],s:[12,20],d:[1.8,3.2],o:1}],
   autumn:[{c:'fall',n:14,img:['leafR','leafY'],s:[22,32],d:[7,11],o:.92},{c:'fall',n:4,img:['leafR'],s:[38,48],d:[9,13],o:.75}],
-  snow:[{c:'fall',n:14,img:['snow'],s:[9,16],d:[6,10],o:.95},{c:'fall',n:16,img:['snow'],s:[4,8],d:[10,16],o:.7},{c:'tw',n:6,img:['sparkW'],s:[12,18],d:[2,3.5],o:1}],
-  cloud:[{c:'drift',n:6,img:['cloudB'],s:[100,170],d:[22,36],o:.85},{c:'tw',n:10,img:['sparkW','spark'],s:[12,20],d:[2,3.5],o:1},{c:'rise',n:6,img:['heart'],s:[16,22],d:[10,14],o:.75}],
+  snow:[{c:'fall',n:14,img:['snow'],s:[9,16],d:[6,10],o:.95},{c:'fall',n:12,img:['snow'],s:[4,8],d:[10,16],o:.7},{c:'fall',n:7,img:['flake'],s:[20,30],d:[8,13],o:.9},{c:'tw',an:'lbob',n:2,img:['snowman'],s:[44,54],d:[3.5,5],o:1},{c:'tw',n:10,img:['sparkW'],s:[12,18],d:[2,3.5],o:1}],
+  cloud:[{c:'drift',n:6,img:['cloudB'],s:[100,170],d:[22,36],o:.85},{c:'drift',n:4,img:['cloudB'],s:[56,84],d:[14,20],o:.7},{c:'tw',an:'lbob',n:2,img:['moon'],s:[40,52],d:[4,6],o:1},{c:'rise',n:7,img:['zzz','starY','heart'],s:[16,24],d:[9,13],o:.85},{c:'shoot',n:2,img:['shoot'],s:[100,130],d:[6,9],o:1},{c:'tw',n:12,img:['sparkW','spark'],s:[12,20],d:[2,3.5],o:1}],
   night:[{c:'tw',n:20,img:['spark','sparkW'],s:[10,20],d:[1.8,3.6],o:1},{c:'shoot',n:3,img:['shoot'],s:[110,150],d:[5,8],o:1},{c:'rise',n:8,img:['firefly'],s:[12,18],d:[9,14],o:.95}],
+  aurora:[{c:'tw',n:16,img:['sparkW','starB'],s:[8,16],d:[1.8,3.4],o:1},{c:'rise',n:8,img:['glowG'],s:[10,18],d:[10,15],o:.85},{c:'shoot',n:3,img:['shoot'],s:[110,150],d:[5,8],o:1}],
   rainbow:[{c:'rise',n:14,img:['heart','spark','heartB'],s:[16,26],d:[7,11],o:.9},{c:'sweep',n:1,img:['rbw'],s:[0,0],d:[5,5],o:.55},{c:'tw',n:10,img:['sparkW','spark'],s:[12,20],d:[1.8,3.2],o:1}]
 };
 function buildLiteFx(id){
@@ -3437,14 +3516,18 @@ function buildLiteFx(id){
 let BG_INGAME=false;
 function setBgRate(inGame){
   BG_INGAME=inGame;const box=document.getElementById('bgfx');if(!box||!box.getAnimations)return;
-  try{box.getAnimations({subtree:true}).forEach(a=>{const e=a.effect;if(!e||!e.getTiming)return;const t=e.getTiming();
+  /* 배경 소품: 게임 중 초당 20번, 메인에서는 초당 30번만 움직여요 (발열·배터리 절약). 메인 강아지 둥실·무지개 고리도 30번 */
+  const thr=(el,fps)=>{if(!el||!el.getAnimations)return;(el===document?document.getAnimations():el.getAnimations({subtree:true})).forEach(a=>{const e=a.effect;if(!e||!e.getTiming)return;const t=e.getTiming();
     if(a.__ease===undefined)a.__ease=t.easing;const d=+t.duration||0;
-    e.updateTiming({easing:inGame&&d>0?`steps(${Math.max(8,Math.round(d/1000*20))})`:a.__ease})})}catch(e){}
+    e.updateTiming({easing:d>0&&t.iterations===Infinity?`steps(${Math.max(8,Math.round(d/1000*fps))})`:a.__ease})})};
+  try{thr(box,inGame?20:30);if(!inGame)thr(document,30)}catch(e){}
 }
 function applyTheme(id){document.body.dataset.bg=id;try{buildLiteFx(id)}catch(e){}requestAnimationFrame(()=>{try{setBgRate(BG_INGAME)}catch(e){}})}
 const ownedThemes=()=>ls.get('mung-themes-owned',[]);
 const themeOpen=t=>THEME_TEST_UNLOCK||t.price===0||ownedThemes().includes(t.id);
-function openThemes(){
+let THEME_Y=0;
+function openThemes(keep){
+  const sc=$('themes').parentElement;if(keep!==true)THEME_Y=0;
   const cur=ls.get('mung-theme','paw'),g=$('themeGrid');g.innerHTML='';
   THEMES.forEach(t=>{
     const open=themeOpen(t);
@@ -3455,13 +3538,14 @@ function openThemes(){
     b.append(sw,nm,st);
     if(!open){const by=document.createElement('span');by.className='buy';by.innerHTML=`${COIN} ${t.price.toLocaleString()}<span class="pv">👀 눌러서 미리보기</span>`;b.appendChild(by)}
     b.onclick=()=>{
+      THEME_Y=sc.scrollTop;
       if(!themeOpen(t)){previewTheme(t);return}
-      ls.set('mung-theme',t.id);applyTheme(t.id);openThemes();
+      ls.set('mung-theme',t.id);applyTheme(t.id);openThemes(true);
     };
     g.appendChild(b);
   });
   $('themeNote').innerHTML=THEME_TEST_UNLOCK?'🧪 테스트 중이라 모든 배경이 열려 있어요.':`내 코인 ${COIN} ${getCoin().toLocaleString()} · 코인으로 새 배경을 열 수 있어요.`;
-  showScreen('themes');
+  showScreen('themes');if(keep===true)sc.scrollTop=THEME_Y;
 }
 (function(){let id=ls.get('mung-theme','paw');const t=THEMES.find(x=>x.id===id);if(!t||!themeOpen(t))id='paw';applyTheme(id)})();
 /* ---- 배경 미리보기: 사기 전에 화면 전체에 입혀 보고, 마음에 들면 바로 열 수 있어요 ---- */
@@ -3477,12 +3561,12 @@ function endPreview(){
   if(!previewing)return;previewing=null;document.body.classList.remove('thpreview');$('pvBar').hidden=true;
   let id=ls.get('mung-theme','paw');const t=THEMES.find(x=>x.id===id);if(!t||!themeOpen(t))id='paw';applyTheme(id);
 }
-$('pvBack').onclick=()=>{endPreview();openThemes()};
+$('pvBack').onclick=()=>{endPreview();openThemes(true)};
 $('pvBuy').onclick=()=>{const t=previewing;if(!t)return;
   if(getCoin()<t.price){$('pvNote').innerHTML=`코인이 ${(t.price-getCoin()).toLocaleString()}개 모자라요.<br>출석과 미션으로 모아 보세요!`;SFX.bad();return}
   if(!confirm(`'${t.name}' 배경을 ${t.price}코인으로 열까요?`))return;
   addCoin(-t.price);ls.set('mung-themes-owned',[...ownedThemes(),t.id]);ls.set('mung-theme',t.id);SFX.levelup();
-  previewing=null;document.body.classList.remove('thpreview');$('pvBar').hidden=true;applyTheme(t.id);openThemes();toast(`'${t.name}' 배경을 열었어요! 🎉`)};
+  previewing=null;document.body.classList.remove('thpreview');$('pvBar').hidden=true;applyTheme(t.id);openThemes(true);toast(`'${t.name}' 배경을 열었어요! 🎉`)};
 /* ---- 게임 방법 ---- */
 (function(){
   const rows=[
@@ -3495,11 +3579,11 @@ $('pvBuy').onclick=()=>{const t=previewing;if(!t)return;
     ['<svg viewBox="0 0 100 100"><defs><linearGradient id="hf" x1="0" x2="1"><stop offset="0" stop-color="#FF8A8A"/><stop offset=".5" stop-color="#FFE66B"/><stop offset="1" stop-color="#7DB8F0"/></linearGradient></defs><rect x="10" y="40" width="80" height="20" rx="10" fill="url(#hf)"/></svg>','<b>피버 게이지</b>가 가득 차면 10초 동안 점수 2배, 시간도 멈춰요.'],
     ['<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#FFE7A3"/><image href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23FFE88A%27/%3E%3Cstop%20offset%3D%27.55%27%20stop-color%3D%27%23FFC93C%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23E39B12%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2716%27%20r%3D%2715%27%20fill%3D%27%23D08A0E%27/%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2715%27%20r%3D%2714%27%20fill%3D%27url%28%23g%29%27/%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2715%27%20r%3D%2710%27%20fill%3D%27none%27%20stroke%3D%27%23E8A520%27%20stroke-width%3D%271.6%27/%3E%3Cg%20fill%3D%27%23C9820C%27%3E%3Cellipse%20cx%3D%2716%27%20cy%3D%2718%27%20rx%3D%273.6%27%20ry%3D%273%27/%3E%3Ccircle%20cx%3D%2712.2%27%20cy%3D%2714%27%20r%3D%271.6%27/%3E%3Ccircle%20cx%3D%2714.6%27%20cy%3D%2712.4%27%20r%3D%271.6%27/%3E%3Ccircle%20cx%3D%2717.4%27%20cy%3D%2712.4%27%20r%3D%271.6%27/%3E%3Ccircle%20cx%3D%2719.8%27%20cy%3D%2714%27%20r%3D%271.6%27/%3E%3C/g%3E%3Cpath%20d%3D%27M7%2010%20Q10%205%2016%204%27%20stroke%3D%27%23FFF6C8%27%20stroke-width%3D%271.8%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%20opacity%3D%27.9%27/%3E%3C/svg%3E" x="20" y="20" width="60" height="60"/></svg>','<b>출석 도장, 오늘의 미션, 게임 점수</b>로 코인을 모아요. 상점에서 개껌, 무지개 친구, 간식 시계, 피버 간식 같은 아이템을 사서 게임 중 🎒 가방에서 꺼내 써요.'],
     [document.querySelector('#boneBtn svg').outerHTML,'<b>개껌 힌트</b>를 누르면 가장 좋은 자리가 반짝여요. 10만 점마다 1개씩 생겨요.'],
-    ['<svg viewBox="0 0 100 100"><rect x="18" y="12" width="64" height="76" rx="10" fill="#FFF4D6" stroke="#F2C14E" stroke-width="4"/><text x="50" y="62" text-anchor="middle" font-size="36">📖</text></svg>','<b>강아지 도감</b>: 같은 강아지를 많이 맞추면 흑백 카드가 컬러로 바뀌며 견종 이야기가 열려요. 카드마다 '+COIN+' 300, 모두 모으면 '+COIN+' 2,000 보너스! 카드를 얻은 뒤에도 계속 맞추면 ⭐단계가 올라가며 코인을 더 받아요.'],
-    [SAND_ART,'<b>레벨 5</b>부터 강아지가 파헤친 흙더미가 나와요. 움직일 수 없고, 옆에서 맞추면 부서지며 숨겨둔 뼈다귀가 튀어나와요.'],
-    [SHELL_ICON,'<b>레벨 6</b>부터 목욕 거품을 뒤집어쓴 친구가 나와요. 움직일 순 없지만 같은 강아지를 옆으로 끌어와 맞추면 거품째 함께 정리돼요. 옆에서 두 번 맞춰 거품을 벗겨 줄 수도 있어요.'],
-    [ZZ_ICON,'<b>레벨 7</b>부터 낮잠 자는 친구가 나와요. 옆에서 맞춰서 깨워야 움직일 수 있어요.'],
-    [svgFor(5),'새 강아지는 <b>레벨 4, 9, 12</b>에 한 마리씩 합류해서 점점 어려워져요. 움직일 곳이 없거나 시간이 끝나면 게임 오버! 상점의 황금 뼈다귀가 있으면 이어서 할 수 있어요. 레벨 5부터는 시간이 조금씩 빨리 흘러요.']
+    ['<svg viewBox="0 0 100 100"><rect x="18" y="12" width="64" height="76" rx="10" fill="#FFF4D6" stroke="#F2C14E" stroke-width="4"/><text x="50" y="62" text-anchor="middle" font-size="36">📖</text></svg>','<b>강아지 도감</b>: 같은 강아지를 많이 맞추면 흑백 카드가 컬러로 바뀌며 견종 이야기가 열려요. 카드마다 '+COIN+' 300 (닥스훈트 600, 보더콜리 900, 달마시안 1,500), 모두 모으면 '+COIN+' 2,000 보너스! 카드를 얻은 뒤에도 계속 맞추면 ⭐단계가 올라가며 코인을 더 받아요.'],
+    [SAND_ART,'<b>레벨 5</b>부터 강아지가 파헤친 흙더미가 나와요. 움직일 수 없고, 옆에서 맞추면 부서지며 숨겨둔 뼈다귀가 튀어나와요. 부술 때마다 보너스 점수!'],
+    [SHELL_ICON,'<b>레벨 6</b>부터 목욕 거품을 뒤집어쓴 친구가 나와요. 움직일 순 없지만 같은 강아지를 옆으로 끌어와 맞추면 거품째 함께 정리돼요. 옆에서 두 번 맞춰 거품을 벗겨 줄 수도 있어요. 흙더미보다 보너스 점수가 커요.'],
+    [ZZ_ICON,'<b>레벨 7</b>부터 낮잠 자는 친구가 나와요. 옆에서 맞춰서 깨워야 움직일 수 있어요. 깨우면 가장 큰 보너스 점수!'],
+    [svgFor(5),'새 강아지는 <b>레벨 4, 9, 12</b>에 한 마리씩 합류해서 점점 어려워져요. 대신 닥스훈트·보더콜리·달마시안을 맞추면 순서대로 더 많은 점수를 받아요. 움직일 곳이 없거나 시간이 끝나면 게임 오버! 상점의 황금 뼈다귀가 있으면 이어서 할 수 있어요. 레벨 5부터는 시간이 조금씩 빨리 흘러요.']
   ];
   $('helpList').innerHTML=rows.map(([i,t])=>`<div class="hrow">${i}<p>${t}</p></div>`).join('');
 })();
