@@ -504,6 +504,23 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .setrow .st{min-width:0;white-space:normal;word-break:keep-all;line-height:1.2}
 @media (max-width:340px){.setrow{gap:8px;padding:12px 10px}.setrow .cl{padding:6px 9px}}
 .setrow .st small{display:block;font-size:.72em;color:#7A8A9A;margin-top:2px}
+/* 카카오 로그인 */
+.kkbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#FEE500;color:rgba(0,0,0,.85);box-shadow:0 4px 0 #D9C300;font-family:"Jua",sans-serif}
+.kkbtn svg{width:20px;height:20px;flex:none}
+.kkbtn.small{font-size:.95rem;padding:9px 12px;box-shadow:0 3px 0 #D9C300}
+.kkfine{font-size:.78rem;color:#7A8A9A;line-height:1.45;margin:0}
+.kkme{display:flex;align-items:center;justify-content:center;gap:10px;background:#FFF8F2;border-radius:14px;padding:10px 12px;font-family:"Jua",sans-serif;color:#E0703A;font-size:1.15rem}
+.kkme[hidden],.kkbtn[hidden],.setrow[hidden],.nickrow[hidden],.tab[hidden]{display:none!important}
+.kkme small{display:block;font-family:"Gowun Dodum",sans-serif;font-size:.72rem;color:#7A8A9A}
+.av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;background:#FFE9D6;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;vertical-align:middle}
+.kkme .av{width:36px;height:36px}
+.rank .nm{display:flex;align-items:center;gap:8px}
+.myrank .who{display:flex;align-items:center;gap:8px}
+.tabs.three{grid-template-columns:1fr 1fr 1fr}
+.tabs.three .tab{font-size:.98rem}
+.rankcta{display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center;background:var(--card);border-radius:18px;padding:16px}
+.rankcta[hidden]{display:none}
+.rankcta p{margin:0}
 
 /* ---- 오늘의 미션 · 출석 ---- */
 .mission-btn{position:relative;width:100%}
@@ -1070,10 +1087,11 @@ body.native-ads .ad #adSlot{display:none}
   <!-- 순위표 -->
   <section class="screen" id="rank" hidden>
     <div class="shead"><h2>순위표</h2><button class="sub small" id="rankBack">돌아가기</button></div>
-    <div class="tabs"><button class="tab on" id="tabMonth">이번 달</button><button class="tab" id="tabAll">명예의 전당</button></div>
+    <div class="tabs" id="rankTabs"><button class="tab on" id="tabMonth">이번 달</button><button class="tab" id="tabAll">명예의 전당</button><button class="tab" id="tabFriend" hidden>카톡 친구</button></div>
     <p class="season" id="seasonInfo"></p>
     <div class="champs" id="champs" hidden></div>
     <div class="myrank" id="myRank" hidden></div>
+    <div class="rankcta" id="rankCta" hidden><p id="rankCtaTxt"></p><button class="kkbtn" id="rankCtaBtn"></button></div>
     <ol class="rank" id="rankList"></ol>
     <p class="note" id="rankNote"></p>
   </section>
@@ -1154,6 +1172,7 @@ body.native-ads .ad #adSlot{display:none}
       <button class="setrow" id="optSfx" role="switch"><span class="si">🔔</span><span class="st">효과음</span><span class="sw"><i></i></span></button>
       <button class="setrow" id="optVib" role="switch"><span class="si">📳</span><span class="st">진동</span><span class="sw"><i></i></span></button>
       <button class="setrow" id="optEco" role="switch"><span class="si">🔋</span><span class="st">절전 모드<small>발열·배터리 줄이기</small></span><span class="sw"><i></i></span></button>
+      <button class="setrow" id="optKakao" hidden><span class="si">💬</span><span class="st" id="kkTxt">카카오 로그인<small>순위표에 내 이름 표시</small></span><span class="cl" id="kkSt">로그인</span></button>
       <button class="setrow" id="optCloud" hidden><span class="si">☁️</span><span class="st" id="cloudTxt">Play&nbsp;게임즈<small>기록 안전 보관</small></span><span class="cl" id="cloudSt">연결하기</span></button>
     </div>
     <p class="msg" id="vibNote"></p>
@@ -1217,6 +1236,18 @@ body.native-ads .ad #adSlot{display:none}
   </div>
 </div>
 
+<!-- 카카오로 시작하기 -->
+<div class="modal" id="kkModal" hidden>
+  <div class="card">
+    <h2>카카오로 시작하기</h2>
+    <p>카카오로 로그인하면 순위표에 <b>내 카톡 이름과 프로필 사진</b>이 나와요.<br>카톡 친구들과 순위도 겨룰 수 있어요!</p>
+    <p class="msg">한 번만 로그인하면 다음부터는 자동으로 로그인돼요.</p>
+    <button class="kkbtn" id="kkStart"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"/></svg>카카오로 시작하기</button>
+    <button class="sub" id="kkLater">나중에 할게요</button>
+    <p class="kkfine">만 14세 미만은 로그인 없이 이용해 주세요. 설정에서 언제든 연결을 끊을 수 있어요.</p>
+  </div>
+</div>
+
 <!-- 게임 끝 -->
 <div class="modal" id="endModal" hidden>
   <div class="card">
@@ -1233,7 +1264,9 @@ body.native-ads .ad #adSlot{display:none}
         <input id="nick" maxlength="10" readonly aria-label="내 닉네임 (주사위로 바꾸기)" title="주사위를 눌러 바꿀 수 있어요">
         <button class="sub dice" id="diceBtn" aria-label="랜덤 닉네임">🎲</button>
       </div>
+      <div class="kkme" id="kkMe" hidden></div>
       <button id="submitBtn">점수 등록</button>
+      <button class="kkbtn small" id="kkEndBtn" hidden></button>
     </div>
     <p class="msg" id="submitMsg"></p>
     <div class="row"><button id="againBtn">다시 하기</button><button class="sub" id="homeBtn">메인으로</button></div>
@@ -2525,6 +2558,7 @@ function endGame(reason){
   requestAnimationFrame(fitNick);
   $('submitBtn').disabled=score<=0;$('nick').disabled=false;
   $('submitMsg').textContent=score>0?'🎲를 눌러 마음에 드는 닉네임을 고르고 등록해요!':'';
+  kakaoEndUI();
   $('endModal').hidden=false;
 }
 
@@ -2591,8 +2625,9 @@ async function upsertShared(coll,pid,nick){
   const ref=db.collection(coll).doc(pid),snap=await ref.get();
   const old=snap.exists?snap.data():null,oldScore=old?Math.floor(Number(old.score)||0):-1;
   const reset=old&&old.nick!==nick&&(Number(old.reports)||0)>0?{reports:0}:{};   // 닉네임을 바꾸면 신고 수 초기화
-  if(old&&oldScore>=lastScore){if(old.nick!==nick)await ref.update({nick,...reset});return{newBest:false,best:oldScore}}
-  const rec={nick,score:Math.floor(lastScore),level:Math.floor(level),at:Date.now(),ver:2,...(old?reset:{})};
+  const K=kakaoRec(old);
+  if(old&&oldScore>=lastScore){const up={...K};if(old.nick!==nick)Object.assign(up,{nick},reset);if(Object.keys(up).length)await ref.update(up);return{newBest:false,best:oldScore}}
+  const rec={nick,score:Math.floor(lastScore),level:Math.floor(level),at:Date.now(),ver:2,...(old?reset:{}),...K};
   if(old)await ref.update(rec);else await ref.set(rec);
   return{newBest:true,best:lastScore};
 }
@@ -2622,7 +2657,7 @@ async function submitScore(){
 let rankTab='month';
 async function readTop(coll,n){
   if(db){try{const snap=await db.collection(coll).where('ver','==',2).orderBy('score','desc').limit(n).get();
-    return{shared:true,rows:snap.docs.map(d=>{const v=d.data()||{};return{id:d.id,nick:(Number(v.reports)||0)>=REPORT_HIDE?'익명의 강아지':safeNick(cleanNick(v.nick)||'익명'),score:Math.max(0,Math.floor(Number(v.score)||0))}})}}catch(e){}}
+    return{shared:true,rows:snap.docs.map(d=>{const v=d.data()||{};return{id:d.id,nick:shownName(v),img:kkPhoto(v.kp),kk:!!v.kid,score:Math.max(0,Math.floor(Number(v.score)||0))}})}}catch(e){}}
   return{shared:false,rows:ls.get('mung-local-'+coll,[]).filter(v=>v.ver===2).slice(0,n).map(v=>({id:v.id,nick:safeNick(cleanNick(v.nick)||'익명'),score:Number(v.score)||0}))};
 }
 async function readMine(coll,pid,shared){
@@ -2630,9 +2665,10 @@ async function readMine(coll,pid,shared){
       const sc=Math.floor(Number(v.score)||0);
       const hq=db.collection(coll).where('ver','==',2).where('score','>',sc),aq=db.collection(coll).where('ver','==',2);
       const rp=Number(v.reports)||0;
-      if(typeof hq.count==='function'){const h=await hq.count(),t=await aq.count();return{score:sc,nick:cleanNick(v.nick),rank:h+1,capped:false,total:t,reports:rp}}
+      const nm=v.kn?shownName(v):cleanNick(v.nick),im=kkPhoto(v.kp),kk=!!v.kid;
+      if(typeof hq.count==='function'){const h=await hq.count(),t=await aq.count();return{score:sc,nick:nm,img:im,kk,rank:h+1,capped:false,total:t,reports:rp}}
       const higher=await hq.limit(1000).get(),all=await aq.limit(1000).get();
-      return{score:sc,nick:cleanNick(v.nick),rank:higher.docs.length+1,capped:higher.docs.length>=1000,total:all.docs.length,reports:rp}}catch(e){return null}}
+      return{score:sc,nick:nm,img:im,kk,rank:higher.docs.length+1,capped:higher.docs.length>=1000,total:all.docs.length,reports:rp}}catch(e){return null}}
   const list=ls.get('mung-local-'+coll,[]).filter(v=>v.ver===2),me=list.find(v=>v.id===pid);if(!me)return null;
   return{score:me.score,nick:me.nick,rank:list.filter(v=>v.score>me.score).length+1,capped:false,total:list.length};
 }
@@ -2640,7 +2676,9 @@ async function openRank(tab){
   if(tab)rankTab=tab;
   showScreen('rank');
   await waitFB();
-  $('tabMonth').classList.toggle('on',rankTab==='month');$('tabAll').classList.toggle('on',rankTab==='all');
+  $('tabMonth').classList.toggle('on',rankTab==='month');$('tabAll').classList.toggle('on',rankTab==='all');$('tabFriend').classList.toggle('on',rankTab==='friend');
+  $('rankCta').hidden=true;
+  if(rankTab==='friend'){openFriendRank();return}
   const S=seasonInfo(),coll=rankTab==='month'?S.key:'scores',pid=FBUID||ls.get('mung-pid','');
   const si=$('seasonInfo');si.textContent='';
   if(rankTab==='month'){si.append(S.label+' 시즌 · 종료까지 ');const bb=document.createElement('b');bb.textContent='D-'+S.daysLeft;si.append(bb)}
@@ -2665,22 +2703,17 @@ async function openRank(tab){
   }
   const me=pid?await readMine(coll,pid,shared):null;
   const medals=['🥇','🥈','🥉'];
-  const rowEl=(rankText,nick,score,isMe)=>{const li=document.createElement('li');if(isMe)li.className='me';
-    const no=document.createElement('span');no.className='no';no.textContent=rankText;
-    const nm=document.createElement('span');nm.className='nm';nm.textContent=nick;
-    const sc=document.createElement('span');sc.className='sc';sc.textContent=score.toLocaleString();
-    li.append(no,nm,sc);return li};
   let shown=false;
-  rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe)shown=true;const li=rowEl(medals[i]||String(i+1),r.nick,r.score,isMe);
+  rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe)shown=true;const li=rankRow(medals[i]||String(i+1),r.nick,r.score,isMe,r.img,r.kk);
     list.appendChild(li)});
-  if(me&&!shown){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);list.appendChild(rowEl(String(me.rank),safeNick(me.nick),me.score,true))}
+  if(me&&!shown){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);list.appendChild(rankRow(String(me.rank),safeNick(me.nick),me.score,true,me.img,me.kk))}
   box.hidden=false;box.className='myrank';box.textContent='';
   const nt=submitNote[rankTab];
   if(me){
     const a=document.createElement('div');a.className='big2';a.textContent=(me.capped?'1000+':me.rank)+'위';
     const b=document.createElement('div');b.className='lab';b.textContent=(rankTab==='month'?'이번 달 내 순위':'역대 내 순위')+(me.total?` · ${me.total>=1000?'1000명 이상':me.total+'명'} 중`:'')+(nt?' · '+nt:'');
     const c=document.createElement('div');c.className='pts';c.textContent=me.score.toLocaleString()+'점';
-    const d=document.createElement('div');d.className='who';d.textContent=safeNick(me.nick);
+    const d=document.createElement('div');d.className='who';if(me.img||me.kk)d.appendChild(avatarEl(me.img));d.append(safeNick(me.nick));
     box.append(a,b,c,d);
     if((me.reports||0)>=REPORT_HIDE){const w=document.createElement('div');w.className='lab';w.style.gridColumn='1 / -1';w.textContent='⚠️ 신고가 많이 쌓여 다른 사람에게는 이름이 가려져 보여요. 닉네임을 바꿔 등록하면 다시 보여요.';box.appendChild(w)}
   }else{box.classList.add('none');box.textContent=rankTab==='month'?'이번 달 첫 기록을 남겨 보세요! 게임 후 점수를 등록하면 여기 나와요.':'게임이 끝나고 점수를 등록하면 내 순위가 여기 나와요!'}
@@ -2695,6 +2728,60 @@ async function reportName(coll,r){
 }
 $('tabMonth').onclick=()=>openRank('month');
 $('tabAll').onclick=()=>openRank('all');
+$('tabFriend').onclick=()=>openRank('friend');
+/* 순위 한 줄: 카카오 사용자는 프로필 사진(없으면 강아지 얼굴) */
+function avatarEl(img){
+  if(img){const im=document.createElement('img');im.className='av';im.alt='';im.loading='lazy';im.decoding='async';im.referrerPolicy='no-referrer';im.src=img;
+    im.onerror=()=>{const f=avatarEl('');im.replaceWith(f)};return im}
+  const sp=document.createElement('span');sp.className='av';sp.textContent='🐶';return sp;
+}
+function rankRow(rankText,nick,score,isMe,img,kk){const li=document.createElement('li');if(isMe)li.className='me';
+  const no=document.createElement('span');no.className='no';no.textContent=rankText;
+  const nm=document.createElement('span');nm.className='nm';if(img||kk)nm.appendChild(avatarEl(img));nm.append(nick);
+  const sc=document.createElement('span');sc.className='sc';sc.textContent=score.toLocaleString();
+  li.append(no,nm,sc);return li}
+/* 카톡 친구 순위: 멍멍 톡톡을 하는 카톡 친구들의 역대 최고 기록 */
+async function openFriendRank(){
+  const si=$('seasonInfo'),list=$('rankList'),box=$('myRank'),note=$('rankNote');
+  si.textContent='카톡 친구들의 역대 최고 기록이에요.';list.innerHTML='';box.hidden=true;$('champs').hidden=true;note.textContent='';
+  const cta=(txt,btn,fn)=>{$('rankCtaTxt').textContent=txt;const b=$('rankCtaBtn');b.innerHTML=KK_SVG+btn;b.onclick=fn;$('rankCta').hidden=false};
+  if(!KAKAO.me){cta('카카오로 로그인하면 카톡 친구들과 순위를 겨룰 수 있어요!','카카오로 시작하기',async()=>{if(await kakaoLogin())openRank('friend')});return}
+  note.textContent='친구 목록을 불러오는 중...';
+  let r=null;try{r=await KAKAO.plugin.friends({ask:true})}catch(e){}
+  if(rankTab!=='friend')return;
+  if(!r||!r.ok){note.textContent='';
+    if(r&&r.loggedOut){kakaoClear(true);openFriendRank();return}
+    if(r&&r.denied)cta('카톡 친구 목록 제공에 동의하면 친구들의 순위를 볼 수 있어요.','친구 목록 동의하기',()=>openRank('friend'));
+    else cta('친구 목록을 불러오지 못했어요. 잠시 후 다시 해 주세요.','다시 불러오기',()=>openRank('friend'));
+    return}
+  const fr=(r.friends||[]).filter(f=>/^[0-9]{1,20}$/.test(String(f.id)));
+  const fmap={};fr.forEach(f=>{fmap[String(f.id)]=f});
+  const ids=[KAKAO.me.id,...Object.keys(fmap).filter(id=>id!==KAKAO.me.id)].slice(0,300);
+  await waitFB();
+  const best={};
+  if(db){
+    const chunks=[];for(let i=0;i<ids.length;i+=30)chunks.push(ids.slice(i,i+30));
+    try{const res=await Promise.all(chunks.map(c=>db.collection('scores').where('kid','in',c).get()));
+      res.forEach(sn=>sn.docs.forEach(d=>{const v=d.data()||{},k=String(v.kid||''),sc=Math.max(0,Math.floor(Number(v.score)||0));
+        if(!k)return;if(!best[k]||best[k].score<sc)best[k]={kid:k,score:sc,nick:shownName(v),img:kkPhoto(v.kp)}}))}
+    catch(e){if(rankTab!=='friend')return;note.textContent='';cta('순위를 불러오지 못했어요. 잠시 후 다시 해 주세요.','다시 불러오기',()=>openRank('friend'));return}
+  }
+  if(rankTab!=='friend')return;
+  Object.values(best).forEach(b=>{const f=fmap[b.kid];if(f&&!b.img)b.img=kkPhoto(f.image)});
+  const rows=Object.values(best).sort((a,b)=>b.score-a.score);
+  const medals=['🥇','🥈','🥉'];let myRank=0;
+  rows.forEach((b,i)=>{const isMe=b.kid===KAKAO.me.id;if(isMe)myRank=i+1;list.appendChild(rankRow(medals[i]||String(i+1),b.nick,b.score,isMe,b.img,true))});
+  box.className='myrank';box.textContent='';box.hidden=false;
+  if(myRank){const m=rows[myRank-1];
+    const a=document.createElement('div');a.className='big2';a.textContent=myRank+'위';
+    const b=document.createElement('div');b.className='lab';b.textContent=`카톡 친구 중 내 순위 · ${rows.length}명 중`;
+    const c=document.createElement('div');c.className='pts';c.textContent=m.score.toLocaleString()+'점';
+    const d=document.createElement('div');d.className='who';d.appendChild(avatarEl(m.img||KAKAO.me.img));d.append(m.nick);
+    box.append(a,b,c,d)}
+  else{box.classList.add('none');box.textContent='게임이 끝나고 점수를 등록하면 친구 순위에 내가 나와요!'}
+  note.textContent=rows.length>(myRank?1:0)?'멍멍 톡톡을 하는 카톡 친구들이에요.':'아직 멍멍 톡톡을 하는 카톡 친구가 없어요. 친구에게 게임을 알려 주세요!';
+  const meEl=list.querySelector('.me');if(meEl)meEl.scrollIntoView({block:'center'});
+}
 
 /* ================= 입력 ================= */
 function cellAt(e){const rc=boardEl.getBoundingClientRect();const c=Math.floor((e.clientX-rc.left)/rc.width*N),r=Math.floor((e.clientY-rc.top)/rc.height*N);return inB(r,c)?{r,c}:null}
@@ -3186,6 +3273,109 @@ async function cloudSaveNow(){
   catch(e){CLOUD.dirty=true}
   finally{CLOUD.saving=false;if(CLOUD.dirty){clearTimeout(CLOUD.t);CLOUD.t=setTimeout(cloudSaveNow,15000)}}
 }
+/* ===== 카카오 로그인: 순위표에 카톡 이름·사진, 카톡 친구 순위 (앱 1.5.0 이상에서만) ===== */
+const KAKAO={plugin:null,me:null,busy:false};
+const KK_SVG=`<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"/></svg>`;
+const kkPhoto=u=>{u=String(u||'');if(u.startsWith('http://'))u='https://'+u.slice(7);return /^https:\/\/[a-z0-9.-]*kakaocdn\.net\/[^\s"'<>]{1,380}$/i.test(u)?u:''};
+const kkName=n=>String(n||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,20);
+/* 순위표에 보일 이름: 카카오 이름이 있으면 카카오 이름, 아니면 자동 닉네임 (나쁜 말은 가려요) */
+function shownName(v){
+  if((Number(v.reports)||0)>=REPORT_HIDE)return '익명의 강아지';
+  const k=kkName(v.kn);if(k)return safeNick(k);
+  return safeNick(cleanNick(v.nick)||'익명');
+}
+/* 순위 기록에 함께 저장할 카카오 정보 */
+function kakaoRec(old){
+  if(!KAKAO.me)return{};
+  const o={kid:KAKAO.me.id,kn:KAKAO.me.nick};
+  if(KAKAO.me.img)o.kp=KAKAO.me.img;else if(old&&old.kp&&window.__FB&&window.__FB.del)o.kp=window.__FB.del();
+  return o;
+}
+(function(){
+  try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Kakao)KAKAO.plugin=C.Plugins.Kakao}catch(e){}
+  if(!KAKAO.plugin)return;
+  const c=ls.get('mung-kakao',null);if(c&&c.id)KAKAO.me=c;
+  $('optKakao').hidden=false;$('tabFriend').hidden=false;$('rankTabs').classList.add('three');
+  $('optKakao').onclick=()=>{if(KAKAO.me)kakaoUnlink();else kakaoLogin()};
+  $('kkStart').onclick=async()=>{$('kkStart').disabled=true;const ok=await kakaoLogin();$('kkStart').disabled=false;if(ok)$('kkModal').hidden=true};
+  $('kkLater').onclick=()=>{$('kkModal').hidden=true;toast('설정에서 언제든 카카오로 로그인할 수 있어요')};
+  $('kkEndBtn').onclick=async()=>{if(await kakaoLogin())kakaoEndUI()};
+  kakaoUI();
+  setTimeout(kakaoSilent,1200);
+})();
+function kakaoUI(){
+  const t=$('kkTxt'),s=$('kkSt');if(!t)return;t.textContent='';
+  if(KAKAO.me){t.append(KAKAO.me.nick);const sm=document.createElement('small');sm.textContent='카카오 연결됨 · 자동 로그인';t.appendChild(sm);s.textContent='연결 끊기';s.className='cl ok'}
+  else{t.append('카카오 로그인');const sm=document.createElement('small');sm.textContent='순위표에 내 이름 표시';t.appendChild(sm);s.textContent='로그인';s.className='cl'}
+}
+function kakaoEndUI(){
+  const me=$('kkMe'),btn=$('kkEndBtn'),row=document.querySelector('#endModal .nickrow');
+  if(!KAKAO.plugin){me.hidden=true;btn.hidden=true;return}
+  if(KAKAO.me){
+    me.textContent='';me.appendChild(avatarEl(KAKAO.me.img));const w=document.createElement('div');w.append(KAKAO.me.nick);
+    const sm=document.createElement('small');sm.textContent='카카오 이름으로 순위표에 올라가요';w.appendChild(sm);me.appendChild(w);
+    me.hidden=false;btn.hidden=true;if(row)row.hidden=true;
+    if(!$('submitBtn').disabled)$('submitMsg').textContent='';
+  }else{
+    me.hidden=true;if(row)row.hidden=false;btn.innerHTML=KK_SVG+'카카오 이름으로 등록하기';btn.hidden=$('submitBtn').disabled;
+  }
+}
+function kakaoSet(r){
+  const me={id:String(r.id),nick:kkName(r.nickname)||'카카오 친구',img:kkPhoto(r.image)};
+  const prev=KAKAO.me;KAKAO.me=me;ls.set('mung-kakao',me);kakaoUI();
+  if(!prev||prev.id!==me.id||prev.nick!==me.nick||prev.img!==me.img)kakaoStamp();
+}
+/* 카카오 정보 지우기 (stripDocs: 순위표에 올린 카카오 이름·사진도 지워요) */
+function kakaoClear(stripDocs){
+  const had=KAKAO.me;KAKAO.me=null;try{localStorage.removeItem('mung-kakao')}catch(e){}kakaoUI();
+  if(stripDocs&&had)kakaoStrip();
+}
+async function kakaoSilent(){
+  try{const r=await KAKAO.plugin.silent();
+    if(r&&r.signedIn&&r.id)kakaoSet(r);
+    else if(r&&r.loggedOut)kakaoClear(true);
+  }catch(e){}
+  if(!KAKAO.me&&!ls.get('mung-kk-ask',0))kakaoAskLater();
+}
+/* 처음 한 번: 오프닝·출석 창이 끝나고 메인 화면일 때 "카카오로 시작하기" */
+function kakaoAskLater(tries=0){
+  if(KAKAO.me||tries>90)return;
+  const busy=document.getElementById('opening')||$('menu').hidden||document.querySelector('.modal:not([hidden])');
+  if(busy){setTimeout(()=>kakaoAskLater(tries+1),1000);return}
+  ls.set('mung-kk-ask',1);$('kkModal').hidden=false;
+}
+async function kakaoLogin(){
+  if(!KAKAO.plugin||KAKAO.busy)return !!KAKAO.me;
+  KAKAO.busy=true;
+  try{const r=await KAKAO.plugin.login();
+    if(r&&r.signedIn&&r.id){kakaoSet(r);toast(`${KAKAO.me.nick}님, 반가워요! 🐾`);return true}
+    if(!(r&&r.cancelled))toast('카카오 로그인을 하지 못했어요. 잠시 후 다시 해 주세요');
+    return false;
+  }catch(e){toast('카카오 로그인을 하지 못했어요. 잠시 후 다시 해 주세요');return false}
+  finally{KAKAO.busy=false}
+}
+async function kakaoUnlink(){
+  if(!confirm('카카오 연결을 끊을까요?\n순위표의 카카오 이름과 사진이 지워지고, 자동 닉네임으로 보여요.'))return;
+  try{await KAKAO.plugin.unlink()}catch(e){}
+  kakaoClear(true);toast('카카오 연결을 끊었어요');
+}
+/* 이미 올린 내 기록에 카카오 이름·사진 붙이기 / 떼기 */
+async function kakaoStamp(){
+  await waitFB();if(!db||!FBUID||!KAKAO.me)return;
+  for(const coll of ['scores',seasonInfo().key]){
+    try{const ref=db.collection(coll).doc(FBUID),sn=await ref.get();if(!sn.exists)continue;const v=sn.data()||{};
+      if(v.kid===KAKAO.me.id&&v.kn===KAKAO.me.nick&&(v.kp||'')===KAKAO.me.img)continue;
+      const up=kakaoRec(v);if(Object.keys(up).length)await ref.update(up)}catch(e){}
+  }
+}
+async function kakaoStrip(){
+  await waitFB();if(!db||!FBUID||!(window.__FB&&window.__FB.del))return;const del=window.__FB.del;
+  for(const coll of ['scores',seasonInfo().key,seasonInfo(-1).key]){
+    try{const ref=db.collection(coll).doc(FBUID),sn=await ref.get();if(!sn.exists)continue;const v=sn.data()||{};
+      if(v.kid===undefined&&v.kn===undefined&&v.kp===undefined)continue;
+      await ref.update({kid:del(),kn:del(),kp:del()})}catch(e){}
+  }
+}
 $('playBtn').onclick=startGame;
 $('againBtn').onclick=startGame;
 $('rankBtn').onclick=()=>{myEntry=null;submitNote={month:'',all:''};openRank('month')};
@@ -3459,7 +3649,7 @@ if(!(window.claude&&window.claude.use)&&/^https?:$/.test(location.protocol)){
       b.update(F.doc(fs,coll,target),{reports:F.increment(1)});
       await b.commit();
     };
-    window.__FB={db,uid:user.uid,report};
+    window.__FB={db,uid:user.uid,report,del:F.deleteField};
     window.dispatchEvent(new Event('fb-ready'));
   }catch(e){console.warn('Firebase 연결 실패, 기기 저장으로 동작해요',e);window.dispatchEvent(new Event('fb-fail'))}
 }
