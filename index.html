@@ -522,6 +522,29 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 @media (max-width:340px){.setrow{gap:8px;padding:12px 10px}.setrow .cl{padding:6px 9px}}
 .setrow .st small{display:block;font-size:.72em;color:#7A8A9A;margin-top:2px}
 /* 카카오 로그인 */
+/* ---- 꾸밈: 메인 문구, 최고 점수, 미션 아래 ---- */
+.tag{display:block;white-space:nowrap;text-align:center;justify-self:center;align-self:center;margin:0 auto;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.78);box-shadow:0 2px 0 rgba(224,112,58,.18),0 4px 14px rgba(255,160,110,.18);font-family:"Jua",sans-serif;color:#9A6B4F;font-size:clamp(.8rem,3.7vw,.98rem);letter-spacing:-.01em;width:max-content;max-width:100%;box-sizing:border-box}
+.tag b{font-weight:400;color:#FF7A3D}
+.tag .tgpaw{font-size:.9em;display:inline-block;margin-right:5px;transform:rotate(-18deg)}.tag .tgpaw.r{margin:0 0 0 5px}.tag .tgpaw.r{transform:rotate(18deg) scaleX(-1)}
+.menu-best{display:inline-flex;align-items:center;gap:8px;justify-self:center;margin:2px auto 0;padding:6px 16px 6px 8px;border-radius:999px;width:max-content;max-width:100%;
+  background:linear-gradient(100deg,#FFF6D8,#FFE7A8);box-shadow:0 3px 0 #EBC56E,0 6px 14px rgba(235,180,60,.22);color:#8A5A10;font-family:"Jua",sans-serif;font-size:.95rem}
+.menu-best .mbcrown{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:inset 0 -2px 0 #F3D488;font-size:1.05rem}
+.menu-best b{font-weight:400;font-size:1.35rem;color:#E07A10;font-variant-numeric:tabular-nums;text-shadow:0 1px 0 #fff}
+.best{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 6px;border-radius:999px;background:linear-gradient(100deg,#FFF6D8,#FFE7A8);box-shadow:0 2px 0 #EBC56E;color:#8A5A10;font-family:"Jua",sans-serif;font-size:.85rem}
+.best .bcrown{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;font-size:.8rem}
+.best b{font-weight:400;font-size:1.05rem;color:#E07A10;font-variant-numeric:tabular-nums}
+#missionNote{display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
+.mfoot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.mfoot .mcoin{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;background:linear-gradient(100deg,#FFF1C9,#FFE3A3);box-shadow:0 3px 0 #E8C77A;color:#7A5410;font-family:"Jua",sans-serif;font-size:.95rem}
+.mfoot .mcoin b{font-weight:400;font-size:1.2rem}
+.mfoot .mtime{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:#EEF3FF;box-shadow:0 3px 0 #C7D3F2;color:#4D5E8C;font-family:"Jua",sans-serif;font-size:.95rem}
+.mfoot .mtime .dg{display:inline-block;min-width:1.6em;padding:1px 5px;border-radius:7px;background:#fff;color:#3E5BBF;box-shadow:inset 0 -2px 0 #D5DEF7;font-variant-numeric:tabular-nums}
+.gotcard{position:relative;overflow:hidden;border-radius:20px;padding:14px 14px 12px;background:linear-gradient(135deg,#FFE9A8,#FFC9DE 55%,#D9C8FF);box-shadow:0 4px 0 #E6B86A,0 10px 24px rgba(255,150,120,.25);color:#6B3A1E}
+.gotcard h4{margin:0 0 8px;font-family:"Jua",sans-serif;font-size:1.25rem;color:#fff;-webkit-text-stroke:4px #FF8A4C;paint-order:stroke fill;letter-spacing:.02em}
+.gotcard .gchips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.gotcard .gchip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:999px;background:#fff;box-shadow:0 2px 0 rgba(200,120,60,.25);font-family:"Jua",sans-serif;font-size:1rem;color:#C2571B}
+.gotcard .gsp{position:absolute;width:14px;height:14px;background:radial-gradient(circle,#fff 0 25%,#FFE27A 40%,transparent 70%);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)}
+
 .kkbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#FEE500;color:rgba(0,0,0,.85);box-shadow:0 4px 0 #D9C300;font-family:"Jua",sans-serif}
 .kkbtn svg{width:20px;height:20px;flex:none}
 .kkbtn.small{font-size:.95rem;padding:9px 12px;box-shadow:0 3px 0 #D9C300}
@@ -1056,8 +1079,8 @@ body.native-ads .ad #adSlot{display:none}
       <div class="ticons"><button class="ticon" id="shopBtn" aria-label="상점"><span class="ti">🛒</span><small>상점</small></button><button class="ticon" id="menuBagBtn" aria-label="가방"><span class="ti">🎒</span><small>가방</small><span class="badge cnt" id="menuBagN" hidden>0</span></button><button class="ticon" id="missionBtn" aria-label="오늘의 미션"><span class="ti">🎯</span><small>미션</small><span class="badge" id="missionBadge" hidden>!</span></button></div></div>
     <div class="menu-friends" id="menuFriends"></div>
     <h1 class="logo">멍멍<span>톡톡</span></h1>
-    <p class="tag">맞출수록 시간이 늘어나는 강아지 퍼즐</p>
-    <p class="menu-best">내 최고 점수 <b id="menuBest">0</b></p>
+    <p class="tag"><span class="tgpaw">🐾</span>맞출수록 <b>시간이 쑥쑥</b> 늘어나는 강아지 퍼즐<span class="tgpaw r">🐾</span></p>
+    <p class="menu-best"><span class="mbcrown">🏆</span><span class="mblab">내 최고 점수</span><b id="menuBest">0</b></p>
     <div class="menu-btns">
       <button id="playBtn">시작하기</button>
       <div class="menu-grid">
@@ -1075,7 +1098,7 @@ body.native-ads .ad #adSlot{display:none}
   <section class="screen" id="game" hidden>
     <div class="gtop">
       <div class="tl"><button class="sub small icon" id="pauseBtn" aria-label="일시정지">⏸</button><button class="sub small snd icon" id="sndBtn" aria-label="설정">⚙️</button></div>
-      <span class="best">최고 <b id="best">0</b></span>
+      <span class="best"><span class="bcrown">👑</span><span class="blab">최고</span><b id="best">0</b></span>
     </div>
     <div class="stats">
       <div class="score"><small>점수<span class="lv" id="lvl">레벨 1</span></small><span id="score">0</span></div>
@@ -2764,7 +2787,6 @@ async function openRank(tab){
     if((me.reports||0)>=REPORT_HIDE){const w=document.createElement('div');w.className='lab';w.style.gridColumn='1 / -1';w.textContent='⚠️ 신고가 많이 쌓여 다른 사람에게는 이름이 가려져 보여요. 닉네임을 바꿔 등록하면 다시 보여요.';box.appendChild(w)}
   }else{box.classList.add('none');box.textContent=rankTab==='month'?'이번 달 첫 기록을 남겨 보세요! 게임 후 점수를 등록하면 여기 나와요.':'게임이 끝나고 점수를 등록하면 내 순위가 여기 나와요!'}
   $('rankNote').textContent=rows.length?(shared?'모든 플레이어의 기록이에요.':'이 기기에 저장된 기록이에요.'):(rankTab==='month'?'이번 달은 아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!':'아직 기록이 없어요. 첫 번째 주인공이 되어 보세요!');
-  const meEl=list.querySelector('.me');if(meEl&&shown)meEl.scrollIntoView({block:'center'});
 }
 async function reportName(coll,r){
   try{const mine=await db.collection('scores').doc(FBUID).get();if(!mine.exists){$('rankNote').textContent='점수를 한 번 등록한 플레이어만 신고할 수 있어요.';return}}catch(e){}
@@ -2845,7 +2867,6 @@ async function openFriendRank(){
     box.append(a,b,c,d)}
   else{box.classList.add('none');box.textContent='게임이 끝나고 점수를 등록하면 친구 순위에 내가 나와요!'}
   note.textContent=rows.length>(myRank?1:0)?'멍멍 톡톡을 하는 카톡 친구들이에요.':'아직 멍멍 톡톡을 하는 카톡 친구가 없어요. 친구에게 게임을 알려 주세요!';
-  const meEl=list.querySelector('.me');if(meEl)meEl.scrollIntoView({block:'center'});
 }
 
 /* ================= 입력 ================= */
@@ -3008,16 +3029,28 @@ function openMissions(got){
     const r=document.createElement('div');r.className='mr';r.innerHTML=`${Math.min(m.prog,m.n).toLocaleString()} / ${m.n.toLocaleString()} · 보상 ${rewardText(MREWARD[i%3])}`;
     const bar=document.createElement('div');bar.className='mbar';const bi=document.createElement('i');bi.style.width=Math.min(100,m.prog/m.n*100)+'%';bar.appendChild(bi);
     const btn=document.createElement('button');btn.textContent=m.claimed?'받음':(done?'받기':'진행 중');btn.disabled=m.claimed||!done;if(!done&&!m.claimed)btn.className='sub';
-    btn.onclick=()=>{m.claimed=true;ls.set('mung-missions',st);const g=grantReward(MREWARD[i%3]);SFX.reward();buzz(30);openMissions('받았어요: '+g+' 🎉')};
+    btn.onclick=()=>{m.claimed=true;ls.set('mung-missions',st);const g=grantReward(MREWARD[i%3]);SFX.reward();buzz(30);openMissions({t:'미션 보상 획득!',g})};
     c.append(t,btn,r,bar);L.appendChild(c)});
   const all=st.list.every(m=>m.claimed),ac=document.createElement('div');ac.className='mcard all'+(st.allClaimed?' claimed':'');
   const at2=document.createElement('div');at2.className='mt';at2.textContent=(st.allClaimed?'✅ ':'')+'🌈 오늘 미션 모두 완료';
   const ar=document.createElement('div');ar.className='mr';ar.innerHTML='보너스 보상 '+rewardText(ALL_REWARD);
   const ab=document.createElement('button');ab.textContent=st.allClaimed?'받음':(all?'받기':'진행 중');ab.disabled=st.allClaimed||!all;if(!all&&!st.allClaimed)ab.className='sub';
-  ab.onclick=()=>{st.allClaimed=true;ls.set('mung-missions',st);const g=grantReward(ALL_REWARD);SFX.mega();SFX.reward();feverConfettiMenu();openMissions('받았어요: '+g+' 🎉')};
+  ab.onclick=()=>{st.allClaimed=true;ls.set('mung-missions',st);const g=grantReward(ALL_REWARD);SFX.mega();SFX.reward();feverConfettiMenu();openMissions({t:'오늘 미션 모두 완료!',g})};
   ac.append(at2,ab,ar);L.appendChild(ac);
-  const ms=(()=>{const now=Date.now()+9*3600e3,next=Math.ceil(now/86400e3)*86400e3;const sec=Math.floor((next-now)/1000);return `${Math.floor(sec/3600)}시간 ${Math.floor(sec%3600/60)}분`})();
-  $('missionNote').innerHTML=(typeof got==='string'?`<b class="gotnote">${got}</b><br>`:'')+`<span class="bag">내 코인 ${bagHTML()}</span><br>새 미션까지 ${ms}`;
+  const sec=(()=>{const now=Date.now()+9*3600e3,next=Math.ceil(now/86400e3)*86400e3;return Math.floor((next-now)/1000)})();
+  const note=$('missionNote');note.innerHTML='';
+  if(got&&typeof got==='object'&&got.t){
+    const gc=document.createElement('div');gc.className='gotcard';const h=document.createElement('h4');h.textContent='🎉 '+got.t;
+    const ch=document.createElement('div');ch.className='gchips';String(got.g||'').split(', ').filter(Boolean).forEach(x=>{const c=document.createElement('span');c.className='gchip';c.innerHTML=x;ch.appendChild(c)});
+    gc.append(h,ch);
+    for(let k=0;k<6;k++){const sp=document.createElement('i');sp.className='gsp';sp.style.left=(8+k*16)+'%';sp.style.top=(k%2?18:62)+'%';gc.appendChild(sp);
+      sp.animate&&sp.animate([{transform:'scale(0) rotate(0)',opacity:0},{transform:'scale(1.3) rotate(90deg)',opacity:1,offset:.4},{transform:'scale(0) rotate(180deg)',opacity:0}],{duration:1100,delay:k*120,easing:'ease-out'})}
+    note.appendChild(gc);
+    gc.animate&&gc.animate([{transform:'scale(.6)',opacity:0},{transform:'scale(1.06)',opacity:1,offset:.6},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.2,.9,.3,1.2)'});
+  }
+  const foot=document.createElement('div');foot.className='mfoot';
+  foot.innerHTML=`<span class="mcoin">내 코인 ${COIN} <b>${getCoin().toLocaleString()}</b></span><span class="mtime">⏰ 새 미션까지 <span class="dg">${Math.floor(sec/3600)}</span>시간 <span class="dg">${String(Math.floor(sec%3600/60)).padStart(2,'0')}</span>분</span>`;
+  note.appendChild(foot);
   showScreen('missions');refreshMenuBadges();
 }
 function feverConfettiMenu(){const L=$('mlist');L.animate&&L.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:400})}
