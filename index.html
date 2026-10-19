@@ -1084,6 +1084,134 @@ body.lite .fsp:nth-child(odd){display:none}
 /* 앱에서 구글 배너가 보일 때: 아래 자리를 배너 높이만큼 비워 두기 */
 body.native-ads .ad{height:var(--banner-h,60px);padding:0!important;background:#fff!important}
 body.native-ads .ad #adSlot{display:none}
+
+/* ---- 상점 ---- */
+#shop .coinbar{padding:10px 16px 10px 10px;box-shadow:0 4px 0 #E8C77A,0 8px 18px rgba(232,180,80,.2)}
+#shop .coinbar .cbl{display:inline-flex;align-items:center;gap:8px}
+#shop .coinbar .cbi{width:38px;height:38px;border-radius:50%;background:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:inset 0 -2px 0 #F3D488}
+#shop .coinbar b::before{display:none}
+#shopList .scard{position:relative;background:#fff;border-radius:20px;padding:14px 10px 12px;gap:5px;box-shadow:0 3px 0 #E9E1D6,0 6px 14px rgba(120,90,60,.06);overflow:hidden}
+#shopList .scard::before{content:"";position:absolute;left:0;right:0;top:0;height:46px;background:var(--cb,#FFF4E8)}
+#shopList .scard>*{position:relative}
+#shopList .scard.c-hint{--cb:#FFF4E2;--cc:#C9821A}
+#shopList .scard.c-friend{--cb:#FFE9F1;--cc:#E0577F}
+#shopList .scard.c-time{--cb:#E6F2FF;--cc:#3E7BC6}
+#shopList .scard.c-special{--cb:#FFEFE0;--cc:#E0703A}
+#shopList .scard .ic{width:64px;height:64px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(120,90,60,.15);font-size:2rem}
+#shopList .scard .ic svg{width:54px;height:54px}
+#shopList .scard .tx{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%}
+#shopList .scard .nm2{font-size:1.1rem;color:var(--cc,#24384D)}
+#shopList .scard .ds{font-size:.8rem;color:#7A8A9A;line-height:1.35;min-height:2.2em;word-break:keep-all}
+#shopList .scard .own{display:inline-block;padding:1px 10px;border-radius:999px;background:#F3F5F8;color:#9AA6B2;font-family:"Jua",sans-serif;font-size:.75rem}
+#shopList .scard .own.has{background:#E8F7EC;color:#2F8A4C}
+#shopList .scard button{width:100%;margin-top:4px;background:linear-gradient(100deg,#FFD66B,#FFB02E);color:#5A3200;box-shadow:0 4px 0 #D98A12;font-size:1.05rem}
+#shopList .scard button:disabled{background:#EDEDED;color:#AAA;box-shadow:0 4px 0 #D5D5D5}
+#shopList .scard.c-gold{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap;gap:12px;text-align:left;padding:14px;background:linear-gradient(120deg,#FFF6D6,#FFE7A8);box-shadow:0 0 0 2px #FFD27A inset,0 4px 0 #E8C77A}
+#shopList .scard.c-gold::before{display:none}
+#shopList .scard.c-gold .ic{width:72px;height:72px;flex:none;background:radial-gradient(circle,#fff 40%,#FFF1C0)}
+#shopList .scard.c-gold .ic svg{width:64px;height:64px}
+#shopList .scard.c-gold .tx{align-items:flex-start;flex:1;min-width:0}
+#shopList .scard.c-gold .nm2{color:#9A6400;font-size:1.2rem}
+#shopList .scard.c-gold .ds{min-height:0;text-align:left}
+#shopList .scard.c-gold .stag{font-family:"Jua",sans-serif;font-size:.8rem;color:#C2571B}
+#shopList .scard.c-gold button{width:100%;flex:1 1 100%;padding:10px 14px}
+#shopList .scard.adcard::before{display:none}
+#shopList .scard.adcard button{width:auto;background:linear-gradient(100deg,#7AB8FF,#5A8CFF);color:#fff;box-shadow:0 4px 0 #3F6FD6}
+
+/* 이어하기를 이미 쓴 판 */
+.revstamp{display:none;position:absolute;right:-6px;bottom:4px;z-index:2;padding:4px 10px;border:3px solid #FF6B81;border-radius:12px;color:#FF6B81;background:rgba(255,255,255,.85);font-family:"Jua",sans-serif;font-size:.85rem;line-height:1.15;transform:rotate(-12deg);box-shadow:0 2px 6px rgba(255,107,129,.25)}
+.revcard.done .revstamp{display:block;animation:stampIn .45s cubic-bezier(.2,.9,.3,1.3) both .15s}
+@keyframes stampIn{0%{transform:rotate(-12deg) scale(2.2);opacity:0}100%{transform:rotate(-12deg) scale(1);opacity:1}}
+.revcard.done{background:linear-gradient(180deg,#FFE9F0 0,#FFFDF6 45%)}
+.revcard.done .revrays{background:repeating-conic-gradient(rgba(255,160,190,.45) 0 10deg,rgba(255,160,190,0) 10deg 24deg)}
+.revcard.done .revpic{animation:none}
+.revcard.done .revlead{color:#E0577F}
+.revmsg .donechip{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:999px;background:#FFF1F4;color:#C2465F;font-family:"Jua",sans-serif;box-shadow:0 2px 0 #F6C9D3}
+.revmsg .donechip b{font-weight:400;color:#E0577F}
+.revbtn.main{margin-top:2px}
+
+/* ---- 만든 사람 ---- */
+#credits .maker{position:relative;overflow:hidden;padding:20px 18px 16px;background:linear-gradient(180deg,#FFE3D3 0,#FFF6EE 46%,#FFFDF8 100%);box-shadow:0 4px 0 #F3D6C0,0 10px 24px rgba(255,150,110,.15)}
+#credits .mkicon{width:58px;height:58px;margin:0 auto 6px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.9rem;box-shadow:0 3px 0 #F3D6C0}
+#credits .mkchip{display:inline-block;padding:2px 12px;border-radius:999px;background:#FF8A5C;color:#fff;font-family:"Jua",sans-serif;font-size:.85rem;margin-bottom:6px}
+#credits .maker strong{display:block;font-size:2.1rem;color:#4A2E1E;line-height:1.15}
+#credits .mkline{margin:6px 0 0;font-size:.9rem;color:#9A7A66;word-break:keep-all}
+#credits .contact{border-top:1.5px dashed #F3C9B0;display:flex;flex-direction:column;align-items:center;gap:6px}
+#credits .contact small{margin:0;font-family:"Jua",sans-serif;color:#C2704A}
+#credits .contact a{display:inline-block;padding:6px 14px;border-radius:999px;background:#fff;box-shadow:0 2px 0 #F3D6C0;color:#E0703A;font-size:.95rem;text-decoration:none}
+#credits .crsec{margin:6px 0 0;text-align:center;font-family:"Jua",sans-serif;font-weight:400;font-size:1.15rem;color:#7A5AC8}
+#credits .fr{position:relative;grid-template-columns:76px 1fr;background:#fff;border-radius:20px;padding:12px 14px;box-shadow:0 3px 0 #E9E1D6}
+#credits .fr:nth-child(1){background:linear-gradient(100deg,#FFF1DE,#fff 60%)}
+#credits .fr:nth-child(2){background:linear-gradient(100deg,#FFEAF2,#fff 60%)}
+#credits .fr:nth-child(3){background:linear-gradient(100deg,#F1E9FF,#fff 60%)}
+#credits .fr svg{width:76px;height:76px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.9),0 3px 10px rgba(150,110,80,.18)}
+#credits .fr h3{font-size:1.4rem;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+#credits .fr h3 span{margin:0;padding:1px 9px;border-radius:999px;background:rgba(255,255,255,.9);box-shadow:0 1px 0 #E9E1D6;font-family:"Jua",sans-serif;font-size:.78rem;color:#8A7A6A}
+#credits .fr p{font-size:.88rem;color:#6A5A4A;word-break:keep-all;line-height:1.45}
+#credits .dedi{position:relative;margin:8px 0 4px;padding:18px 16px;border-radius:22px;background:#FFFDF8;border:3px solid transparent;background-image:linear-gradient(#FFFDF8,#FFFDF8),linear-gradient(100deg,#FF8A8A,#FFD66B,#7ED6A0,#7AB8FF,#B88CFF);background-origin:border-box;background-clip:padding-box,border-box;text-align:center}
+#credits .dedi p{margin:0;line-height:1.8;font-size:1rem;color:#4A3A2E;word-break:keep-all}
+#credits .dedi b{font-family:"Jua",sans-serif;font-weight:400;color:#E0703A}
+#credits .dedi .dpaw{position:absolute;left:12px;top:-14px;font-size:1.4rem;transform:rotate(-15deg)}
+#credits .dedi .dheart{position:absolute;right:12px;bottom:-12px;font-size:1.3rem}
+
+/* ---- 화면 제목 ---- */
+.shead h2{letter-spacing:-.01em}
+/* ---- 도감 ---- */
+#dex .dexhead{gap:14px;padding:14px;background:linear-gradient(120deg,#FFF1DE,#FFE6F0 60%,#EDE6FF);border-radius:20px;box-shadow:0 3px 0 #EBD8C8}
+#dex .dxc{flex:none;width:84px;height:84px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 3px 0 #F0D9C6}
+#dex .dxc b{font-size:1.45rem;line-height:1.1}
+#dex .dxc small{font-family:"Jua",sans-serif;font-size:.7rem;color:#9A8676}
+#dex .dxt{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+#dex .dxt span{font-size:.92rem;color:#6A5A4A;line-height:1.45;word-break:keep-all}
+#dex .dxt span b{font-family:"Jua",sans-serif;font-weight:400;font-size:1rem;color:#E0703A}
+#dex .dexbar{height:12px;background:rgba(255,255,255,.8)}
+#dex .dcard{background:#fff;box-shadow:0 3px 0 #E9E1D6}
+#dex .dcard.got{background:linear-gradient(120deg,#fff 55%,#FFF4D6);box-shadow:0 3px 0 #EBCB7A,0 0 0 2px #FFE7A6 inset}
+#dex .dcard.locked{background:#FAFBFC;box-shadow:0 0 0 2px #E6EBF1 inset}
+#dex .dcard.locked h3 .nm{color:#9AA6B2}
+#dex .dcard h3 .no{padding:1px 8px;border-radius:999px;background:#F3F5F8;font-family:"Jua",sans-serif;font-size:.72rem}
+#dex .dcard.got h3 .no{background:#FFF1C9;color:#9A6400}
+#dex .dcard p{word-break:keep-all;color:#5A4A3A}
+#dex .dcard .prog{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;line-height:1.3}
+#dex .dcard .prog .pc{font-size:.8rem;color:#7A8A9A}
+#dex .dcard .prog .pc b{font-family:"Jua",sans-serif;font-weight:400;font-size:.95rem;color:#3E7A50}
+#dex .dcard .prog .rw{padding:2px 9px;border-radius:999px;background:#FFF4D6;color:#9A6400;font-family:"Jua",sans-serif;font-size:.78rem}
+#dex .dcard .pbar{height:10px;border-radius:5px}
+/* ---- 게임 방법 ---- */
+#help .help{display:flex;flex-direction:column;gap:14px}
+.hsec{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:22px;background:rgba(255,255,255,.55)}
+.hsec h3{margin:0 0 2px 4px;font-family:"Jua",sans-serif;font-weight:400;font-size:1.15rem}
+.hsec.h-b{background:linear-gradient(180deg,#FFF0E2,rgba(255,255,255,.5))}.hsec.h-b h3{color:#E0703A}
+.hsec.h-r{background:linear-gradient(180deg,#F3ECFF,rgba(255,255,255,.5))}.hsec.h-r h3{color:#7A5AC8}
+.hsec.h-y{background:linear-gradient(180deg,#FFF6D6,rgba(255,255,255,.5))}.hsec.h-y h3{color:#B07A10}
+.hsec.h-g{background:linear-gradient(180deg,#E8F5EC,rgba(255,255,255,.5))}.hsec.h-g h3{color:#3E8A55}
+#help .hrow{grid-template-columns:52px 1fr;background:#fff;border-radius:16px;padding:10px 12px;box-shadow:0 2px 0 #EDE5DA}
+#help .hrow .hic{width:52px;height:52px;border-radius:50%;background:#FFF8F0;display:flex;align-items:center;justify-content:center}
+#help .hrow .hic svg{width:44px;height:44px}
+#help .hrow p{font-size:.9rem;line-height:1.5;word-break:keep-all;color:#4A3A2E}
+#help .hrow b{color:#2A1E14}
+/* ---- 배경 ---- */
+#themes .tgrid{gap:12px}
+#themes .tcard{padding:8px 8px 10px;gap:6px;background:#fff;border-radius:20px;box-shadow:0 3px 0 #E3DACF,0 6px 14px rgba(120,90,60,.06);font-size:1.05rem}
+#themes .tcard.sel{outline:none;box-shadow:0 0 0 3px #FF8A5C,0 3px 0 #E3DACF}
+#themes .sww{position:relative;border-radius:14px;overflow:hidden}
+#themes .tcard .swatch{height:92px;border-radius:14px}
+#themes .trib{position:absolute;left:6px;top:6px;padding:1px 8px;border-radius:999px;background:rgba(255,255,255,.92);font-family:"Jua",sans-serif;font-size:.7rem;color:#9A4FD0}
+#themes .tcard.legend .trib{color:#B06A00}
+#themes .tlock{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:.8rem}
+#themes .tcheck{position:absolute;right:6px;top:6px;width:26px;height:26px;border-radius:50%;background:#FF8A5C;color:#fff;display:flex;align-items:center;justify-content:center;font-family:"Jua",sans-serif;font-size:.9rem;box-shadow:0 2px 0 #D9682E}
+#themes .tname{font-family:"Jua",sans-serif;word-break:keep-all;line-height:1.2}
+#themes .tst{align-self:center;padding:3px 12px;border-radius:999px;font-family:"Jua",sans-serif;font-size:.82rem}
+#themes .tst.price{background:linear-gradient(100deg,#FFE88A,#FFC93C);color:#6B4200;box-shadow:0 2px 0 #E0A82A}
+#themes .tst.on{background:#FFE9DE;color:#E0703A}
+#themes .tst.apply{background:#EEF4FB;color:#5A7391}
+#themes .tpv{font-size:.72rem;color:#9AA6B2}
+#themes .tcard.fancy .tname{color:#9A4FD0}
+#themes .tcard.legend .tname{color:#8A3A00}
+#themeNote{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap}
+#themeNote .tcoin{display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-radius:999px;background:linear-gradient(100deg,#FFF1C9,#FFE3A3);color:#7A5410;font-family:"Jua",sans-serif;box-shadow:0 2px 0 #E8C77A}
+#themeNote .tcoin b{font-weight:400;font-size:1.1rem}
+#themeNote .tnote{font-size:.85rem;color:#7A8A9A}
 </style>
 </head>
 <body>
@@ -1235,7 +1363,7 @@ body.native-ads .ad #adSlot{display:none}
 
   <!-- 만든 사람 -->
   <section class="screen" id="themes" hidden>
-    <div class="shead"><h2>배경</h2><button class="sub small" id="themeBack">돌아가기</button></div>
+    <div class="shead"><h2>🎨 배경</h2><button class="sub small" id="themeBack">돌아가기</button></div>
     <p class="note" id="themeNote">높은 레벨에 도달할수록 새 배경이 열려요.</p>
     <div class="tgrid" id="themeGrid"></div>
     <div class="pvbar" id="pvBar" hidden><div class="pvdogs" id="pvDogs"></div><b>👀 미리보기 · <span id="pvName"></span></b><small id="pvNote"></small><div class="pvbtns"><button class="sub" id="pvBack">돌아가기</button><button id="pvBuy"></button></div></div>
@@ -1252,30 +1380,30 @@ body.native-ads .ad #adSlot{display:none}
   </section>
 
   <section class="screen" id="shop" hidden>
-    <div class="shead"><h2>상점</h2><button class="sub small" id="shopBack">돌아가기</button></div>
-    <div class="coinbar"><span>내 코인</span><b id="shopCoin">0</b></div>
+    <div class="shead"><h2>🛒 상점</h2><button class="sub small" id="shopBack">돌아가기</button></div>
+    <div class="coinbar"><span class="cbl"><span class="cbi"><i class="ci"></i></span>내 코인</span><b id="shopCoin">0</b></div>
     <div class="shoplist" id="shopList"></div>
-    <p class="note" id="shopNote">코인은 출석 도장, 오늘의 미션, 게임 점수로 모을 수 있어요.</p>
+    <p class="note" id="shopNote">🪙 코인은 출석·미션·게임으로 모아요</p>
   </section>
 
   <section class="screen" id="dex" hidden>
-    <div class="shead"><h2>강아지 도감</h2><button class="sub small" id="dexBack">돌아가기</button></div>
-    <div class="dexhead"><b id="dexCount">0 / 8</b><span>강아지를 맞춰 카드를 모아요. 많이 맞추면 흑백 카드가 컬러로 바뀌어요!</span></div>
-    <div class="dexbar"><i id="dexFill"></i></div>
+    <div class="shead"><h2>📖 강아지 도감</h2><button class="sub small" id="dexBack">돌아가기</button></div>
+    <div class="dexhead"><div class="dxc"><b id="dexCount">0 / 8</b><small>모은 카드</small></div><div class="dxt"><span>강아지를 많이 맞추면<br>흑백 카드가 <b>컬러</b>로 바뀌어요!</span><div class="dexbar"><i id="dexFill"></i></div></div></div>
     <div class="dexlist" id="dexList"></div>
   </section>
 
   <section class="screen" id="help" hidden>
-    <div class="shead"><h2>게임 방법</h2><button class="sub small" id="helpBack">돌아가기</button></div>
+    <div class="shead"><h2>💡 게임 방법</h2><button class="sub small" id="helpBack">돌아가기</button></div>
     <div class="help" id="helpList"></div>
   </section>
 
   <section class="screen" id="credits" hidden>
-    <div class="shead"><h2>만든 사람</h2><button class="sub small" id="creditBack">돌아가기</button></div>
-    <div class="maker"><small>기획과 제작</small><strong>승아-승비 가족</strong>
-      <div class="contact"><small>광고 및 제휴 문의</small><a href="mailto:lovewoojin85@gmail.com?subject=%5B%EB%A9%8D%EB%A9%8D%20%ED%86%A1%ED%86%A1%5D%20%EA%B4%91%EA%B3%A0%20%EB%AC%B8%EC%9D%98">lovewoojin85@gmail.com</a></div></div>
-    <div id="friendCards" style="display:flex;flex-direction:column;gap:8px"></div>
-    <p class="dedi">이 게임은 먼저 떠난<br>샌드, 뭉치, 해피를 기억하며 만들었어요.<br>게임 속에서 언제든 다시 만나요.</p>
+    <div class="shead"><h2>💛 만든 사람</h2><button class="sub small" id="creditBack">돌아가기</button></div>
+    <div class="maker"><div class="mkicon">🏡</div><small class="mkchip">기획과 제작</small><strong>승아-승비 가족</strong><p class="mkline">강아지를 사랑하는 우리 가족이 만들었어요 💛</p>
+      <div class="contact"><small>✉️ 광고 및 제휴 문의</small><a href="mailto:lovewoojin85@gmail.com?subject=%5B%EB%A9%8D%EB%A9%8D%20%ED%86%A1%ED%86%A1%5D%20%EA%B4%91%EA%B3%A0%20%EB%AC%B8%EC%9D%98">lovewoojin85@gmail.com</a></div></div>
+    <h3 class="crsec">🌈 무지개 다리 너머의 친구들</h3>
+    <div id="friendCards" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="dedi"><span class="dpaw">🐾</span><p>이 게임은 먼저 떠난<br><b>샌드, 뭉치, 해피</b>를 기억하며 만들었어요.<br>게임 속에서 언제든 다시 만나요.</p><span class="dheart">💛</span></div>
     <p class="fine">글꼴: Jua, Gowun Dodum (SIL Open Font License)</p>
     <p class="fine"><a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">개인정보처리방침</a></p>
   </section>
@@ -1321,7 +1449,7 @@ body.native-ads .ad #adSlot{display:none}
 <!-- 부활: 황금 뼈다귀 -->
 <div class="modal" id="reviveModal" hidden>
   <div class="card revcard">
-    <div class="revtop"><div class="revrays"></div><div class="revpic" id="revPic"></div></div>
+    <div class="revtop"><div class="revrays"></div><div class="revpic" id="revPic"></div><div class="revstamp">이어하기<br>사용 완료</div></div>
     <h2 id="revTitle">앗, 움직일 곳이 없어요!</h2>
     <p class="revlead" id="revLead">황금 뼈다귀를 보면<br>강아지들이 벌떡 일어나요!</p>
     <div class="revperks" id="revPerks"><span class="rp">🔀 판 전체 섞기</span><span class="rp">⏱️ 60초로 다시</span></div>
@@ -2396,10 +2524,13 @@ function askRevive(kind='nomove'){
     const use=$('revUse');
     $('revPerks').innerHTML=`<span class="rp">🔀 판 전체 섞기</span><span class="rp">⏱️ ${REVIVE_TIME}초로 다시</span>`;
     const lead=$('revLead'),perks=$('revPerks');lead.hidden=false;perks.hidden=false;lead.innerHTML='황금 뼈다귀를 보면<br>강아지들이 벌떡 일어나요!';
-    if(left<=0){lead.textContent='정말 잘했어요! 🐾';perks.hidden=true;$('revMsg').innerHTML='황금 뼈다귀 이어하기는<br>한 판에 <b>한 번만</b> 할 수 있어요.';use.hidden=true}
+    const card=$('reviveModal').querySelector('.revcard'),gu=$('revGiveUp');card.classList.toggle('done',left<=0);
+    if(left<=0){lead.innerHTML='정말 끝까지 잘했어요! 🐾';perks.hidden=true;
+      $('revMsg').innerHTML='<span class="donechip">🦴 이번 판 이어하기 <b>1/1</b> 사용 ✓</span><span class="tip">황금 뼈다귀 이어하기는 한 판에 한 번!<br>다음 판에서 또 쓸 수 있어요.</span>';use.hidden=true}
     else if(inv.revive>0){$('revMsg').innerHTML=`<span class="have">🦴 가진 황금 뼈다귀 <b>${inv.revive}개</b></span>`;use.hidden=false;use.innerHTML='🦴 황금 뼈다귀로 이어하기'}
     else if(canCoin){$('revMsg').innerHTML=`<span class="have">내 코인 ${COIN} <b>${getCoin().toLocaleString()}</b></span><span class="tip">상점에서 미리 사두면 ${COIN} ${REVIVE_PRICE}로 더 싸요!</span>`;use.hidden=false;use.innerHTML=`${COIN} ${REVIVE_ONSPOT} 내고 이어하기`}
     else{perks.hidden=true;$('revMsg').innerHTML=`<span class="tip">상점에서 황금 뼈다귀(${COIN} ${REVIVE_PRICE})를<br>미리 사두면 다음엔 이어서 할 수 있어요.</span>`;use.hidden=true}
+    gu.className=use.hidden?'revbtn main':'kklater';gu.innerHTML=use.hidden?'🏆 점수 보러 가기':'그만하고 점수 보기';
     $('reviveModal').hidden=false;
     const done=async ok=>{
       use.onclick=null;$('revGiveUp').onclick=null;$('reviveModal').hidden=true;
@@ -2494,15 +2625,15 @@ const REVIVE_PRICE=150,REVIVE_ONSPOT=200,REVIVE_PER_GAME=1;   // 황금 뼈다�
 const GOLD_BONE='<svg viewBox="-30 -22 60 44" aria-hidden="true"><defs><linearGradient id="gbone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4B8"/><stop offset=".5" stop-color="#FFD24D"/><stop offset="1" stop-color="#E9A21F"/></linearGradient></defs><g fill="url(#gbone)" stroke="#C98A1A" stroke-width="2.4"><circle cx="-17" cy="-6" r="7"/><circle cx="-17" cy="6" r="7"/><circle cx="17" cy="-6" r="7"/><circle cx="17" cy="6" r="7"/><rect x="-17" y="-6" width="34" height="12" rx="3"/></g><rect x="-16" y="-4.4" width="32" height="8.8" fill="url(#gbone)"/><path d="M-10 -1.5 H10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".85"/><path d="M22 -19 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6Z" fill="#FFE066"/><path d="M-24 13 l1.2 3 3 1.2 -3 1.2 -1.2 3 -1.2 -3 -3 -1.2 3 -1.2Z" fill="#FFE066"/></svg>';
 const BONE_ICON=()=>document.querySelector('#boneBtn svg').outerHTML;
 const SHOP=[
-  {id:'bone', name:'개껌 힌트', ds:'다음 판 시작 때 더해져요 (한 판 최대 +2)', price:30, ic:()=>BONE_ICON(), own:()=>getBonus(), add:()=>{if(getBonus()>=BONUS_CAP)return false;addBonus(1);return true}},
-  {id:'f0', name:'치와와', ds:'원하는 자리에 불러요 · 가로세로 한 줄 정리', price:80, ic:()=>svgFor(TYPES), own:()=>getItems()[0], add:()=>addItemF(0)},
-  {id:'f1', name:'말티즈', ds:'원하는 자리에 불러요 · 주변 9칸 + 5초', price:80, ic:()=>svgFor(TYPES+1), own:()=>getItems()[1], add:()=>addItemF(1)},
-  {id:'f2', name:'킹찰스', ds:'원하는 자리에 불러요 · 같은 종류 모두', price:80, ic:()=>svgFor(TYPES+2), own:()=>getItems()[2], add:()=>addItemF(2)},
-  {id:'clock', name:'간식 시계', ds:'게임 중 시간 +10초', price:50, ic:()=>'⏰', own:()=>getInv().clock, add:()=>addInv('clock')},
-  {id:'shuffle', name:'강아지 섞기', ds:'시간 손해 없이 판을 섞어요', price:40, ic:()=>'🔀', own:()=>getInv().shuffle, add:()=>addInv('shuffle')},
-  {id:'fever', name:'피버 간식', ds:'바로 피버 타임 시작!', price:100, ic:()=>'🔥', own:()=>getInv().fever, add:()=>addInv('fever')},
-  {id:'clean', name:'깨끗이 목욕', ds:'흙더미·거품·낮잠을 한 번에 정리', price:70, ic:()=>'🧼', own:()=>getInv().clean, add:()=>addInv('clean')},
-  {id:'revive', name:'황금 뼈다귀', ds:'시간이 끝나거나 움직일 곳이 없을 때 판을 섞고 60초로 이어하기 (한 판 1번) · 미리 사두면 50코인 이득!', price:REVIVE_PRICE, ic:()=>GOLD_BONE, own:()=>getInv().revive, add:()=>addInv('revive')}
+  {id:'bone', cat:'hint', name:'개껌 힌트', ds:'다음 판 힌트 +1', price:30, ic:()=>BONE_ICON(), own:()=>getBonus(), add:()=>{if(getBonus()>=BONUS_CAP)return false;addBonus(1);return true}},
+  {id:'f1', cat:'friend', name:'말티즈', ds:'주변 9칸 정리 + 5초', price:70, ic:()=>svgFor(TYPES+1), own:()=>getItems()[1], add:()=>addItemF(1)},
+  {id:'f0', cat:'friend', name:'치와와', ds:'가로세로 한 줄씩 정리', price:90, ic:()=>svgFor(TYPES), own:()=>getItems()[0], add:()=>addItemF(0)},
+  {id:'f2', cat:'friend', name:'킹찰스', ds:'같은 강아지 모두 정리', price:120, ic:()=>svgFor(TYPES+2), own:()=>getItems()[2], add:()=>addItemF(2)},
+  {id:'clock', cat:'time', name:'간식 시계', ds:'게임 중 시간 +10초', price:50, ic:()=>'⏰', own:()=>getInv().clock, add:()=>addInv('clock')},
+  {id:'shuffle', cat:'time', name:'강아지 섞기', ds:'시간 손해 없이 판 섞기', price:130, ic:()=>'🔀', own:()=>getInv().shuffle, add:()=>addInv('shuffle')},
+  {id:'fever', cat:'special', name:'피버 간식', ds:'바로 피버 타임 시작!', price:50, ic:()=>'🔥', own:()=>getInv().fever, add:()=>addInv('fever')},
+  {id:'clean', cat:'special', name:'깨끗이 목욕', ds:'방해물 한 번에 정리', price:70, ic:()=>'🧼', own:()=>getInv().clean, add:()=>addInv('clean')},
+  {id:'revive', cat:'gold', name:'황금 뼈다귀', ds:'막히면 판 섞고 60초로 이어하기', tag:'한 판 1번 · 미리 사면 50코인 이득!', price:REVIVE_PRICE, ic:()=>GOLD_BONE, own:()=>getInv().revive, add:()=>addInv('revive')}
 ];
 function addItemF(f){const it=getItems();if(it[f]>=ITEM_CAP)return false;it[f]++;setItems(it);return true}
 function addInv(k){const v=getInv();if(v[k]>=ITEM_CAP)return false;v[k]++;setInv(v);return true}
@@ -2511,16 +2642,17 @@ function openShop(){
   $('shopCoin').textContent=getCoin().toLocaleString();
   const L=$('shopList');L.innerHTML='';
   if(ADS.native)L.appendChild(rewardCard());
-  SHOP.forEach(it=>{const c=document.createElement('div');c.className='scard';
-    c.innerHTML=`<div class="ic">${it.ic()}</div><div class="nm2"></div><div class="ds"></div><div class="own"></div>`;
-    c.querySelector('.nm2').textContent=it.name;c.querySelector('.ds').textContent=it.ds;c.querySelector('.own').textContent='가진 개수 '+it.own();
+  SHOP.forEach(it=>{const c=document.createElement('div');c.className='scard c-'+(it.cat||'x');
+    c.innerHTML=`<div class="ic">${it.ic()}</div><div class="tx"><div class="nm2"></div><div class="ds"></div>${it.tag?'<div class="stag"></div>':''}<div class="own"></div></div>`;
+    c.querySelector('.nm2').textContent=it.name;c.querySelector('.ds').textContent=it.ds;if(it.tag)c.querySelector('.stag').textContent='💡 '+it.tag;
+    {const n=it.own(),o=c.querySelector('.own');o.textContent=n?'가진 개수 '+n:'아직 없어요';o.classList.toggle('has',n>0)}
     const b=document.createElement('button');b.textContent=it.price;b.disabled=getCoin()<it.price;
     b.onclick=()=>{if(getCoin()<it.price){SFX.bad();return}if(!it.add()){$('shopNote').textContent='더 이상 담을 수 없어요 (최대 '+(it.id==='bone'?BONUS_CAP:ITEM_CAP)+'개)';SFX.bad();return}
       addCoin(-it.price);SFX.levelup();buzz(25);openShop();$('shopNote').textContent=`${it.name}를 샀어요! 🎉`};
     c.appendChild(b);L.appendChild(c)});
   showScreen('shop');if(shKeep)shSc.scrollTop=shY;
 }
-$('shopBtn').onclick=()=>{$('shopNote').textContent='코인은 출석 도장, 오늘의 미션, 게임 점수로 모을 수 있어요.';openShop()};
+$('shopBtn').onclick=()=>{$('shopNote').textContent='🪙 코인은 출석·미션·게임으로 모아요';openShop()};
 $('shopBack').onclick=()=>showScreen('menu');
 $('coinPill').onclick=()=>$('shopBtn').click();
 
@@ -3197,12 +3329,12 @@ const DEX=[
   {name:'퍼그',need:10500,tags:['중국','소형','주름 얼굴'],txt:'중국에서 오래전부터 사랑받던 반려견이에요. 주름진 얼굴과 동그란 눈, 말린 꼬리가 특징이에요. 애교가 많고 사람을 좋아하지만, 코가 짧아 더위에 약해요.'},
   {name:'허스키',need:12000,tags:['시베리아','중형~대형','썰매견'],txt:'추운 시베리아에서 썰매를 끌던 개예요. 두툼한 이중 털 덕분에 추위에 강하고, 파란 눈이나 양쪽 색이 다른 눈을 가진 경우도 많아요. 체력이 좋고 "아우~" 하는 소리로 말을 많이 해요.'},
   {name:'닥스훈트',need:9000,tags:['독일','소형','짧은 다리'],txt:'이름이 독일어로 "오소리 사냥개"라는 뜻이에요. 짧은 다리와 긴 허리로 굴속까지 들어가 사냥했어요. 용감하고 호기심이 많은데, 허리가 길어서 계단은 조심해야 해요.'},
-  {name:'보더콜리',need:6000,tags:['영국','중형','양치기 개'],txt:'영국과 스코틀랜드 국경 지역에서 양 떼를 몰던 양치기 개예요. 모든 견종 중에서도 손꼽히게 똑똑해요. 운동과 일하는 걸 아주 좋아해서 함께 뛰어놀 시간이 많이 필요해요.'},
-  {name:'달마시안',need:4500,tags:['크로아티아','대형','점박이'],txt:'크로아티아의 달마티아 지방에서 이름이 유래했어요. 신기하게도 태어날 땐 하얗고, 자라면서 검은 점이 생겨요. 옛날엔 마차를 호위했고, 지금도 소방서의 마스코트로 유명해요.'}
+  {name:'보더콜리',need:3000,tags:['영국','중형','양치기 개'],txt:'영국과 스코틀랜드 국경 지역에서 양 떼를 몰던 양치기 개예요. 모든 견종 중에서도 손꼽히게 똑똑해요. 운동과 일하는 걸 아주 좋아해서 함께 뛰어놀 시간이 많이 필요해요.'},
+  {name:'달마시안',need:500,tags:['크로아티아','대형','점박이'],txt:'크로아티아의 달마티아 지방에서 이름이 유래했어요. 신기하게도 태어날 땐 하얗고, 자라면서 검은 점이 생겨요. 옛날엔 마차를 호위했고, 지금도 소방서의 마스코트로 유명해요.'}
 ];
 const DEX_REWARD=300,DEX_ALL=2000,DEX_STEP=1.5,DEX_UP=50;
 /* 카드를 얻은 뒤에도 계속: 단계마다 필요한 수가 약 1.5배, 보상은 50코인씩 올라가요 (k=0 카드 획득, 1부터 별 단계) */
-const dexTarget=(b,k)=>k===0?b.need:Math.round(b.need*Math.pow(DEX_STEP,k)/500)*500;
+const dexTarget=(b,k)=>{if(k===0)return b.need;const u=b.need>=3000?500:50;return Math.round(b.need*Math.pow(DEX_STEP,k)/u)*u};
 /* 늦게 나오는 강아지일수록 모으기 어려워서 보상도 더 커요: 닥스훈트 2배, 보더콜리 3배, 달마시안 5배 */
 const DEX_MUL=[1,1,1,1,1,2,3,5];
 const dexReward=(k,i=0)=>(DEX_REWARD+DEX_UP*k)*(DEX_MUL[i]||1);
@@ -3239,11 +3371,11 @@ function openDex(){
     const pr=c.querySelector('p');
     if(got){pr.textContent=b.txt;const k=dexTier(d,i),nx=dexTarget(b,k+1),pv=dexTarget(b,k);
       c.querySelector('.no').textContent='⭐'+(k+1)+'단계 · No.'+String(i+1).padStart(2,'0');
-      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`다음 단계 ${Math.min(v[i],nx).toLocaleString()} / ${nx.toLocaleString()}마리 맞춤<br><span class="rw">단계 보상 ${COIN} ${dexReward(k+1,i).toLocaleString()}</span>`;
+      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`<span class="pc">다음 ⭐${k+2}단계 <b>${Math.min(v[i],nx).toLocaleString()}</b> / ${nx.toLocaleString()}</span><span class="rw">🎁 ${COIN} ${dexReward(k+1,i).toLocaleString()}</span>`;
       const bar=document.createElement('div');bar.className='pbar';const bi=document.createElement('i');bi.style.width=Math.max(0,Math.min(100,(v[i]-pv)/(nx-pv)*100))+'%';bar.appendChild(bi);
       pr.after(pg,bar)}
-    else{pr.textContent=v[i]>0?'이 친구를 더 많이 맞추면 카드가 컬러로 바뀌고 이야기가 열려요!':'아직 만나지 못한 친구예요. 레벨을 올리면 만날 수 있어요.';
-      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`${Math.min(v[i],b.need).toLocaleString()} / ${b.need.toLocaleString()}마리 맞춤<br><span class="rw">획득 보상 ${COIN} ${dexReward(0,i).toLocaleString()}</span>`;
+    else{pr.textContent=v[i]>0?'더 많이 맞추면 카드가 컬러로 바뀌고 이야기가 열려요!':'아직 만나지 못한 친구예요. 레벨을 올리면 만나요!';
+      const pg=document.createElement('div');pg.className='prog';pg.innerHTML=`<span class="pc">카드까지 <b>${Math.min(v[i],b.need).toLocaleString()}</b> / ${b.need.toLocaleString()}</span><span class="rw">🎁 ${COIN} ${dexReward(0,i).toLocaleString()}</span>`;
       const bar=document.createElement('div');bar.className='pbar';const bi=document.createElement('i');bi.style.width=Math.min(100,v[i]/b.need*100)+'%';bar.appendChild(bi);
       pr.after(pg,bar)}
     L.appendChild(c)});
@@ -3688,11 +3820,18 @@ function openThemes(keep){
   THEMES.forEach(t=>{
     const open=themeOpen(t);
     const b=document.createElement('button');b.className='tcard'+(t.id===cur?' sel':'')+(open?'':' locked')+(t.fancy?' fancy':'')+(t.legend?' legend':'');
-    const sw=document.createElement('div');sw.className='swatch sw-'+t.id;if(!open)sw.style.filter='grayscale(.85) opacity(.55)';
-    const nm=document.createElement('span');nm.textContent=t.name;
-    const st=document.createElement('small');st.innerHTML=!open?'🔒 잠김':(t.id===cur?'사용 중':(THEME_TEST_UNLOCK&&t.price?'테스트용으로 열림 · '+COIN+' '+t.price:'눌러서 적용'));
-    b.append(sw,nm,st);
-    if(!open){const by=document.createElement('span');by.className='buy';by.innerHTML=`${COIN} ${t.price.toLocaleString()}<span class="pv">👀 눌러서 미리보기</span>`;b.appendChild(by)}
+    const sww=document.createElement('div');sww.className='sww';
+    const sw=document.createElement('div');sw.className='swatch sw-'+t.id;if(!open)sw.style.filter='grayscale(.6) opacity(.7)';sww.appendChild(sw);
+    if(t.legend||t.fancy){const rb=document.createElement('span');rb.className='trib';rb.textContent=t.legend?'👑 전설':'✨ 스페셜';sww.appendChild(rb)}
+    if(!open){const lk=document.createElement('span');lk.className='tlock';lk.textContent='🔒';sww.appendChild(lk)}
+    if(t.id===cur){const ck=document.createElement('span');ck.className='tcheck';ck.textContent='✓';sww.appendChild(ck)}
+    const nm=document.createElement('span');nm.className='tname';nm.textContent=t.name.replace(/^\S+\s/,m=>/[\u{1F300}-\u{1FAFF}\u2728]/u.test(m)?'':m);
+    const st=document.createElement('span');st.className='tst';
+    if(!open){st.classList.add('price');st.innerHTML=`${COIN} ${t.price.toLocaleString()}`}
+    else if(t.id===cur){st.classList.add('on');st.textContent='사용 중'}
+    else{st.classList.add('apply');st.textContent=THEME_TEST_UNLOCK&&t.price?'테스트로 열림':'눌러서 적용'}
+    b.append(sww,nm,st);
+    if(!open){const pv=document.createElement('span');pv.className='tpv';pv.textContent='👀 눌러서 미리보기';b.appendChild(pv)}
     b.onclick=()=>{
       THEME_Y=sc.scrollTop;
       if(!themeOpen(t)){previewTheme(t);return}
@@ -3700,7 +3839,7 @@ function openThemes(keep){
     };
     g.appendChild(b);
   });
-  $('themeNote').innerHTML=THEME_TEST_UNLOCK?'🧪 테스트 중이라 모든 배경이 열려 있어요.':`내 코인 ${COIN} ${getCoin().toLocaleString()} · 코인으로 새 배경을 열 수 있어요.`;
+  $('themeNote').innerHTML=THEME_TEST_UNLOCK?'🧪 테스트 중이라 모든 배경이 열려 있어요.':`<span class="tcoin">내 코인 ${COIN} <b>${getCoin().toLocaleString()}</b></span><span class="tnote">코인으로 새 배경을 열어요</span>`;
   showScreen('themes');if(keep===true)sc.scrollTop=THEME_Y;
 }
 (function(){let id=ls.get('mung-theme','paw');const t=THEMES.find(x=>x.id===id);if(!t||!themeOpen(t))id='paw';applyTheme(id)})();
@@ -3741,7 +3880,22 @@ $('pvBuy').onclick=()=>{const t=previewing;if(!t)return;
     [ZZ_ICON,'<b>레벨 7</b>부터 낮잠 자는 친구가 나와요. 옆에서 맞춰서 깨워야 움직일 수 있어요. 깨우면 가장 큰 보너스 점수!'],
     [svgFor(5),'새 강아지는 <b>레벨 4, 9, 12</b>에 한 마리씩 합류해서 점점 어려워져요. 대신 닥스훈트·보더콜리·달마시안을 맞추면 순서대로 더 많은 점수를 받아요. 움직일 곳이 없거나 시간이 끝나면 게임 오버! 상점의 황금 뼈다귀가 있으면 이어서 할 수 있어요. 레벨 5부터는 시간이 조금씩 빨리 흘러요.']
   ];
-  $('helpList').innerHTML=rows.map(([i,t])=>`<div class="hrow">${i}<p>${t}</p></div>`).join('');
+  const T=['<b>같은 강아지 3마리 이상</b>을 가로·세로로 맞춰요. 맞출수록 <b>시간이 늘고</b>, 콤보면 더 많이 늘어요.',
+    '<b>4마리 일자</b>나 <b>ㄱ·T자</b>로 맞추면 무지개 친구가 나타나요.',
+    '<b>치와와</b> · 누르면 가로·세로 한 줄씩 정리',
+    '<b>말티즈</b> · 주변 9칸 정리 + 5초',
+    '<b>킹찰스</b> · 강아지 쪽으로 밀면 그 종류 모두 정리',
+    '<b>무지개 친구 둘이 나란히</b> 붙으면 판 전체 정리! 세 친구가 모이면 보너스 + 피버 타임',
+    '<b>피버 게이지</b>가 가득 차면 10초 동안 <b>점수 2배</b>, 시간도 멈춰요.',
+    '<b>출석·미션·점수</b>로 코인을 모아 상점에서 아이템을 사요. 게임 중 🎒에서 꺼내 써요.',
+    '<b>개껌 힌트</b> · 가장 좋은 자리가 반짝여요. 10만 점마다 1개!',
+    '<b>강아지 도감</b> · 많이 맞추면 카드가 컬러로! 카드와 ⭐단계마다 코인 보상',
+    '<b>레벨 5 흙더미</b> · 옆에서 맞추면 부서지며 보너스 점수',
+    '<b>레벨 6 거품 친구</b> · 같은 강아지와 맞추거나, 옆에서 두 번 맞춰 벗겨요',
+    '<b>레벨 7 낮잠 친구</b> · 옆에서 맞춰 깨워요. 가장 큰 보너스!',
+    '<b>레벨 4·9·12</b>에 새 강아지가 와요. 늦게 오는 강아지일수록 <b>점수가 커요!</b> 막히면 🦴 <b>황금 뼈다귀</b>로 한 번 이어하기'];
+  const G=[['🐾 기본 규칙','b',[0,13,6]],['🌈 무지개 친구','r',[1,2,3,4,5]],['🎒 아이템 · 코인','y',[7,8,9]],['🚧 방해물 (레벨 5~7)','g',[10,11,12]]];
+  $('helpList').innerHTML=G.map(([h,c,ix])=>`<section class="hsec h-${c}"><h3>${h}</h3>${ix.map(i=>`<div class="hrow"><span class="hic">${rows[i][0]}</span><p>${T[i]}</p></div>`).join('')}</section>`).join('');
 })();
 $('pauseBtn').onclick=pause;
 $('resumeBtn').onclick=resume;
