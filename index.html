@@ -837,11 +837,11 @@ body[data-bg="aurora"]{background:linear-gradient(180deg,#141A45 0%,#232A63 40%,
 #bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}
 body[data-bg="aurora"] #bgfx{display:block}
 .app{position:relative;z-index:1}
-#bgfx .aur{position:absolute;inset:-35%;will-change:transform;
+#bgfx .aur{position:absolute;inset:-14%;will-change:transform;
   background:radial-gradient(ellipse 40% 22% at 30% 38%,rgba(110,255,200,.42),transparent 70%),radial-gradient(ellipse 36% 20% at 68% 30%,rgba(180,120,255,.42),transparent 70%),radial-gradient(ellipse 45% 18% at 50% 62%,rgba(110,190,255,.32),transparent 70%),radial-gradient(ellipse 30% 16% at 80% 70%,rgba(255,140,210,.28),transparent 70%);
   animation:aurMove 16s ease-in-out infinite alternate}
 #bgfx .aur.b{animation-duration:23s;animation-direction:alternate-reverse;opacity:.7}
-@keyframes aurMove{0%{transform:translate(-4%,-2%) rotate(-6deg) scale(1)}50%{transform:translate(5%,3%) rotate(4deg) scale(1.12)}100%{transform:translate(-2%,5%) rotate(8deg) scale(1.04)}}
+@keyframes aurMove{0%{transform:translate(-6%,-3%)}50%{transform:translate(6%,4%)}100%{transform:translate(-3%,7%)}}
 #bgfx .stars{position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27160%27%20height%3D%27160%27%3E%3Cpath%20d%3D%27M24%2024%20Q24%2030%2030%2030%20Q24%2030%2024%2036%20Q24%2030%2018%2030%20Q24%2030%2024%2024Z%27%20fill%3D%27%23FFF7C2%27/%3E%3Cpath%20d%3D%27M120%2014%20Q120%2018%20124%2018%20Q120%2018%20120%2022%20Q120%2018%20116%2018%20Q120%2018%20120%2014Z%27%20fill%3D%27%23FFFFFF%27/%3E%3Cpath%20d%3D%27M80%2091%20Q80%2096%2085%2096%20Q80%2096%2080%20101%20Q80%2096%2075%2096%20Q80%2096%2080%2091Z%27%20fill%3D%27%23C9F7FF%27/%3E%3Cpath%20d%3D%27M140%20126.5%20Q140%20130%20143.5%20130%20Q140%20130%20140%20133.5%20Q140%20130%20136.5%20130%20Q140%20130%20140%20126.5Z%27%20fill%3D%27%23FFFFFF%27/%3E%3Cpath%20d%3D%27M30%20125%20Q30%20128%2033%20128%20Q30%20128%2030%20131%20Q30%20128%2027%20128%20Q30%20128%2030%20125Z%27%20fill%3D%27%23FFE0F5%27/%3E%3Cg%20fill%3D%27%23fff%27%3E%3Ccircle%20cx%3D%2760%27%20cy%3D%2750%27%20r%3D%271.4%27/%3E%3Ccircle%20cx%3D%27100%27%20cy%3D%2760%27%20r%3D%271%27/%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2780%27%20r%3D%271.2%27/%3E%3Ccircle%20cx%3D%27150%27%20cy%3D%2780%27%20r%3D%271%27/%3E%3C/g%3E%3C/svg%3E") 0 0/160px repeat;animation:twk 2.6s ease-in-out infinite alternate;will-change:opacity}
 #bgfx .stars.b{background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27200%27%20height%3D%27200%27%3E%3Cpath%20d%3D%27M60%2036%20Q60%2040%2064%2040%20Q60%2040%2060%2044%20Q60%2040%2056%2040%20Q60%2040%2060%2036Z%27%20fill%3D%27%23FFFFFF%27/%3E%3Cpath%20d%3D%27M170%2084%20Q170%2090%20176%2090%20Q170%2090%20170%2096%20Q170%2090%20164%2090%20Q170%2090%20170%2084Z%27%20fill%3D%27%23FFF7C2%27/%3E%3Cpath%20d%3D%27M20%20165%20Q20%20170%2025%20170%20Q20%20170%2020%20175%20Q20%20170%2015%20170%20Q20%20170%2020%20165Z%27%20fill%3D%27%23D8C9FF%27/%3E%3Cpath%20d%3D%27M110%20147%20Q110%20150%20113%20150%20Q110%20150%20110%20153%20Q110%20150%20107%20150%20Q110%20150%20110%20147Z%27%20fill%3D%27%23FFFFFF%27/%3E%3Cg%20fill%3D%27%23fff%27%3E%3Ccircle%20cx%3D%27140%27%20cy%3D%2720%27%20r%3D%271.2%27/%3E%3Ccircle%20cx%3D%2780%27%20cy%3D%27120%27%20r%3D%271.4%27/%3E%3Ccircle%20cx%3D%27190%27%20cy%3D%27180%27%20r%3D%271%27/%3E%3C/g%3E%3C/svg%3E") 40px 30px/200px repeat;animation-duration:3.7s;animation-delay:-1.3s}
 @keyframes twk{from{opacity:.25}to{opacity:1}}
@@ -1340,8 +1340,8 @@ body.native-ads .modal{bottom:calc(var(--banner-h,60px) + 10px)}
 #setModal .msg:empty{display:none}
 
 /* 게임 중에는 화려한 배경의 큰 판(오로라·은하수·궁전 빛 등)을 멈춘 그림으로 둬요. 폰 그래픽 메모리를 3분의 1로 줄여서 버벅임과 판 깜빡임을 막아요. 작은 반짝이는 계속 움직여요 */
-body.ingame #bgfx .fxs>div:not(.shoot){animation:none!important;will-change:auto!important}
-body.ingame #bgfx .fx-palace .sweep{display:none}
+body:is(.ingame,.subscr) #bgfx .fxs>div:not(.shoot){animation:none!important;will-change:auto!important}
+body:is(.ingame,.subscr) #bgfx .fx-palace .sweep{display:none}
 
 /* ---- 업적 레벨 ---- */
 .alv{--a:#F2B27A;--b:#B9733A;--c:#FFE3C4;flex:none;position:relative;width:88px;height:88px;border-radius:50%;padding:6px;background:conic-gradient(from 200deg,var(--a),var(--c),var(--b),var(--c),var(--a));box-shadow:0 4px 0 var(--b),0 0 0 3px #fff inset}
@@ -1457,6 +1457,18 @@ body.ingame #bgfx .fx-palace .sweep{display:none}
 .rank li.pl-crown .plfx .t{color:#FFF6C0;text-shadow:0 0 6px #E0A000}
 .rank li.pl-crown .plfx .sw{background:linear-gradient(100deg,transparent,rgba(255,255,255,.95),transparent)}
 @media (prefers-reduced-motion: reduce){.plfx i,.rank li.pl .plic{animation:none!important}.plfx .f,.plfx .r,.plfx .b,.plfx .e,.plfx .sm,.plfx .sh{display:none}}
+
+/* 화면이 부드럽게 나타나요 (움직임은 그래픽 칩이 맡아서 가벼워요) */
+main>.screen.scr-in{animation:scrIn .24s cubic-bezier(.2,.8,.3,1)}
+@keyframes scrIn{from{opacity:.0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){main>.screen.scr-in{animation:none}}
+
+/* 긴 목록: 화면 밖 카드는 계산을 건너뛰어요 → 상점·업적·도감·배경이 빨리 열려요 */
+#shopList .scard{content-visibility:auto;contain-intrinsic-size:auto 170px}
+#shopList .plcard{content-visibility:auto;contain-intrinsic-size:auto 112px}
+#achList .achc{content-visibility:auto;contain-intrinsic-size:auto 92px}
+#dexList .dcard{content-visibility:auto;contain-intrinsic-size:auto 210px}
+#themeGrid .tcard{content-visibility:auto;contain-intrinsic-size:auto 190px}
 </style>
 </head>
 <body>
@@ -2317,7 +2329,19 @@ function fitMenu(){const m=$('menu');if(!m||m.hidden)return;const box=m.parentEl
   const need=m.scrollHeight,have=box.clientHeight;if(need>have+1){let z=Math.max(.55,(have-4)/need);m.style.zoom=z.toFixed(3);for(let i=0;i<8&&box.scrollHeight>box.clientHeight+1&&z>.55;i++){z-=.015;m.style.zoom=z.toFixed(3)}}}
 addEventListener('resize',()=>requestAnimationFrame(fitMenu));
 try{document.fonts&&document.fonts.ready.then(()=>fitMenu())}catch(e){}
-function showScreen(id){['menu','game','rank','credits','themes','help','missions','shop','dex','ach'].forEach(s=>$(s).hidden=s!==id);if(id==='menu')requestAnimationFrame(fitMenu);document.body.classList.toggle('ingame',id==='game');try{setBgRate(id==='game')}catch(e){}if(id==='menu'&&typeof refreshMenuBadges==='function')refreshMenuBadges();$(id).parentElement.scrollTop=0;BGM.play(id==='game'?'game':'menu')}
+/* 화면 바꾸기: 먼저 화면을 보여 주고, 무거운 정리(배경 움직임 속도 맞추기)는 그린 다음에 해요 → 메뉴가 바로바로 열려요 */
+let SCR_T=0,SCR_CUR='';
+function showScreen(id){
+  const box=$(id).parentElement;if(box.scrollTop)box.scrollTop=0;
+  const was=SCR_CUR;SCR_CUR=id;
+  ['menu','game','rank','credits','themes','help','missions','shop','dex','ach'].forEach(s=>{const e=$(s);if(e.hidden!==(s!==id))e.hidden=s!==id});
+  document.body.classList.toggle('ingame',id==='game');document.body.classList.toggle('subscr',id!=='game'&&id!=='menu');
+  if(was&&was!==id&&id!=='game'){const e=$(id);e.classList.remove('scr-in');void 0;requestAnimationFrame(()=>{e.classList.add('scr-in');setTimeout(()=>e.classList.remove('scr-in'),260)})}
+  if(id==='menu'){requestAnimationFrame(fitMenu);if(typeof refreshMenuBadges==='function')refreshMenuBadges()}
+  clearTimeout(SCR_T);
+  if(id==='game'){try{setBgRate(true)}catch(e){}}
+  else SCR_T=setTimeout(()=>{try{setBgRate(false)}catch(e){}},320);
+  BGM.play(id==='game'?'game':'menu')}
 $('menuFriends').innerHTML=FRIEND_ART.map((_,i)=>svgFor(TYPES+i)).join('');
 $('friendCards').innerHTML=FRIENDS.map((f,i)=>`<div class="fr">${svgFor(TYPES+i)}<div><h3></h3><p></p></div></div>`).join('');
 document.querySelectorAll('#friendCards .fr').forEach((el,i)=>{
