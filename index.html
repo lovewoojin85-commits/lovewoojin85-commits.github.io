@@ -2153,6 +2153,30 @@ function eachSwap(fn){
 }
 function findMove(){let mv=null;eachSwap((n,m)=>{mv=m;return true});return mv}
 function bestMove(){let best=null,bs=0;eachSwap((n,m)=>{if(n>bs){bs=n;best=m}});return best}
+/* 개껌 힌트: 판에서 "가장 좋은 수"를 골라요
+   1) 옮겨서 무지개 친구를 만들 수 있는 자리 (5줄 > ㄱ·T자·4줄)
+   2) 그다음은 3마리 맞추기 중 아래쪽 자리 (위 강아지들이 떨어져 연쇄가 잘 생겨요)
+      같은 조건이면 늦게 나온 강아지·방해물 옆이 더 좋아요
+   3) 옮길 수 있는 곳이 하나도 없을 때만 무지개 친구를 알려줘요 */
+function bestHint(){
+  const RARE={5:1,6:2,7:3};let best=null,bs=-1;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)for(const[dr,dc]of[[0,1],[1,0]]){
+    const r2=r+dr,c2=c+dc;if(!inB(r2,c2))continue;const a=board[r][c],b=board[r2][c2];
+    if(!movable(a)||!movable(b)||isFriend(a.type)||isFriend(b.type))continue;
+    swapCells(r,c,r2,c2);const gs=findGroups();
+    let sc=0,bottom=0;const near=new Set();
+    gs.forEach(G=>{sc+=G.cells.size;const mx=Math.max(...G.runs.map(x=>x.cells.length)),h=G.runs.some(x=>x.dir==='h'),v=G.runs.some(x=>x.dir==='v');
+      if(mx>=5)sc+=200;else if(mx>=4||(h&&v))sc+=100;
+      G.cells.forEach(k=>{const[rr,cc]=keyRC(k),t=board[rr][cc];if(t)sc+=RARE[t.type]||0;bottom=Math.max(bottom,rr);
+        [[1,0],[-1,0],[0,1],[0,-1]].forEach(([y,x])=>{const r3=rr+y,c3=cc+x;if(!inB(r3,c3)||G.cells.has(r3*N+c3))return;const o=board[r3][c3];if(o&&(o.type===SAND||o.shell||o.sleep))near.add(r3*N+c3)})})});
+    swapCells(r,c,r2,c2);
+    if(!gs.length)continue;
+    sc+=bottom*3+near.size*2;
+    if(sc>bs){bs=sc;best=[[r,c],[r2,c2]]}
+  }
+  if(best)return best;
+  const f=findFriend();return f?[f]:null;
+}
 function findFriend(){for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]&&isFriend(board[r][c].type))return[r,c];return null}
 const hasAnyMove=()=>!!(findFriend()||findMove());
 
@@ -2317,7 +2341,7 @@ let bones=3,shineTimer=null;
 function updateBones(){$('boneCnt').textContent=bones;$('boneBtn').disabled=bones<=0}
 function useBone(){
   if(!active()||busy||bones<=0||hintCells)return;
-  const fr=findFriend();const mv=bestMove()||(fr?[fr]:null);if(!mv)return;
+  const mv=bestHint();if(!mv)return;
   bones--;updateBones();hintCells=mv;
   mv.forEach(([r,c])=>board[r][c].el.classList.add('hint','shine'));
   SFX.hint();buzz(15);
@@ -3880,20 +3904,20 @@ $('pvBuy').onclick=()=>{const t=previewing;if(!t)return;
     [ZZ_ICON,'<b>레벨 7</b>부터 낮잠 자는 친구가 나와요. 옆에서 맞춰서 깨워야 움직일 수 있어요. 깨우면 가장 큰 보너스 점수!'],
     [svgFor(5),'새 강아지는 <b>레벨 4, 9, 12</b>에 한 마리씩 합류해서 점점 어려워져요. 대신 닥스훈트·보더콜리·달마시안을 맞추면 순서대로 더 많은 점수를 받아요. 움직일 곳이 없거나 시간이 끝나면 게임 오버! 상점의 황금 뼈다귀가 있으면 이어서 할 수 있어요. 레벨 5부터는 시간이 조금씩 빨리 흘러요.']
   ];
-  const T=['<b>같은 강아지 3마리 이상</b>을 가로·세로로 맞춰요. 맞출수록 <b>시간이 늘고</b>, 콤보면 더 많이 늘어요.',
-    '<b>4마리 일자</b>나 <b>ㄱ·T자</b>로 맞추면 무지개 친구가 나타나요.',
-    '<b>치와와</b> · 누르면 가로·세로 한 줄씩 정리',
-    '<b>말티즈</b> · 주변 9칸 정리 + 5초',
-    '<b>킹찰스</b> · 강아지 쪽으로 밀면 그 종류 모두 정리',
-    '<b>무지개 친구 둘이 나란히</b> 붙으면 판 전체 정리! 세 친구가 모이면 보너스 + 피버 타임',
-    '<b>피버 게이지</b>가 가득 차면 10초 동안 <b>점수 2배</b>, 시간도 멈춰요.',
-    '<b>출석·미션·점수</b>로 코인을 모아 상점에서 아이템을 사요. 게임 중 🎒에서 꺼내 써요.',
-    '<b>개껌 힌트</b> · 가장 좋은 자리가 반짝여요. 10만 점마다 1개!',
-    '<b>강아지 도감</b> · 많이 맞추면 카드가 컬러로! 카드와 ⭐단계마다 코인 보상',
-    '<b>레벨 5 흙더미</b> · 옆에서 맞추면 부서지며 보너스 점수',
-    '<b>레벨 6 거품 친구</b> · 같은 강아지와 맞추거나, 옆에서 두 번 맞춰 벗겨요',
-    '<b>레벨 7 낮잠 친구</b> · 옆에서 맞춰 깨워요. 가장 큰 보너스!',
-    '<b>레벨 4·9·12</b>에 새 강아지가 와요. 늦게 오는 강아지일수록 <b>점수가 커요!</b> 막히면 🦴 <b>황금 뼈다귀</b>로 한 번 이어하기'];
+  const T=['<b>같은 강아지 3마리 이상</b>을<br>가로·세로로 맞춰요.<br>맞출수록 <b>시간이 늘어요!</b>',
+    '<b>4마리 일자</b>나<br><b>ㄱ·T자</b>로 맞추면<br>무지개 친구가 나타나요.',
+    '<b>치와와</b><br>누르면 가로·세로 한 줄씩 정리',
+    '<b>말티즈</b><br>주변 9칸 정리 + 5초',
+    '<b>킹찰스</b><br>강아지 쪽으로 밀면<br>그 종류를 모두 정리',
+    '<b>무지개 친구 둘이 나란히</b><br>붙으면 판 전체를 정리해요!<br>세 친구가 모이면 보너스 + 피버',
+    '<b>피버 게이지</b>가 가득 차면<br>10초 동안 <b>점수 2배</b>,<br>시간도 멈춰요.',
+    '<b>출석·미션·점수</b>로 코인을 모아<br>상점에서 아이템을 사요.<br>게임 중 🎒에서 꺼내 써요.',
+    '<b>개껌 힌트</b><br>제일 좋은 수가 반짝여요.<br>10만 점마다 1개!',
+    '<b>강아지 도감</b><br>많이 맞추면 카드가 컬러로!<br>카드와 ⭐단계마다 코인 보상',
+    '<b>레벨 5 · 흙더미</b><br>옆에서 맞추면 부서지며<br>보너스 점수!',
+    '<b>레벨 6 · 거품 친구</b><br>같은 강아지와 맞추거나<br>옆에서 두 번 맞춰 벗겨요.',
+    '<b>레벨 7 · 낮잠 친구</b><br>옆에서 맞춰 깨워요.<br>가장 큰 보너스 점수!',
+    '<b>레벨 4·9·12</b>에<br>새 강아지가 와요.<br>늦게 올수록 <b>점수가 더 커요!</b>'];
   const G=[['🐾 기본 규칙','b',[0,13,6]],['🌈 무지개 친구','r',[1,2,3,4,5]],['🎒 아이템 · 코인','y',[7,8,9]],['🚧 방해물 (레벨 5~7)','g',[10,11,12]]];
   $('helpList').innerHTML=G.map(([h,c,ix])=>`<section class="hsec h-${c}"><h3>${h}</h3>${ix.map(i=>`<div class="hrow"><span class="hic">${rows[i][0]}</span><p>${T[i]}</p></div>`).join('')}</section>`).join('');
 })();
