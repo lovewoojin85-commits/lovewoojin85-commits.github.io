@@ -556,6 +556,26 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .kkbtn svg{width:20px;height:20px;flex:none}
 .kkbtn.small{font-size:.95rem;padding:9px 12px;box-shadow:0 3px 0 #D9C300}
 .kkfine{font-size:.78rem;color:#7A8A9A;line-height:1.45;margin:0}
+.kkcard{position:relative;max-width:340px;width:100%;padding:18px 18px 14px;gap:10px;align-items:stretch;text-align:center;background:linear-gradient(180deg,#FFF6CC 0,#FFFDF6 34%,#FFFDF6 100%);overflow:hidden}
+.kkhero{position:relative;height:84px;display:flex;justify-content:center;align-items:flex-end}
+.kkdogs{display:flex;gap:2px;align-items:flex-end}
+.kkdogs svg{width:62px;height:62px;filter:drop-shadow(0 3px 4px rgba(120,80,0,.18))}
+.kkdogs svg:nth-child(2){width:74px;height:74px}
+.kkbubble{position:absolute;right:calc(50% - 128px);top:0;width:44px;height:38px;border-radius:50%;background:#FEE500;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 #D9C300;transform:rotate(8deg)}
+.kkbubble svg{width:24px;height:24px}
+.kkbubble::after{content:"";position:absolute;left:6px;bottom:-5px;border:6px solid transparent;border-top-color:#FEE500;transform:rotate(25deg)}
+.kktitle{margin:2px 0 0;font-family:"Jua",sans-serif;font-size:1.75rem;color:#3A2A1A;line-height:1.15}
+.kksub{margin:-4px 0 2px;font-family:"Jua",sans-serif;color:#E0703A;font-size:1rem}
+.kkperks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.kkperks li{display:flex;align-items:center;gap:12px;text-align:left;background:#fff;border-radius:16px;padding:9px 12px;box-shadow:0 2px 0 #F1E3B8}
+.kkperks .pi{flex:none;width:36px;height:36px;border-radius:50%;background:#FFF3B8;display:flex;align-items:center;justify-content:center;font-size:1.15rem}
+.kkperks .pt{font-size:.93rem;line-height:1.38;color:#5A4A3A;word-break:keep-all}
+.kkperks .pt b{font-family:"Jua",sans-serif;font-weight:400;color:#3A2A1A;font-size:1.02rem}
+.kkcard .kkbtn{margin-top:4px;font-size:1.15rem;padding:13px 0}
+.kklater{background:transparent;box-shadow:none;color:#8A99A8;font-family:"Jua",sans-serif;font-size:.98rem;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
+.kklater:active{transform:none}
+.kkcard .kkfine{font-size:.75rem;line-height:1.5;color:#9AA6B2;word-break:keep-all}
+
 .kkme{display:flex;align-items:center;justify-content:center;gap:10px;background:#FFF8F2;border-radius:14px;padding:10px 12px;font-family:"Jua",sans-serif;color:#E0703A;font-size:1.15rem}
 .kkme[hidden],.kkbtn[hidden],.setrow[hidden],.nickrow[hidden],.tab[hidden]{display:none!important}
 .kkme small{display:block;font-family:"Gowun Dodum",sans-serif;font-size:.72rem;color:#7A8A9A}
@@ -1286,13 +1306,18 @@ body.native-ads .ad #adSlot{display:none}
 
 <!-- 카카오로 시작하기 -->
 <div class="modal" id="kkModal" hidden>
-  <div class="card">
-    <h2>카카오로 시작하기</h2>
-    <p>카카오로 로그인하면 순위표에 <b>내 카톡 이름과 프로필 사진</b>이 나와요.<br>카톡 친구들과 순위도 겨룰 수 있어요!</p>
-    <p class="msg">한 번만 로그인하면 다음부터는 자동으로 로그인돼요.</p>
+  <div class="card kkcard">
+    <div class="kkhero"><div class="kkdogs" id="kkDogs"></div><div class="kkbubble"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"/></svg></div></div>
+    <h2 class="kktitle">카카오로 시작하기</h2>
+    <p class="kksub">로그인 한 번이면 끝! 🐾</p>
+    <ul class="kkperks">
+      <li><span class="pi">🏆</span><span class="pt"><b>내 카톡 이름과 사진</b>으로<br>순위표에 올라가요</span></li>
+      <li><span class="pi">💬</span><span class="pt"><b>카톡 친구들</b>과<br>순위를 겨뤄요</span></li>
+      <li><span class="pi">⚡</span><span class="pt">다음부터는<br><b>자동으로 로그인</b>돼요</span></li>
+    </ul>
     <button class="kkbtn" id="kkStart"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1 .1 1.5.1 5.5 0 10-3.5 10-7.9S17.5 3 12 3z"/></svg>카카오로 시작하기</button>
-    <button class="sub" id="kkLater">나중에 할게요</button>
-    <p class="kkfine">만 14세 미만은 로그인 없이 이용해 주세요. 설정에서 언제든 연결을 끊을 수 있어요.</p>
+    <button class="kklater" id="kkLater">나중에 할게요</button>
+    <p class="kkfine">만 14세 미만은 로그인 없이 이용해 주세요.<br>설정에서 언제든 연결을 끊을 수 있어요.</p>
   </div>
 </div>
 
@@ -3402,6 +3427,7 @@ function kakaoRec(old){
 (function(){
   try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Kakao)KAKAO.plugin=C.Plugins.Kakao}catch(e){}
   if(!KAKAO.plugin)return;
+  try{$('kkDogs').innerHTML=[0,1,2].map(i=>svgFor(i)).join('')}catch(e){}
   const c=ls.get('mung-kakao',null);if(c&&c.id)KAKAO.me=c;
   $('optKakao').hidden=false;$('tabFriend').hidden=false;$('rankTabs').classList.add('three');
   $('optKakao').onclick=()=>{if(KAKAO.me)kakaoUnlink();else kakaoLogin()};
