@@ -1600,6 +1600,15 @@ body.ingame main{overflow:hidden;overflow:clip}
 .menu-links button{flex:0 1 auto;width:auto!important;padding:7px 12px;font-size:.82rem;border-radius:999px;white-space:nowrap;box-shadow:0 2px 0 var(--frame);background:rgba(255,255,255,.85)}
 @media (max-width:350px){.menu-links{gap:5px}.menu-links button{padding:6px 9px;font-size:.74rem}}
 @media (orientation:landscape) and (max-height:560px){#menu .topleft{top:6px;left:10px}}
+
+/* ---- 메인화면: 제목 한 줄 + 위쪽 여백 ---- */
+#menu .logo{white-space:nowrap}
+#menu .logo span{display:inline;margin-left:.28em}
+#menu .topleft,#menu .topright{top:calc(34px + env(safe-area-inset-top,0px))}
+#menu{padding-top:calc(108px + env(safe-area-inset-top,0px))}
+@media (orientation:portrait) and (max-height:780px){#menu .topleft,#menu .topright{top:calc(26px + env(safe-area-inset-top,0px))}#menu{padding-top:calc(94px + env(safe-area-inset-top,0px))}}
+@media (orientation:portrait) and (max-height:680px){#menu .topleft,#menu .topright{top:calc(16px + env(safe-area-inset-top,0px))}#menu{padding-top:76px}}
+@media (orientation:landscape) and (max-height:560px){#menu .topleft,#menu .topright{top:6px}#menu{padding-top:8px}}
 </style>
 </head>
 <body>
@@ -1630,7 +1639,6 @@ body.ingame main{overflow:hidden;overflow:clip}
 <main>
   <!-- 메인 화면 -->
   <section class="screen" id="menu">
-    <div class="topleft"><button class="ticon snd" id="sndBtn2" aria-label="설정"><span class="ti">⚙️</span><small>설정</small></button></div>
     <div class="topright"><button class="coinpill" id="coinPill" aria-label="내 코인 (상점 열기)"><i class="ci"></i> <b id="coinPillN">0</b></button>
       <div class="ticons"><button class="ticon" id="shopBtn" aria-label="상점"><span class="ti">🛒</span><small>상점</small></button><button class="ticon" id="menuBagBtn" aria-label="가방"><span class="ti">🎒</span><small>가방</small><span class="badge cnt" id="menuBagN" hidden>0</span></button><button class="ticon" id="missionBtn" aria-label="오늘의 미션"><span class="ti">🎯</span><small>미션</small><span class="badge" id="missionBadge" hidden>!</span></button></div></div>
     <div class="menu-friends" id="menuFriends"></div>
@@ -1644,8 +1652,11 @@ body.ingame main{overflow:hidden;overflow:clip}
         <button class="sub mission-btn" id="dexBtn"><span class="mi">📖</span><span class="ml">도감</span><span class="badge" id="dexBadge" hidden>N</span></button>
         <button class="sub mission-btn" id="achBtn"><span class="mi">🏅</span><span class="ml">업적</span><span class="achlvtag" id="achLvTag">Lv.1</span><span class="badge" id="achBadge" hidden>0</span></button>
         <button class="sub mission-btn" id="eventBtn"><span class="mi">🎁</span><span class="ml">이벤트</span><span class="badge now" id="eventBadge" hidden>NOW</span></button>
+        <button class="sub mission-btn" id="themeBtn"><span class="mi">🎨</span><span class="ml">배경</span></button>
+        <button class="sub mission-btn" id="helpBtn"><span class="mi">💡</span><span class="ml">게임 방법</span></button>
+        <button class="sub mission-btn" id="creditBtn"><span class="mi">💝</span><span class="ml">만든 사람</span></button>
+        <button class="sub snd mission-btn" id="sndBtn2" aria-label="설정"><span class="mi">⚙️</span><span class="ml">설정</span></button>
       </div>
-      <div class="menu-links"><button class="sub" id="themeBtn">🎨 배경</button><button class="sub" id="helpBtn">💡 게임 방법</button><button class="sub" id="creditBtn">💝 만든 사람</button></div>
     </div>
   </section>
 
@@ -3047,7 +3058,7 @@ async function runEffect(starts,{extra=null,msg=null,consumed=[]}={}){
   SFX.friend();buzz([40,30,60]);shake(Math.min(10+ch*2,16));flash();
   combo=1;await clearSet(total,gain);await resolve();await finishTurn();
 }
-/* ---- 무지개 친구 아이템: 가방에서 꺼내 원하는 자리에 불러내기 (한 판 최대 3번) ---- */
+/* ---- 무지개 친구 아이템: 누르면 판의 랜덤한 자리에 나타나요 ---- */
 let placing=null,itemsUsed=0;
 /* ---- 상점 목록 ---- */
 const REVIVE_PRICE=150,REVIVE_ONSPOT=200,REVIVE_PER_GAME=Infinity;   // 황금 뼈다귀도 가진 만큼 이어하기   // 미리 사두면 150, 그 자리에서 사면 200
@@ -3166,7 +3177,7 @@ let usedItems={};
 const usedOf=k=>usedItems[k]||0;
 function bagCount(){const it=getItems(),v=getInv();return it[0]+it[1]+it[2]+v.clock+v.shuffle+v.fever+v.clean+v.revive}
 let revivesUsed=0;
-function updateTray(){const n=bagCount();$('bagCnt').textContent=n;$('bagBtn').classList.toggle('empty',!n);
+function updateTray(){const v0=getInv(),n=v0.clock+v0.shuffle+v0.fever+v0.clean+v0.revive;$('bagCnt').textContent=n;$('bagBtn').classList.toggle('empty',!n);
   const it=getItems();document.querySelectorAll('#ftray .fbtn').forEach(b=>{const f=+b.dataset.f,k=it[f]|0;
     if(!b.__init){b.__init=1;b.innerHTML=svgFor(TYPES+f)+'<b></b><small></small>';b.querySelector('small').textContent=FRIENDS[f].label;b.onclick=()=>{SFX.init();pickItem(f)}}
     const c=b.querySelector('b'),t=k>99?'99+':String(k);if(c.textContent!==t)c.textContent=t;b.classList.toggle('empty',!k);b.classList.toggle('on',placing===f)})}
@@ -3183,7 +3194,7 @@ function closeBag(){$('bagModal').hidden=true;if(bagView){bagView=false;return}i
 function renderBag(){
   const L=$('bagList'),it=getItems(),v=getInv();L.innerHTML='';$('bagMsg').textContent='';
   const rows=[
-    ...[0,1,2].map(f=>({k:'friend',f,n:it[f],name:FRIENDS[f].label+' 부르기',ds:'원하는 칸에 불러와요',ic:svgFor(TYPES+f)})),
+    ...(bagView?[0,1,2].map(f=>({k:'friend',f,n:it[f],name:FRIENDS[f].label,ds:'게임 중 판 아래 버튼을 누르면 랜덤 자리에 와요',lim:'🌈 판 아래 버튼',ic:svgFor(TYPES+f)})):[]),   // 게임 중엔 판 아래 버튼으로만
     {k:'clock',n:v.clock,name:'간식 시계',ds:'시간 +10초',ic:'⏰'},
     {k:'shuffle',n:v.shuffle,name:'강아지 섞기',ds:'시간 손해 없이 판 섞기',ic:'🔀'},
     {k:'fever',n:v.fever,name:'피버 간식',ds:'바로 피버 타임!',ic:'🔥'},
@@ -3209,7 +3220,7 @@ function renderBag(){
 }
 function useBagItem(r){
   if(usedOf(r.k)>=USE_LIMIT[r.k])return;
-  if(r.k==='friend'){closeBag();placing=r.f;boardEl.classList.add('placing');clearSel();SFX.select();iconToast(svgFor(TYPES+r.f),'어디에 부를까요? 강아지를 눌러 주세요');return}
+  if(r.k==='friend'){closeBag();dropFriendRandom(r.f);return}
   const v=getInv();if(!v[r.k])return;v[r.k]--;setInv(v);usedItems[r.k]=usedOf(r.k)+1;
   closeBag();updateTray();
   if(r.k==='clock'){addTime(10);toast('⏰ 간식 시계! 시간 +10초');SFX.spawn()}
@@ -3234,8 +3245,19 @@ function pickItem(f){
   const it=getItems();
   if(!it[f]){toast(FRIENDS[f].label+'는 상점에서 살 수 있어요 🛒');SFX.bad();return}
   if(itemsUsed>=ITEM_PER_GAME){toast('무지개 친구는 한 판에 '+ITEM_PER_GAME+'번까지 부를 수 있어요');SFX.bad();return}
-  placing=f;boardEl.classList.add('placing');clearSel();updateTray();SFX.select();
-  iconToast(svgFor(TYPES+f),'어디에 부를까요? 강아지를 눌러 주세요');
+  dropFriendRandom(f);
+}
+/* 공평하게: 무지개 친구는 판의 빈 강아지 자리 중 랜덤으로 와요 (다른 무지개 친구 바로 옆은 피해요) */
+function dropFriendRandom(f){
+  const it=getItems();if(!it[f])return false;
+  const near=(r,c)=>[[1,0],[-1,0],[0,1],[0,-1]].some(([dr,dc])=>{const rr=r+dr,cc=c+dc;return inB(rr,cc)&&board[rr][cc]&&isFriend(board[rr][cc].type)});
+  const ok=[],ok2=[];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];if(!isDog(t)||t.shell||t.sleep||isFriend(t.type)||locked(r,c))continue;(near(r,c)?ok2:ok).push([r,c])}
+  const pool=ok.length?ok:ok2;if(!pool.length){toast('지금은 부를 자리가 없어요. 잠시 후 다시 눌러 주세요');SFX.bad();return false}
+  const[r,c]=pool[Math.floor(Math.random()*pool.length)];
+  if(placing!==null)cancelPlacing();clearSel();
+  it[f]--;setItems(it);itemsUsed++;usedItems.friend=usedOf('friend')+1;updateTray();
+  becomeFriend(r,c,f);updatePairs();buzz(30);lastAct=Date.now();return true;
 }
 function placeFriend(r,c){
   const t=board[r][c];
