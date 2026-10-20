@@ -1559,6 +1559,24 @@ body.ingame main{overflow:hidden;overflow:clip}
 .pgo:focus{outline:none}
 .pnote{margin:0;font-size:.75rem;color:#9AA6B2;word-break:keep-all}
 @media (prefers-reduced-motion: reduce){.pdog,.pz,.pst{animation:none}.pz{opacity:.8}}
+
+/* ---- 메인화면 정리: 메뉴는 아이콘 카드 4칸 × 2줄, 위아래 여유 ---- */
+#menu{justify-content:center;gap:16px;padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:28px}
+#menu .menu-friends{margin-top:56px}
+@media (orientation:portrait) and (max-height:780px){#menu{gap:12px}#menu .menu-friends svg{width:4.5rem;height:4.5rem}#menu .menu-friends svg:nth-child(2){width:5.1rem;height:5.1rem}#menu .logo{font-size:3rem}}
+#menu .tag{display:none}
+#menu .menu-btns{width:min(340px,100%);gap:14px}
+#menu .menu-grid{grid-template-columns:repeat(4,1fr);gap:8px}
+#menu .menu-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:70px;padding:9px 2px 8px;border-radius:18px;font-size:.8rem;line-height:1.1;width:100%}
+#menu .menu-grid .mi{font-size:1.6rem;line-height:1}
+#menu .menu-grid .ml{white-space:nowrap;letter-spacing:-.02em}
+#menu .menu-grid .achlvtag{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);margin:0;font-size:.6rem;padding:0 6px;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+#menu .menu-grid .badge{top:-7px;right:-5px}
+#menu .menu-grid #sndBtn2{display:flex;flex-direction:column;width:100%;font-size:.8rem;padding:9px 2px 8px}
+#menu #playBtn{padding-top:15px;padding-bottom:15px;font-size:1.3rem}
+@media (max-width:340px){#menu .menu-grid{gap:6px}#menu .menu-grid button{min-height:62px;font-size:.72rem}#menu .menu-grid .mi{font-size:1.35rem}}
+/* ---- 게임 화면: 위아래 여백을 똑같이 ---- */
+@media (orientation:portrait){#game{justify-content:center;padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:14px;gap:9px}}
 </style>
 </head>
 <body>
@@ -1577,8 +1595,8 @@ body.ingame main{overflow:hidden;overflow:clip}
 <div id="opening" aria-hidden="true">
   <div class="o-bgblur" style="background-image:url(data:image/jpeg;base64,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)"></div>
   <div class="o-vbox" id="oVbox">
-    <img class="o-poster" id="oPoster" src="bgm/opening.jpg?v=3" alt="" decoding="async">
-    <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto" poster="bgm/opening.jpg?v=3"><source src="bgm/opening.mp4?v=3" type="video/mp4"></video>
+    <img class="o-poster" id="oPoster" alt="" decoding="async">
+    <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto"></video>
   </div>
   <div class="white"></div>
   <button id="skipBtn">건너뛰기</button>
@@ -1598,14 +1616,14 @@ body.ingame main{overflow:hidden;overflow:clip}
     <div class="menu-btns">
       <button id="playBtn">시작하기</button>
       <div class="menu-grid">
-        <button class="sub" id="rankBtn">순위표</button>
-        <button class="sub mission-btn" id="dexBtn">📖 도감<span class="badge" id="dexBadge" hidden>N</span></button>
-        <button class="sub mission-btn" id="achBtn">🏅 업적<span class="achlvtag" id="achLvTag">Lv.1</span><span class="badge" id="achBadge" hidden>0</span></button>
-        <button class="sub mission-btn" id="eventBtn">🎁 이벤트<span class="badge now" id="eventBadge" hidden>NOW</span></button>
-        <button class="sub" id="themeBtn">배경</button>
-        <button class="sub" id="helpBtn">게임 방법</button>
-        <button class="sub" id="creditBtn">만든 사람</button>
-        <button class="sub snd" id="sndBtn2" aria-label="설정">⚙️ 설정</button>
+        <button class="sub mission-btn" id="rankBtn"><span class="mi">🏆</span><span class="ml">순위표</span></button>
+        <button class="sub mission-btn" id="dexBtn"><span class="mi">📖</span><span class="ml">도감</span><span class="badge" id="dexBadge" hidden>N</span></button>
+        <button class="sub mission-btn" id="achBtn"><span class="mi">🏅</span><span class="ml">업적</span><span class="achlvtag" id="achLvTag">Lv.1</span><span class="badge" id="achBadge" hidden>0</span></button>
+        <button class="sub mission-btn" id="eventBtn"><span class="mi">🎁</span><span class="ml">이벤트</span><span class="badge now" id="eventBadge" hidden>NOW</span></button>
+        <button class="sub mission-btn" id="themeBtn"><span class="mi">🎨</span><span class="ml">배경</span></button>
+        <button class="sub mission-btn" id="helpBtn"><span class="mi">💡</span><span class="ml">게임 방법</span></button>
+        <button class="sub mission-btn" id="creditBtn"><span class="mi">💝</span><span class="ml">만든 사람</span></button>
+        <button class="sub snd mission-btn" id="sndBtn2" aria-label="설정"><span class="mi">⚙️</span><span class="ml">설정</span></button>
       </div>
     </div>
   </section>
@@ -2143,7 +2161,7 @@ const SFX=(()=>{
 })();
 let VIB_ON=ls.get('mung-vib',true);
 function buzz(ms){if(VIB_ON&&navigator.vibrate){try{navigator.vibrate(ms)}catch(e){}}}
-function syncSnd(){$('sndBtn').textContent='⚙️';$('sndBtn2').textContent='⚙️ 설정'}
+function syncSnd(){$('sndBtn').textContent='⚙️'}
 
 /* ================= 배경음악 (직접 작곡해서 코드로 연주하는 오리지널 곡) =================
    메뉴: 느긋한 오르골 산책 곡 / 게임: 통통 튀는 신나는 곡 (피버 때는 빨라져요) */
@@ -4550,6 +4568,10 @@ updateTime();syncSnd();
   let seen=false;try{seen=sessionStorage.getItem('mung-op')==='1'}catch(e){}
   if(seen){op.remove();BGM.allow();setTimeout(checkAttendance,500);return}
   const vid=$('oVideo'),poster=$('oPoster');
+  /* 영상·첫 그림은 한 번 받으면 폰에 저장해 두고, 다음부터는 인터넷 없이도 저장본으로 틀어요 */
+  const VSRC='bgm/opening.mp4?v=3',PSRC='bgm/opening.jpg?v=3';
+  const fromStore=url=>(typeof caches!=='undefined'&&/^https?:/.test(location.protocol))?caches.open('mung-music').then(c=>c.match(url)).then(r=>r?r.blob().then(b=>URL.createObjectURL(b)):null).catch(()=>null):Promise.resolve(null);
+  const keep=url=>{try{if(typeof caches==='undefined'||!/^https?:/.test(location.protocol))return;caches.open('mung-music').then(c=>c.match(url).then(r=>r||fetch(url).then(n=>{if(n.ok)return c.put(url,n)}))).catch(()=>{})}catch(e){}};
   let done=false,fell=false,ending=false;const timers=[];
   const at=(ms,f)=>timers.push(setTimeout(()=>{if(!done)f()},ms));
   function finish(){if(done)return;done=true;timers.forEach(clearTimeout);try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();
@@ -4573,7 +4595,12 @@ updateTime();syncSnd();
   vid.addEventListener('error',fallback);
   vid.addEventListener('ended',end);
   vid.addEventListener('timeupdate',()=>{if(vid.duration&&vid.currentTime>=vid.duration-.05)end()});
-  if(vid.readyState>=2)start();else{vid.addEventListener('canplay',start,{once:true});try{vid.load()}catch(e){}}
+  Promise.all([fromStore(VSRC),fromStore(PSRC)]).then(([v,pi])=>{
+    if(done)return;
+    poster.src=pi||PSRC;vid.poster=pi||PSRC;
+    vid.src=v||VSRC;vid.addEventListener('canplay',start,{once:true});try{vid.load()}catch(e){}
+    if(!v)setTimeout(()=>{keep(VSRC);keep(PSRC)},400);   // 처음엔 인터넷으로 틀고, 뒤에서 몰래 저장
+  });
   at(2500,()=>{if(!op.classList.contains('playing'))fallback()});   // 영상이 너무 늦게 오면
   at(12000,end);
   $('skipBtn').addEventListener('click',e=>{e.stopPropagation();finish()});
