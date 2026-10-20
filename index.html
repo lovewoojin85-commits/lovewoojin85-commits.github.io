@@ -42,7 +42,7 @@ h1,h2,.jua{font-family:"Jua","Gowun Dodum",sans-serif;font-weight:400}
 /* ---------- 메인 화면 ---------- */
 #menu{justify-content:center;align-items:center;text-align:center;gap:18px;min-height:100%}
 /* 세로로 긴 폰: 판을 남는 공간의 가운데로 (위아래 여백을 똑같이) */
-@media (orientation:portrait){#game{justify-content:center}}   /* 버튼·막대·게임판을 한 덩어리로 화면 세로 가운데에 */   /* 위쪽 안내 글줄만큼 아래도 띄워 보이는 여백을 맞춰요 */
+@media (orientation:portrait){#game{justify-content:flex-start}}   /* 버튼·막대·게임판을 한 덩어리로 화면 세로 가운데에 */   /* 위쪽 안내 글줄만큼 아래도 띄워 보이는 여백을 맞춰요 */
 .logo{font-size:3.4rem;line-height:1.05;margin:0;color:var(--ink)}
 .logo span{display:block;color:var(--accent);-webkit-text-stroke:2px var(--card);paint-order:stroke fill}
 .tag{margin:0;color:var(--ink-soft)}
@@ -233,8 +233,8 @@ body.ingame .house .ring{animation-play-state:paused}
 .timerow .bar{flex:1}
 .timerow .time{min-width:3.2em;text-align:right}
 #game .frame{align-self:center;width:100%;
-  width:min(100%,calc(100vh - 18.9rem - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));
-  width:min(100%,calc(100dvh - 18.9rem - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));
+  width:min(100%,calc(100vh - 18.9rem - var(--trayh,4.6rem) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));
+  width:min(100%,calc(100dvh - 18.9rem - var(--trayh,4.6rem) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));
   min-width:240px}
 .endsub{font-family:"Jua",sans-serif;font-size:1.1rem;color:#FF6B6B;margin:0}
 
@@ -297,7 +297,7 @@ body.ingame .house .ring{animation-play-state:paused}
 .fbar{flex:1;height:7px;border-radius:4px;background:var(--bar-bg);overflow:hidden}
 .fbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FF9EC8,#B596F0);border-radius:4px;transform-origin:0 50%;transform:scaleX(0);will-change:transform}
 .fbar.on i{background:linear-gradient(90deg,#FF6B8B,#FFB347,#FFE14D,#6FD98A,#58B4FF,#B27CFF)}
-#game .frame.fever{background:linear-gradient(135deg,#FF8A8A,#FFC36B,#FFE66B,#8EDB8A,#7DB8F0,#B596F0);box-shadow:0 5px 0 #C99AE0}
+
 @keyframes rainbow{to{background-position:300% 0}}
 .menu-btns #sndBtn2{width:auto}
 .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -853,7 +853,7 @@ body[data-bg="aurora"] #bgfx{display:block}
 .tcard.fancy{background:linear-gradient(135deg,#FFF6D6,#FFE1F1 50%,#E3E9FF);box-shadow:0 4px 0 #D8B85A,0 0 18px rgba(255,210,120,.6)}
 .tcard.fancy>span:not(.buy){color:#9A4FD0;text-shadow:0 0 8px rgba(255,210,120,.8)}
 .tcard.fancy .buy{color:#C98A1A;background:none;-webkit-text-fill-color:currentColor}
-@media (prefers-reduced-motion: reduce){#bgfx .aur,#bgfx .stars,#bgfx .shoot{animation:none}#bgfx .shoot{display:none}}
+
 
 /* 스크롤 화면 맨 아래 여백이 사라지지 않게 (광고에 가리지 않도록) */
 main>.screen{flex:none;height:max-content;min-height:100%}
@@ -901,7 +901,7 @@ body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],
 @keyframes lwave{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 @keyframes lsweep{0%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
 
-@media (prefers-reduced-motion: reduce){#bgfx .fx-lite{display:none!important}}
+
 
 /* 🫧 바닷속 수족관 */
 body[data-bg="ocean"]{background:linear-gradient(180deg,#5FC7E6 0%,#1E8DBF 40%,#0F5F92 75%,#0B3F6E 100%);--ink:#F4F6FF;--ink-soft:#CDD5F2;--card:#3A4384;--frame:#8C9BDA;--frame-deep:#6577BE;--bar-bg:rgba(255,255,255,.18);--card:#1E6C99}
@@ -965,7 +965,7 @@ body[data-bg="palace"]{background:linear-gradient(170deg,#FFF6D8 0%,#FFE7A3 35%,
 @keyframes legendGlow2{to{opacity:1}}
 @keyframes legendGlow{to{box-shadow:0 4px 0 #C98A1A,0 0 40px rgba(255,210,90,1)}}
 .tcard.legend>span:not(.buy){color:#8A3A00;text-shadow:0 0 10px rgba(255,255,255,.9)}
-@media (prefers-reduced-motion: reduce){#bgfx .fxs *{animation:none!important}#bgfx .shoot,#bgfx .bst{display:none}}
+
 
 /* 메인 오른쪽 위: 코인·상점·미션을 한 줄로 (브라우저처럼 화면이 낮아도 강아지 그림과 겹치지 않게) */
 .topright{flex-direction:row;align-items:center;gap:8px}
@@ -1042,8 +1042,9 @@ body.eco .menu-friends svg,body.eco .tile.friend .in,body.eco .tile.friend .in::
 #board .tile{will-change:transform}
 
 /* ===== 화려한 피버 타임 (모두 투명도·이동·회전만 써서 폰에서도 가볍게) ===== */
-.fvfx{position:absolute;inset:0;pointer-events:none;z-index:3;display:none}
-#game .frame.fever .fvfx{display:block}
+.fvfx{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0;transition:opacity .3s;will-change:opacity}
+#game .frame.fever .fvfx{opacity:1}
+#game .frame:not(.fever) .fvfx *{animation-play-state:paused!important}
 .fvglow{position:absolute;inset:-6px;border-radius:26px;opacity:0;will-change:opacity}
 .fvglow.g1{box-shadow:0 0 22px 6px rgba(255,120,200,.85),inset 0 0 18px 4px rgba(255,120,200,.45);animation:fvPulse 1.5s ease-in-out infinite}
 .fvglow.g2{box-shadow:0 0 22px 6px rgba(255,214,90,.85),inset 0 0 18px 4px rgba(255,214,90,.45);animation:fvPulse 1.5s ease-in-out -.5s infinite}
@@ -1469,6 +1470,40 @@ main>.screen.scr-in{animation:scrIn .24s cubic-bezier(.2,.8,.3,1)}
 #achList .achc{content-visibility:auto;contain-intrinsic-size:auto 92px}
 #dexList .dcard{content-visibility:auto;contain-intrinsic-size:auto 210px}
 #themeGrid .tcard{content-visibility:auto;contain-intrinsic-size:auto 190px}
+
+.endmet .mrow{display:flex;flex-wrap:nowrap;gap:4px;justify-content:center;max-width:100%}
+.endmet .mrow .mchip{flex:0 1 auto;min-width:0;white-space:nowrap;padding:2px 8px 2px 3px;font-size:.82rem;gap:3px}
+.endmet .mrow .mchip svg{width:22px;height:22px;flex:none}
+.fvbg{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,#FF8A8A,#FFC36B,#FFE66B,#8EDB8A,#7DB8F0,#B596F0);opacity:0;transition:opacity .3s;will-change:opacity;pointer-events:none;z-index:0}
+#game .frame.fever .fvbg{opacity:1}
+#game .frame #board{z-index:1}
+#game .lv{display:inline-flex;align-items:center;gap:2px;margin-left:8px;padding:3px 11px 3px 5px;border-radius:999px;vertical-align:2px;
+  background:linear-gradient(135deg,#FFC94D,#FF8A5C 55%,#FF6FA0);color:#fff;font-size:1rem;line-height:1.1;letter-spacing:.01em;
+  box-shadow:0 3px 0 #D9576F,0 0 0 2px #fff inset;text-shadow:0 1px 1px rgba(150,40,40,.45)}
+#game .lv i{font-style:normal;font-size:1.05em;margin-right:1px;filter:drop-shadow(0 1px 1px rgba(120,60,0,.35))}
+#game .lv b{font-weight:400;font-size:1.3em;line-height:1}
+.claimall{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 0;font-size:1.1rem;
+  background:linear-gradient(100deg,#FFD66B,#FFB02E 55%,#FF8A5C);color:#5A2A00;box-shadow:0 4px 0 #D9761A}
+.claimall span{font-size:.85rem;padding:1px 9px;border-radius:999px;background:rgba(255,255,255,.75);color:#C9581A}
+#mlist .claimall,#achList .claimall{grid-column:1/-1}
+/* 판 아래 무지개 친구 바로 쓰기 */
+.ftray{display:flex;justify-content:center;gap:14px;padding:6px 10px 4px;align-self:center}
+.fbtn{position:relative;width:62px;height:62px;padding:0;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 0 #D9CFF5,0 0 0 3px #fff inset;border:3px solid transparent;background:linear-gradient(#fff,#fff) padding-box,conic-gradient(#FF8A8A,#FFC36B,#FFE66B,#8EDB8A,#7DB8F0,#B596F0,#FF8A8A) border-box}
+.fbtn svg{width:50px;height:50px}
+.fbtn .ring{animation:none}
+.fbtn b{position:absolute;top:-6px;right:-6px;min-width:1.55em;height:1.55em;line-height:1.55em;padding:0 4px;border-radius:999px;background:#B596F0;color:#fff;font-family:"Jua",sans-serif;font-weight:400;font-size:.85rem;box-shadow:0 2px 0 #8C6CD0}
+.fbtn small{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-family:"Jua",sans-serif;font-size:.68rem;color:#7A5FC0;background:#fff;padding:0 6px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 0 #E2DAF7}
+.fbtn.empty{filter:grayscale(.85);opacity:.55}
+.fbtn.empty b{background:#9AA8B6;box-shadow:none}
+.fbtn.on{transform:translateY(-4px) scale(1.08);box-shadow:0 6px 0 #FF9F6B,0 0 0 3px #fff inset,0 0 14px rgba(255,159,107,.8)}
+.fbtn:active{transform:scale(.94)}
+@media (orientation:portrait) and (max-height:700px){#game{--trayh:3.6rem}.fbtn{width:50px;height:50px}.fbtn svg{width:40px;height:40px}.ftray{padding:2px 10px 6px;gap:14px}.fbtn small{font-size:.62rem;bottom:-8px}}
+@media (orientation:portrait) and (max-height:600px){#game{--trayh:3rem}.fbtn{width:44px;height:44px;border-width:2px}.fbtn svg{width:36px;height:36px}.fbtn small{display:none}.ftray{padding:0 10px 2px}#game .frame{min-width:200px}}
+@media (orientation:landscape) and (min-aspect-ratio:4/3){.ftray{justify-content:flex-start;align-self:start}}
+
+/* 게임 중: 피버 꽃가루가 화면 밖으로 튀어도 화면 전체가 '스크롤 판'으로 바뀌지 않게 (바뀌면 판을 통째로 다시 그려서 깜빡여요) */
+body.ingame main{overflow:hidden;overflow:clip}
 </style>
 </head>
 <body>
@@ -1584,7 +1619,7 @@ main>.screen.scr-in{animation:scrIn .24s cubic-bezier(.2,.8,.3,1)}
       <span class="best"><span class="bcrown">👑</span><span class="blab">최고</span><b id="best">0</b></span>
     </div>
     <div class="stats">
-      <div class="score"><small>점수<span class="lv" id="lvl">레벨 1</span></small><span id="score">0</span></div>
+      <div class="score"><small>점수<span class="lv" id="lvl"><i>⭐</i>레벨 <b>1</b></span></small><span id="score">0</span></div>
       <div class="tray">
       <button class="sub item" id="boneBtn" aria-label="개껌 힌트 사용">
         <svg viewBox="0 0 84 48" aria-hidden="true"><g fill="#F7E7C6" stroke="#D2AC73" stroke-width="3"><circle cx="14" cy="14" r="10"/><circle cx="14" cy="34" r="10"/><circle cx="70" cy="14" r="10"/><circle cx="70" cy="34" r="10"/><rect x="14" y="15" width="56" height="18" rx="4"/></g><rect x="16" y="17.5" width="52" height="13" fill="#F7E7C6"/><path d="M26 21 H58" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/></svg>
@@ -1600,12 +1635,14 @@ main>.screen.scr-in{animation:scrIn .24s cubic-bezier(.2,.8,.3,1)}
     <div class="feverrow" id="frow"><span id="fLabel">피버</span><div class="fbar" id="fbar"><i id="feverFill"></i></div></div>
     <div class="msgline"><div class="toast" id="toast" role="status"></div></div>
     <div class="frame">
+      <div class="fvbg" aria-hidden="true"></div>
       <div class="fvfx" aria-hidden="true"><i class="fvglow g1"></i><i class="fvglow g2"></i><i class="fvglow g3"></i><i class="fsp" style="left:34%;animation-delay:-1.42s;animation-duration:1.93s;--c:#9BF0A0"></i><i class="fsp" style="left:64%;animation-delay:-1.50s;animation-duration:1.87s;--c:#FFE066"></i><i class="fsp" style="left:64%;animation-delay:-0.62s;animation-duration:2.03s;--c:#FFFFFF"></i><i class="fsp" style="left:64%;animation-delay:-1.30s;animation-duration:2.35s;--c:#B59CFF"></i><i class="fsp" style="left:85%;animation-delay:-2.07s;animation-duration:2.03s;--c:#FF8FC8"></i><i class="fsp" style="left:70%;animation-delay:-0.94s;animation-duration:1.82s;--c:#FFE066"></i><i class="fsp" style="left:24%;animation-delay:-1.82s;animation-duration:2.39s;--c:#8FE3FF"></i><i class="fsp" style="left:7%;animation-delay:-1.98s;animation-duration:2.07s;--c:#9BF0A0"></i><i class="fsp" style="left:53%;animation-delay:-1.71s;animation-duration:2.72s;--c:#B59CFF"></i><i class="fsp" style="left:77%;animation-delay:-1.07s;animation-duration:2.74s;--c:#8FE3FF"></i><i class="fsp" style="left:16%;animation-delay:-0.09s;animation-duration:2.29s;--c:#8FE3FF"></i><i class="fsp" style="left:90%;animation-delay:-1.05s;animation-duration:2.43s;--c:#8FE3FF"></i></div>
       <div id="board" aria-label="게임판"></div>
       <div id="fx"></div>
       <div class="combo" id="combo"></div>
       <div class="feverBanner" id="feverBanner" aria-hidden="true"><i class="fbstar"></i><span class="fb1">FEVER</span><span class="fb2">TIME!</span><small>점수 2배 · 시간 멈춤</small></div>
     </div>
+    <div class="ftray" id="ftray"><button class="fbtn" data-f="0" aria-label="치와와 부르기"></button><button class="fbtn" data-f="1" aria-label="말티즈 부르기"></button><button class="fbtn" data-f="2" aria-label="킹찰스 부르기"></button></div>
   </section>
 
   <!-- 순위표 -->
@@ -2447,11 +2484,12 @@ function findGroups(){
 /* 4마리 이상 일자, 또는 ㄱ/T자로 맞추면 무지개 친구 중 하나가 랜덤으로 등장
    (세 친구를 섞은 주머니에서 하나씩 뽑아서, 셋이 고르게 나와요) */
 let friendBag=[];
-function drawFriend(){if(!friendBag.length){friendBag=[0,1,2];for(let i=2;i>0;i--){const j=Math.floor(Math.random()*(i+1));[friendBag[i],friendBag[j]]=[friendBag[j],friendBag[i]]}}return friendBag.pop()}
+function drawFriend(){if(!friendBag.length){friendBag=Math.random()<.5?[0,1]:[1,0]}return friendBag.pop()}
 function friendKind(G){
   const maxRun=Math.max(...G.runs.map(r=>r.cells.length));
   const hasH=G.runs.some(r=>r.dir==='h'),hasV=G.runs.some(r=>r.dir==='v');
-  return(maxRun>=4||(hasH&&hasV))?drawFriend():-1;
+  if(hasH&&hasV)return 2;            // 십자·ㄱ·ㄴ·T자로 꺾이면 킹찰스
+  return maxRun>=4?drawFriend():-1;  // 4~5마리 일자면 치와와 또는 말티즈
 }
 function spawnCell(G){
   if(lastSwap)for(const k of lastSwap)if(G.cells.has(k))return k;
@@ -2560,7 +2598,7 @@ function checkLevel(){
   if(!running)return;
   while(score>=levelInfo(level+1).score){
     level++;activeTypes=levelInfo(level).types;trackM('level',level);
-    const lv=$('lvl');lv.textContent='레벨 '+level;lv.classList.remove('up');void lv.offsetWidth;lv.classList.add('up');
+    const lv=$('lvl');lv.innerHTML='<i>⭐</i>레벨 <b>'+level+'</b>';lv.classList.remove('up');void lv.offsetWidth;lv.classList.add('up');
     const prevTypes=levelInfo(level-1).types;
     const mx=`점수 ${levelInfo(level).mult}배`;
     if(activeTypes>prevTypes){const idx=activeTypes-1;levelSplash(svgFor(idx),`${DOG_NAMES[idx]} 등장!`,'새 친구 합류 · '+mx)}
@@ -2969,7 +3007,7 @@ async function runEffect(starts,{extra=null,msg=null,consumed=[]}={}){
 /* ---- 무지개 친구 아이템: 가방에서 꺼내 원하는 자리에 불러내기 (한 판 최대 3번) ---- */
 let placing=null,itemsUsed=0;
 /* ---- 상점 목록 ---- */
-const REVIVE_PRICE=150,REVIVE_ONSPOT=200,REVIVE_PER_GAME=1;   // 황금 뼈다귀 이어하기는 한 판에 한 번만   // 미리 사두면 150, 그 자리에서 사면 200
+const REVIVE_PRICE=150,REVIVE_ONSPOT=200,REVIVE_PER_GAME=Infinity;   // 황금 뼈다귀도 가진 만큼 이어하기   // 미리 사두면 150, 그 자리에서 사면 200
 const GOLD_BONE='<svg viewBox="-30 -22 60 44" aria-hidden="true"><defs><linearGradient id="gbone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF4B8"/><stop offset=".5" stop-color="#FFD24D"/><stop offset="1" stop-color="#E9A21F"/></linearGradient></defs><g fill="url(#gbone)" stroke="#C98A1A" stroke-width="2.4"><circle cx="-17" cy="-6" r="7"/><circle cx="-17" cy="6" r="7"/><circle cx="17" cy="-6" r="7"/><circle cx="17" cy="6" r="7"/><rect x="-17" y="-6" width="34" height="12" rx="3"/></g><rect x="-16" y="-4.4" width="32" height="8.8" fill="url(#gbone)"/><path d="M-10 -1.5 H10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".85"/><path d="M22 -19 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6Z" fill="#FFE066"/><path d="M-24 13 l1.2 3 3 1.2 -3 1.2 -1.2 3 -1.2 -3 -3 -1.2 3 -1.2Z" fill="#FFE066"/></svg>';
 const BONE_ICON=()=>document.querySelector('#boneBtn svg').outerHTML;
 const SHOP=[
@@ -2982,7 +3020,7 @@ const SHOP=[
   {id:'fever', cat:'special', name:'피버 간식', ds:'바로 피버 타임 시작!', price:50, ic:()=>'🔥', own:()=>getInv().fever, add:()=>addInv('fever')},
   {id:'clean', cat:'special', name:'깨끗이 목욕', ds:'방해물 한 번에 정리', price:70, ic:()=>'🧼', own:()=>getInv().clean, add:()=>addInv('clean')},
   {id:'box', cat:'box', name:'랜덤박스', ds:'무엇이 나올까? 코인부터 황금 뼈다귀까지!', tag:'사면 바로 열어요', price:100, ic:()=>'🎁', own:()=>null, add:()=>{BOXQ.push(1);setTimeout(()=>openBoxQueue().then(()=>{if(!$('shop').hidden)openShop()}),250);return true}},
-  {id:'revive', cat:'gold', name:'황금 뼈다귀', ds:'막히면 판 섞고 60초로 이어하기', tag:'한 판 1번 · 미리 사면 50코인 이득!', price:REVIVE_PRICE, ic:()=>GOLD_BONE, own:()=>getInv().revive, add:()=>addInv('revive')}
+  {id:'revive', cat:'gold', name:'황금 뼈다귀', ds:'막히면 판 섞고 60초로 이어하기', tag:'미리 사면 50코인 이득!', price:REVIVE_PRICE, ic:()=>GOLD_BONE, own:()=>getInv().revive, add:()=>addInv('revive')}
 ];
 /* 구매 완료 알림: 화면 위에 잠깐 떴다가 사라져요 (소리를 꺼 둔 사람도 알 수 있게) */
 /* ================= 순위표 이름표 ================= */
@@ -3080,12 +3118,15 @@ $('stPlates').onclick=()=>{if(SHOP_TAB==='plates')return;SHOP_TAB='plates';$('sh
 $('coinPill').onclick=()=>$('shopBtn').click();
 
 /* ---- 게임 중 가방 ---- */
-const USE_LIMIT={friend:3,clock:2,shuffle:2,fever:1,clean:1};
+const USE_LIMIT={friend:Infinity,clock:Infinity,shuffle:Infinity,fever:Infinity,clean:Infinity};   // 아이템은 가진 만큼 마음껏
 let usedItems={};
 const usedOf=k=>usedItems[k]||0;
 function bagCount(){const it=getItems(),v=getInv();return it[0]+it[1]+it[2]+v.clock+v.shuffle+v.fever+v.clean+v.revive}
 let revivesUsed=0;
-function updateTray(){const n=bagCount();$('bagCnt').textContent=n;$('bagBtn').classList.toggle('empty',!n)}
+function updateTray(){const n=bagCount();$('bagCnt').textContent=n;$('bagBtn').classList.toggle('empty',!n);
+  const it=getItems();document.querySelectorAll('#ftray .fbtn').forEach(b=>{const f=+b.dataset.f,k=it[f]|0;
+    if(!b.__init){b.__init=1;b.innerHTML=svgFor(TYPES+f)+'<b></b><small></small>';b.querySelector('small').textContent=FRIENDS[f].label;b.onclick=()=>{SFX.init();pickItem(f)}}
+    const c=b.querySelector('b'),t=k>99?'99+':String(k);if(c.textContent!==t)c.textContent=t;b.classList.toggle('empty',!k);b.classList.toggle('on',placing===f)})}
 let bagResume=false;
 let bagView=false;   // true: 메인 화면에서 구경만
 function openMenuBag(){bagView=true;renderBag();$('bagModal').hidden=false}
@@ -3104,7 +3145,7 @@ function renderBag(){
     {k:'shuffle',n:v.shuffle,name:'강아지 섞기',ds:'시간 손해 없이 판 섞기',ic:'🔀'},
     {k:'fever',n:v.fever,name:'피버 간식',ds:'바로 피버 타임!',ic:'🔥'},
     {k:'clean',n:v.clean,name:'깨끗이 목욕',ds:'방해물 한 번에 정리',ic:'🧼'},
-    {k:'revive',auto:true,n:v.revive,name:'황금 뼈다귀',ds:'막히면 판을 섞고 60초로 이어하기',ic:GOLD_BONE,lim:'한 판 1번'},
+    {k:'revive',auto:true,n:v.revive,name:'황금 뼈다귀',ds:'막히면 판을 섞고 60초로 이어하기',ic:GOLD_BONE},
     ...(bagView?[{k:'bone',auto:true,n:getBonus(),name:'개껌 힌트',ds:'다음 판 힌트 개수에 더해져요',ic:BONE_ICON()}]:[])
   ].filter(r=>r.n>0);
   $('bagMsg').textContent=bagView&&rows.length?'💡 게임 중 🎒 버튼으로 쓸 수 있어요':'';$('bagMsg').hidden=!$('bagMsg').textContent;
@@ -3117,10 +3158,10 @@ function renderBag(){
     return d};
   rows.forEach(r=>{
     if(r.auto||bagView){
-      const d=mk(r,[r.auto?['⚡ 자동 사용','auto']:null,r.lim?[r.lim,'']:(!r.auto?[`한 판 최대 ${USE_LIMIT[r.k]}번`,'']:null)]);
+      const d=mk(r,[r.auto?['⚡ 자동 사용','auto']:null,r.lim?[r.lim,'']:null]);
       L.appendChild(d);return}
     const left=USE_LIMIT[r.k]-usedOf(r.k);
-    const d=mk(r,[[`이번 판 ${Math.max(0,left)}번 남음`,left>0?'':'off']]);
+    const d=mk(r,[]);
     const b=document.createElement('button');b.textContent='사용';b.disabled=left<=0;b.onclick=()=>useBagItem(r);d.appendChild(b);L.appendChild(d)});
 }
 function useBagItem(r){
@@ -3143,12 +3184,12 @@ $('bagBtn').addEventListener('click',openBag);
 $('menuBagBtn').onclick=()=>{SFX.init();SFX.click();openMenuBag()};
 $('closeBag').onclick=closeBag;
 $('bagModal').addEventListener('click',e=>{if(e.target.id==='bagModal')closeBag()});
-function cancelPlacing(){placing=null;boardEl.classList.remove('placing')}
+function cancelPlacing(){placing=null;boardEl.classList.remove('placing');try{updateTray()}catch(e){}}
 function pickItem(f){
   if(!active()||busy)return;
   if(placing===f){cancelPlacing();return}
   const it=getItems();
-  if(!it[f]){toast('오늘의 미션과 출석 도장으로 '+FRIENDS[f].label+'를 받을 수 있어요');SFX.bad();return}
+  if(!it[f]){toast(FRIENDS[f].label+'는 상점에서 살 수 있어요 🛒');SFX.bad();return}
   if(itemsUsed>=ITEM_PER_GAME){toast('무지개 친구는 한 판에 '+ITEM_PER_GAME+'번까지 부를 수 있어요');SFX.bad();return}
   placing=f;boardEl.classList.add('placing');clearSel();updateTray();SFX.select();
   iconToast(svgFor(TYPES+f),'어디에 부를까요? 강아지를 눌러 주세요');
@@ -3247,7 +3288,7 @@ function startGame(){
   showScreen('game');
   setTimeout(()=>{try{warmTextLayers()}catch(e){}},120);
   clearHint();{const bb=Math.min(2,getBonus());ls.set('mung-bonus',getBonus()-bb);bones=3+bb;if(bb)setTimeout(()=>toast(`보너스 개껌 ${bb}개를 챙겨 왔어요! 🦴`),900)}nextBoneAt=BONE_EVERY;updateBones();placing=null;itemsUsed=0;usedItems={};revivesUsed=0;boardEl.classList.remove('placing');updateTray();
-  level=1;activeTypes=levelInfo(1).types;$('lvl').textContent='레벨 1';
+  level=1;activeTypes=levelInfo(1).types;$('lvl').innerHTML='<i>⭐</i>레벨 <b>1</b>';
   running=false;endFever();
   score=0;time=START_T;elapsed=0;feverGainAt=0;combo=0;ended=false;busy=false;paused=false;sel=null;hintCells=null;met=[0,0,0];lastSwap=null;trioShown=false;friendBag=[];
   updateScore();updateTime();genBoard();
@@ -3292,7 +3333,7 @@ function endGame(reason){
   const list=FRIENDS.map((f,i)=>met[i]?`${f.label} ${met[i]}번`:null).filter(Boolean);
   {const mm=$('metMsg');mm.innerHTML='';
     if(list.length){const lb=document.createElement('span');lb.className='mlab';lb.textContent='🌈 불러낸 무지개 친구';mm.appendChild(lb);
-      FRIENDS.forEach((f,i)=>{if(!met[i])return;const c=document.createElement('span');c.className='mchip';c.innerHTML=svgFor(TYPES+i);c.append(`${f.label} ×${met[i]}`);mm.appendChild(c)})}
+      const row=document.createElement('span');row.className='mrow';FRIENDS.forEach((f,i)=>{if(!met[i])return;const c=document.createElement('span');c.className='mchip';c.innerHTML=svgFor(TYPES+i);c.append(`${f.label} ×${met[i]}`);row.appendChild(c)});mm.appendChild(row)}
     else{const t=document.createElement('span');t.className='mtip';t.textContent='💡 4개 이상 맞추면 무지개 친구가 나와요!';mm.appendChild(t)}}
   const um=$('unlockMsg');um.textContent='';
   const maxLv=ls.get('mung-maxlv',1);
@@ -3629,7 +3670,7 @@ BGM.play('menu');
 /* ================= 오늘의 미션 · 출석 도장 =================
    매일 0시(한국 시간)에 새 미션 3개. 보상은 '보너스 개껌'으로 모였다가 다음 판 시작 때 최대 2개씩 더해져요. */
 const dayKey=(off=0)=>{const d=new Date(Date.now()+9*3600e3+off*86400e3);return d.toISOString().slice(0,10)};
-const BONUS_CAP=20,ITEM_CAP=9,ITEM_PER_GAME=3;
+const BONUS_CAP=20,ITEM_CAP=99,ITEM_PER_GAME=Infinity;
 /* ---- 코인 ---- */
 const COIN_CAP=999999;
 const COIN='<i class="ci"></i>';
@@ -3731,6 +3772,10 @@ function openMissions(got){
   renderStamps($('stamps'),Math.min(7,Math.max(0,at.streak|0)),at.last===dayKey());
   $('attendInfo').textContent=`이번 주 ${at.streak||0}일째`;
   const L=$('mlist');L.innerHTML='';
+  {const nc=claimable();if(nc>=2){const ab=document.createElement('button');ab.className='claimall';ab.innerHTML=`🎁 보상 모두 받기 <span>${nc}개</span>`;
+    ab.onclick=()=>{const gs=[];st.list.forEach((m,i)=>{if(m.prog>=m.n&&!m.claimed){m.claimed=true;gs.push(grantReward(MREWARD[i%3]));statAdd('missions')}});
+      if(!st.allClaimed&&st.list.every(m=>m.claimed)){st.allClaimed=true;gs.push(grantReward(ALL_REWARD));SFX.mega()}
+      ls.set('mung-missions',st);SFX.reward();buzz([30,30,60]);openMissions({t:'미션 보상 모두 받기 완료!',g:gs.join(', ')})};L.appendChild(ab)}}
   st.list.forEach((m,i)=>{const def=MPOOL.find(d=>d.id===m.id),done=m.prog>=m.n;
     const c=document.createElement('div');c.className='mcard'+(m.claimed?' claimed':'');
     const t=document.createElement('div');t.className='mt';t.textContent=(m.claimed?'✅ ':'')+def.t(m.n);
@@ -3922,6 +3967,7 @@ function openAch(){
   const segs=Array.from({length:ACH_STEP},(_,i)=>`<i class="${i<inLv?'on':''}"></i>`).join('');
   $('achHead').className='achhead lvhead '+achTierCls(lv);
   $('achHead').innerHTML=`${achBadge(lv)}<div class="aht"><span class="altitle">${achTitle(lv)}</span><div class="alvseg">${segs}</div><div class="alvnum">레벨 ${lv+1}까지 <b>${inLv}</b> / ${ACH_STEP} 단계 · 🎁 ${COIN} ${achLvReward(lv+1)}</div>${ready?`<em>✨ 받을 보상 ${ready}개!</em>`:'<em class="z">업적 단계를 올리면 레벨이 올라요!</em>'}</div>`;
+  if(ready>=2){const ab=document.createElement('button');ab.className='claimall';ab.innerHTML=`🎁 보상 모두 받기 <span>${ready}개</span>`;ab.onclick=achClaimAll;L.appendChild(ab)}
   const list=ACH.map(a=>({a,st:achState(a)})).sort((x,y)=>(y.st.ready-x.st.ready)||(x.st.max-y.st.max)||(x.st.k-y.st.k));
   list.forEach(({a,st})=>{const c=document.createElement('div');c.className='achc'+(st.ready?' ready':'')+(st.max?' max':'');
     const tg=st.tier||achTier(a,st.k-1)||a.t[a.t.length-1],pct=st.max?100:Math.min(100,st.v/tg[0]*100);
@@ -3939,7 +3985,19 @@ function openAch(){
   if(!$('ach').hidden)return;showScreen('ach');refreshMenuBadges();
   setTimeout(()=>{if(!$('ach').hidden&&achCheckLevel())openAch()},350);
 }
-$('achBtn').onclick=()=>{flushSaves();openAch()};$('alvOk').onclick=()=>{$('achLvModal').hidden=true;SFX.click&&SFX.click()};$('achBack').onclick=()=>showScreen('menu');
+function achClaimAll(){
+  let coins=0,n=0;const d=achDone();
+  for(let guard=0;guard<500;guard++){const r=ACH.find(a=>achState(a).ready);if(!r)break;const st=achState(r);d[r.id]=st.k+1;ls.set('mung-ach',d);coins+=st.tier[1];n++}
+  if(!n)return;addCoin(coins);SFX.reward();buzz([30,30,60]);
+  const y=$('ach').parentElement.scrollTop;openAch();$('ach').parentElement.scrollTop=y;
+  if(achCheckLevel()){openAch();$('ach').parentElement.scrollTop=y}
+  claimPop('🏅 업적 보상 '+n+'개 받기 완료!',[`${COIN} ${coins.toLocaleString()}코인`,'⬆ 레벨 게이지 +'+n]);
+}
+function claimPop(title,chips){document.querySelectorAll('.gotpop').forEach(e=>e.remove());
+  const gc=document.createElement('div');gc.className='gotcard gotpop';const h=document.createElement('h4');h.textContent=title;
+  const ch=document.createElement('div');ch.className='gchips';chips.forEach(x=>{const c=document.createElement('span');c.className='gchip';c.innerHTML=x;ch.appendChild(c)});gc.append(h,ch);document.body.appendChild(gc);
+  if(gc.animate)gc.animate([{transform:'translate(-50%,-140%)',opacity:0},{transform:'translate(-50%,0)',opacity:1,offset:.12},{transform:'translate(-50%,0)',opacity:1,offset:.88},{transform:'translate(-50%,-140%)',opacity:0}],{duration:2600}).onfinish=()=>gc.remove();else setTimeout(()=>gc.remove(),2600)}
+$('achBtn').onclick=()=>{flushSaves();openAch()};try{refreshMenuBadges()}catch(e){}$('alvOk').onclick=()=>{$('achLvModal').hidden=true;SFX.click&&SFX.click()};$('achBack').onclick=()=>showScreen('menu');
 $('dexBack').onclick=()=>showScreen('menu');
 /* 삼성 인터넷 + 다크 모드일 때 한 번만 안내 */
 (function(){
@@ -4448,7 +4506,7 @@ $('pvBuy').onclick=()=>{const t=previewing;if(!t)return;
     [svgFor(5),'새 강아지는 <b>레벨 4, 9, 12</b>에 한 마리씩 합류해서 점점 어려워져요. 대신 닥스훈트·보더콜리·달마시안을 맞추면 순서대로 더 많은 점수를 받아요. 움직일 곳이 없거나 시간이 끝나면 게임 오버! 상점의 황금 뼈다귀가 있으면 이어서 할 수 있어요. 레벨 5부터는 시간이 조금씩 빨리 흘러요.']
   ];
   const T=['<b>같은 강아지 3마리 이상</b>을<br>가로·세로로 맞춰요.<br>맞출수록 <b>시간이 늘어요!</b>',
-    '<b>4마리 일자</b>나<br><b>ㄱ·T자</b>로 맞추면<br>무지개 친구가 나타나요.',
+    '<b>4~5마리 일자</b>면 <b>치와와</b>나 <b>말티즈</b>,<br><b>ㄱ·ㄴ·T·십자</b>로 꺾어 맞추면<br><b>킹찰스</b>가 나타나요!',
     '<b>치와와</b><br>누르면 가로·세로 한 줄씩 정리',
     '<b>말티즈</b><br>주변 9칸 정리 + 5초',
     '<b>킹찰스</b><br>강아지 쪽으로 밀면<br>그 종류를 모두 정리',
