@@ -1504,6 +1504,32 @@ main>.screen.scr-in{animation:scrIn .24s cubic-bezier(.2,.8,.3,1)}
 
 /* 게임 중: 피버 꽃가루가 화면 밖으로 튀어도 화면 전체가 '스크롤 판'으로 바뀌지 않게 (바뀌면 판을 통째로 다시 그려서 깜빡여요) */
 body.ingame main{overflow:hidden;overflow:clip}
+
+/* ================= 새 오프닝: 영상 ================= */
+#opening{background:#F6C98A}
+#opening .o-bgblur{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:saturate(1.1)}
+#opening .o-bgblur::after{content:"";position:absolute;inset:0;background:rgba(255,236,200,.18)}
+#opening .o-vbox{position:absolute;left:50%;top:50%;width:min(100vw,calc(100vh * 9 / 16));aspect-ratio:9/16;transform:translate(-50%,-50%);overflow:hidden;--w:min(100vw,calc(100vh * 9 / 16));box-shadow:0 0 40px rgba(120,70,20,.25)}
+#opening .o-poster,#opening .o-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#opening .o-video{opacity:0;transition:opacity .25s}
+#opening.playing .o-video{opacity:1}
+#opening .o-poster.kb{animation:oKB 5s ease-out forwards}
+@keyframes oKB{to{transform:scale(1.12)}}
+#opening .o-motes{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#opening .o-motes i{position:absolute;bottom:-20px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,#fff 0 30%,rgba(255,240,200,.6) 55%,rgba(255,240,200,0) 72%);
+  animation:oMote var(--d) linear var(--dl) infinite;will-change:transform,opacity}
+@keyframes oMote{0%{transform:translate(0,0);opacity:0}15%{opacity:.9}85%{opacity:.8}100%{transform:translate(var(--sw),-105vh);opacity:0}}
+#opening .o-title{position:absolute;left:0;right:0;top:4.5%;display:flex;flex-direction:column;align-items:center;pointer-events:none;font-family:"Jua",sans-serif;line-height:1}
+#opening .o-row{display:flex;gap:calc(var(--w) * .035)}
+#opening .o-title span{display:inline-block;font-size:calc(var(--w) * .15);color:#FFF6E6;-webkit-text-stroke:calc(var(--w) * .011) #A8592A;paint-order:stroke fill;
+  text-shadow:0 calc(var(--w) * .008) 0 #8A4520,0 0 calc(var(--w) * .04) rgba(255,214,140,.95),0 0 calc(var(--w) * .09) rgba(255,180,90,.7);will-change:transform,opacity}
+#opening .o-t2 span{color:#FFE2A6}
+
+#opening .o-title small{margin-top:calc(var(--w) * .03);font-size:calc(var(--w) * .045);color:#fff;background:linear-gradient(90deg,#FF8AC4,#B27CFF);padding:.4em 1.1em;border-radius:999px;box-shadow:0 4px 12px rgba(120,60,160,.3);opacity:0}
+#opening .o-shine{position:absolute;top:0;height:calc(var(--w) * .42);left:50%;width:calc(var(--w) * .5);margin-left:calc(var(--w) * -.25);background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.9) 50%,transparent 70%);mix-blend-mode:soft-light;opacity:0;pointer-events:none}
+#opening .o-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(80,40,10,.22) 100%)}
+#opening .tapgo{z-index:3}
+#opening #skipBtn{z-index:3}
 </style>
 </head>
 <body>
@@ -1518,71 +1544,14 @@ body.ingame main{overflow:hidden;overflow:clip}
 </svg>
 
 
-<!-- ================= 오프닝: 무지개다리 ================= -->
+<!-- ================= 오프닝: 세 친구 영상 (영상 속 음악 그대로) ================= -->
 <div id="opening" aria-hidden="true">
-  <svg class="scene" viewBox="0 0 400 700" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <linearGradient id="opSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86B0EE"/><stop offset=".38" stop-color="#C3B4F0"/><stop offset=".68" stop-color="#FFCFC4"/><stop offset="1" stop-color="#FFEBC8"/></linearGradient>
-      <radialGradient id="opHeaven" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".3" stop-color="#FFF7DC" stop-opacity=".9"/><stop offset="1" stop-color="#FFF4D0" stop-opacity="0"/></radialGradient>
-      <linearGradient id="opCloud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EEE6FF"/></linearGradient>
-      <linearGradient id="opHill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B9EDB0"/><stop offset="1" stop-color="#78C877"/></linearGradient>
-      <linearGradient id="opHillFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D6F2CC"/><stop offset="1" stop-color="#B4E3A8"/></linearGradient>
-      <linearGradient id="opSweater" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E8B48C"/><stop offset=".55" stop-color="#F6CDA6"/><stop offset="1" stop-color="#FBDDBC"/></linearGradient>
-      <linearGradient id="opTitleG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC27A"/><stop offset="1" stop-color="#FF8FB3"/></linearGradient>
-      <radialGradient id="opHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".95"/><stop offset=".5" stop-color="#FFF6D0" stop-opacity=".45"/><stop offset="1" stop-color="#FFF6D0" stop-opacity="0"/></radialGradient>
-      
-      
-    </defs>
-    <g class="cam">
-    <rect x="-2000" y="-200" width="4400" height="1000" fill="url(#opSky)"/>
-    <g fill="#FFFFFF"><circle cx="40" cy="60" r="1.6" opacity=".8"/><circle cx="120" cy="30" r="1.2" opacity=".7"/><circle cx="210" cy="90" r="1.4" opacity=".6"/><circle cx="70" cy="150" r="1.1" opacity=".6"/><circle cx="-60" cy="90" r="1.4" opacity=".6"/><circle cx="470" cy="70" r="1.2" opacity=".6"/></g>
-    
-    <circle class="heaven" cx="330" cy="212" r="190" fill="url(#opHeaven)"/><circle class="vflash" cx="330" cy="212" r="60" fill="url(#opHalo)" opacity="0"/>
-    <g class="opCloudDrift"><g transform='translate(55 118) scale(0.9)' opacity='0.9'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g><g transform='translate(-95 196) scale(0.8)' opacity='0.75'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g><g transform='translate(175 58) scale(0.62)' opacity='0.7'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g><g transform='translate(480 140) scale(0.8)' opacity='0.8'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g></g>
-    <path d="M-110 630 C60 540 210 290 330 182" fill="none" stroke="#FFFFFF" stroke-width="96" opacity=".10"/><path d="M-110 630 C60 540 210 290 330 182" fill="none" stroke="#FFFFFF" stroke-width="66" opacity=".14"/><path d="M-110 630 C60 540 210 290 330 182" fill="none" stroke="#FFFFFF" stroke-width="40" opacity=".18"/>
-    <g class="rainbow" opacity=".95"><path d="M-110 650.0 C60 560.0 210 310.0 330 202.0" fill="none" stroke="#FF8A8A" stroke-width="7"/><path d="M-110 643.5 C60 553.5 210 303.5 330 195.5" fill="none" stroke="#FFB86B" stroke-width="7"/><path d="M-110 637.0 C60 547.0 210 297.0 330 189.0" fill="none" stroke="#FFE36B" stroke-width="7"/><path d="M-110 630.5 C60 540.5 210 290.5 330 182.5" fill="none" stroke="#8EDB8A" stroke-width="7"/><path d="M-110 624.0 C60 534.0 210 284.0 330 176.0" fill="none" stroke="#7DB8F0" stroke-width="7"/><path d="M-110 617.5 C60 527.5 210 277.5 330 169.5" fill="none" stroke="#8E9CF0" stroke-width="7"/><path d="M-110 611.0 C60 521.0 210 271.0 330 163.0" fill="none" stroke="#B596F0" stroke-width="7"/></g>
-    <path class="shimmer" d="M-110 630 C60 540 210 290 330 182" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="26 520" opacity=".85"/>
-    <g><g transform='translate(316 228) scale(1.35)' opacity='1'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g><g transform='translate(392 198) scale(1.1)' opacity='1'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g><g transform='translate(270 262) scale(0.9)' opacity='0.96'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g><g transform='translate(358 160) scale(0.85)' opacity='0.96'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g><g transform='translate(440 240) scale(1)' opacity='1'><ellipse cx='4' cy='10' rx='52' ry='10' fill='#C9BFEA' opacity='.35'/><ellipse cx='0' cy='0' rx='48' ry='19' fill='url(#opCloud)'/><ellipse cx='-24' cy='-10' rx='23' ry='19' fill='url(#opCloud)'/><ellipse cx='14' cy='-17' rx='28' ry='24' fill='url(#opCloud)'/><ellipse cx='40' cy='-4' rx='19' ry='15' fill='url(#opCloud)'/><ellipse cx='8' cy='-26' rx='12' ry='6' fill='#FFFFFF' opacity='.9'/></g></g>
-    <g id="opHaloG"></g>
-    
-    <path d="M-2000 590 Q-40 566 120 578 Q260 590 2400 556 V700 H-2000Z" fill="url(#opHillFar)"/>
-    <path d="M-2000 604 Q60 582 200 596 Q330 610 2400 580 V700 H-2000Z" fill="url(#opHill)"/>
-    <g><path d='M10 612 q-2 -8 -5 -11 M10 612 q1 -10 3 -13 M10 612 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M48 630 q-2 -8 -5 -11 M48 630 q1 -10 3 -13 M48 630 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M80 606 q-2 -8 -5 -11 M80 606 q1 -10 3 -13 M80 606 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M120 622 q-2 -8 -5 -11 M120 622 q1 -10 3 -13 M120 622 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M170 640 q-2 -8 -5 -11 M170 640 q1 -10 3 -13 M170 640 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M215 612 q-2 -8 -5 -11 M215 612 q1 -10 3 -13 M215 612 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M260 630 q-2 -8 -5 -11 M260 630 q1 -10 3 -13 M260 630 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M300 616 q-2 -8 -5 -11 M300 616 q1 -10 3 -13 M300 616 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M345 634 q-2 -8 -5 -11 M345 634 q1 -10 3 -13 M345 634 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M388 612 q-2 -8 -5 -11 M388 612 q1 -10 3 -13 M388 612 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M-50 620 q-2 -8 -5 -11 M-50 620 q1 -10 3 -13 M-50 620 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M-140 612 q-2 -8 -5 -11 M-140 612 q1 -10 3 -13 M-140 612 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M440 620 q-2 -8 -5 -11 M440 620 q1 -10 3 -13 M440 620 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/><path d='M520 610 q-2 -8 -5 -11 M520 610 q1 -10 3 -13 M520 610 q3 -7 7 -9' stroke='#6FC06C' stroke-width='1.5' fill='none' stroke-linecap='round'/></g>
-    <g><g transform='translate(20 640)'><g class='flw' style='animation-delay:-1.4s'><path d='M0 0 Q-1 -6.0 0 -12' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -12)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(55 662)'><g class='flw' style='animation-delay:-2.6s'><path d='M0 0 Q-1 -4.5 0 -9' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -9)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(95 648)'><g class='flw' style='animation-delay:-2.9s'><path d='M0 0 Q-1 -5.5 0 -11' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -11)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(135 676)'><g class='flw' style='animation-delay:-2.0s'><path d='M0 0 Q-1 -4.0 0 -8' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -8)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(205 660)'><g class='flw' style='animation-delay:-1.7s'><path d='M0 0 Q-1 -5.0 0 -10' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -10)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(250 672)'><g class='flw' style='animation-delay:-1.2s'><path d='M0 0 Q-1 -4.5 0 -9' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -9)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(290 652)'><g class='flw' style='animation-delay:-1.2s'><path d='M0 0 Q-1 -6.0 0 -12' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -12)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(335 670)'><g class='flw' style='animation-delay:-1.4s'><path d='M0 0 Q-1 -4.5 0 -9' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -9)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(375 648)'><g class='flw' style='animation-delay:-1.2s'><path d='M0 0 Q-1 -5.5 0 -11' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -11)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(-30 662)'><g class='flw' style='animation-delay:-0.6s'><path d='M0 0 Q-1 -5.0 0 -10' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -10)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFD978' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(-110 652)'><g class='flw' style='animation-delay:-3.0s'><path d='M0 0 Q-1 -6.0 0 -12' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -12)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(430 662)'><g class='flw' style='animation-delay:-1.3s'><path d='M0 0 Q-1 -5.0 0 -10' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -10)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFB3C7' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(500 652)'><g class='flw' style='animation-delay:-0.3s'><path d='M0 0 Q-1 -5.5 0 -11' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -11)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#FFFFFF' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g><g transform='translate(-180 668)'><g class='flw' style='animation-delay:-1.8s'><path d='M0 0 Q-1 -4.5 0 -9' stroke='#5DAE5B' stroke-width='1.4' fill='none'/><g transform='translate(0 -9)'><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(0)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(72)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(144)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(216)'/><ellipse rx='2.4' ry='3.6' cy='-3' fill='#C9B6F2' transform='rotate(288)'/><circle r='1.6' fill='#FFE38A'/></g></g></g></g>
-    <g><circle class="mote" cx="271" cy="327" r="2.0" fill="#FFF6C8" style="animation-delay:-0.4s;animation-duration:10.1s"/><circle class="mote" cx="36" cy="437" r="2.4" fill="#FFF6C8" style="animation-delay:-7.3s;animation-duration:7.1s"/><circle class="mote" cx="28" cy="472" r="2.0" fill="#FFF6C8" style="animation-delay:-1.9s;animation-duration:8.8s"/><circle class="mote" cx="0" cy="539" r="1.4" fill="#FFF6C8" style="animation-delay:-1.8s;animation-duration:9.1s"/><circle class="mote" cx="3" cy="545" r="2.4" fill="#FFF6C8" style="animation-delay:-0.4s;animation-duration:7.1s"/><circle class="mote" cx="76" cy="398" r="2.0" fill="#FFF6C8" style="animation-delay:-4.3s;animation-duration:8.9s"/><circle class="mote" cx="125" cy="302" r="2.4" fill="#FFF6C8" style="animation-delay:-5.1s;animation-duration:7.9s"/><circle class="mote" cx="4" cy="538" r="1.3" fill="#FFF6C8" style="animation-delay:-1.6s;animation-duration:9.4s"/><circle class="mote" cx="377" cy="647" r="1.8" fill="#FFF6C8" style="animation-delay:-4.7s;animation-duration:8.3s"/><circle class="mote" cx="246" cy="377" r="2.8" fill="#FFF6C8" style="animation-delay:-5.6s;animation-duration:7.2s"/><circle class="mote" cx="247" cy="518" r="2.2" fill="#FFF6C8" style="animation-delay:-2.7s;animation-duration:8.2s"/><circle class="mote" cx="14" cy="310" r="2.2" fill="#FFF6C8" style="animation-delay:-1.3s;animation-duration:7.7s"/><circle class="mote" cx="440" cy="465" r="1.3" fill="#FFF6C8" style="animation-delay:-5.3s;animation-duration:9.8s"/><circle class="mote" cx="261" cy="424" r="2.6" fill="#FFF6C8" style="animation-delay:-4.8s;animation-duration:8.9s"/><circle class="mote" cx="407" cy="285" r="2.9" fill="#FFF6C8" style="animation-delay:-7.6s;animation-duration:8.4s"/><circle class="mote" cx="6" cy="281" r="2.7" fill="#FFF6C8" style="animation-delay:-2.5s;animation-duration:8.9s"/><circle class="mote" cx="396" cy="395" r="2.6" fill="#FFF6C8" style="animation-delay:-7.1s;animation-duration:7.7s"/><circle class="mote" cx="412" cy="431" r="1.5" fill="#FFF6C8" style="animation-delay:-0.9s;animation-duration:6.3s"/></g>
-    <g><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFD9E6" style="--x:26px;animation-delay:-7.4s;animation-duration:10.0s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFD9E6" style="--x:1px;animation-delay:-1.7s;animation-duration:10.0s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFD9E6" style="--x:412px;animation-delay:-1.4s;animation-duration:10.2s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFFFFF" style="--x:102px;animation-delay:-7.1s;animation-duration:12.9s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFFFFF" style="--x:412px;animation-delay:-3.8s;animation-duration:9.2s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFC4D8" style="--x:50px;animation-delay:-1.5s;animation-duration:11.3s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFC4D8" style="--x:208px;animation-delay:-8.3s;animation-duration:8.9s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFD9E6" style="--x:-38px;animation-delay:-1.5s;animation-duration:10.7s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFFFFF" style="--x:249px;animation-delay:-3.2s;animation-duration:8.6s"/><path class="petal" d="M0 0 Q5 -6 10 0 Q5 6 0 0Z" fill="#FFFFFF" style="--x:276px;animation-delay:-6.5s;animation-duration:11.7s"/></g>
-    <g id="opSpark"></g>
-    <g id="opDogs"></g>
-    
-    </g>
-  </svg>
-  <svg class="scene layer" id="opTitleLayer" viewBox="0 0 400 700" preserveAspectRatio="xMidYMid slice"><g><text x="180" y="215" text-anchor="middle" font-family="Jua, Gowun Dodum, sans-serif" font-size="60" fill="none" stroke="#FFFFFF" stroke-width="16" paint-order="stroke fill" stroke-opacity=".55">멍멍 톡톡</text><text x="180" y="215" text-anchor="middle" font-family="Jua, Gowun Dodum, sans-serif" font-size="60" fill="url(#opTitleG)" stroke="#FFFFFF" stroke-width="8" paint-order="stroke fill">멍멍 톡톡</text></g></svg>
-  <svg class="scene layer" id="opManLayer" viewBox="0 0 400 700" preserveAspectRatio="xMidYMid slice"><g id="opMan" transform="translate(150 656)">
-      <ellipse cx="2" cy="2" rx="30" ry="6" fill="rgba(60,50,90,.22)"/>
-      <g class="breath">
-      <path d="M-14 -50 L-15 -4 Q-15 0 -10 0 L-3 0 L-2 -46Z" fill="#4C6FA6"/><path d="M2 -46 L3 0 L10 0 Q15 0 15 -4 L14 -50Z" fill="#43649A"/>
-      <path d="M-6 -46 L-6 -6" stroke="#3E5E92" stroke-width="1"/><path d="M8 -46 L8 -6" stroke="#3A578A" stroke-width="1"/>
-      <path d="M-18 0 Q-18 -6 -10 -6 L-2 -6 Q0 -2 -2 1 L-16 1Z" fill="#5A4636"/><path d="M18 0 Q18 -6 10 -6 L3 -6 Q1 -2 3 1 L16 1Z" fill="#4E3C2E"/>
-      <path d="M-24 -46 Q-28 -96 -6 -101 L6 -101 Q28 -96 24 -46Z" fill="url(#opSweater)"/>
-      <path d="M-24 -50 L24 -50 L24 -45 L-24 -45Z" fill="#D9A27A"/>
-      <path d="M-7 -101 Q0 -96 7 -101" stroke="#D9A27A" stroke-width="3" fill="none"/>
-      <path d="M22 -92 Q26 -70 24 -48" stroke="#FFF2DE" stroke-width="2" fill="none" opacity=".7"/>
-      <path d="M-23 -94 Q-34 -76 -30 -56" stroke="#E5B185" stroke-width="10" stroke-linecap="round" fill="none"/>
-      <circle cx="-30" cy="-53" r="5.3" fill="#EFC6A2"/>
-      <g class="wave-arm"><path d="M21 -95 Q30 -116 26 -138" stroke="#E9B88D" stroke-width="10" stroke-linecap="round" fill="none"/>
-        <g transform="translate(26 -143)"><ellipse rx="6.2" ry="7" fill="#F1C9A5"/><rect x="-6" y="-12" width="2.6" height="7" rx="1.3" fill="#F1C9A5"/><rect x="-2.6" y="-14" width="2.6" height="8" rx="1.3" fill="#F1C9A5"/><rect x="0.8" y="-13.5" width="2.6" height="8" rx="1.3" fill="#F1C9A5"/><rect x="4" y="-11" width="2.4" height="6" rx="1.2" fill="#F1C9A5"/></g></g>
-      <rect x="-5" y="-110" width="10" height="11" rx="3" fill="#E9BC97"/>
-      <g transform="rotate(12 0 -124)">
-        <circle cx="-14.5" cy="-122" r="3.3" fill="#EDC19D"/><circle cx="14.5" cy="-122" r="3.3" fill="#EDC19D"/>
-        <ellipse cx="0" cy="-124" rx="14.5" ry="15.5" fill="#3A2A20"/>
-        <path d="M-12 -132 Q-2 -142 10 -134" stroke="#5A4434" stroke-width="2.4" fill="none" stroke-linecap="round"/>
-        <path d="M-6 -136 Q2 -141 8 -137" stroke="#6E5644" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-        <path d="M-13 -112 Q0 -108 13 -112" stroke="#2E2018" stroke-width="2" fill="none"/>
-      </g></g>
-    </g>
-  </svg>
+  <div class="o-bgblur" style="background-image:url(data:image/jpeg;base64,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)"></div>
+  <div class="o-vbox" id="oVbox">
+    <img class="o-poster" id="oPoster" src="bgm/opening.jpg?v=2" alt="" decoding="async">
+    <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto" poster="bgm/opening.jpg?v=2"><source src="bgm/opening.mp4?v=2" type="video/mp4"></video>
+  </div>
   <div class="white"></div>
-  <div class="tapgo" id="tapGo">🐾 화면을 터치해 주세요</div>
   <button id="skipBtn">건너뛰기</button>
 </div>
 
@@ -2294,13 +2263,8 @@ const BGM=(()=>{
     wake(){asleep=false;if(failed)return;apply()}
   };
 })();
-/* 오프닝 음악 (영상 길이에 맞춰 11.6초로 잘라 둔 파일) */
-const OPMUSIC=(()=>{
-  let a=null;if(/^https?:/.test(location.protocol)){a=new Audio();a.preload='none';a.src='bgm/opening.mp3?v=2';a.addEventListener('error',()=>{a=null});MUSIC_CACHE.get('bgm/opening.mp3?v=2').then(u=>{if(a&&a.paused)a.src=u}).catch(()=>{})}
-  MUSIC_CACHE.prune(['bgm/main.mp3?v=2','bgm/play.mp3?v=3','bgm/fever.mp3?v=3','bgm/opening.mp3?v=2']);
-  return{play(){if(!a||!BGM.on)return null;try{a.currentTime=0;a.volume=1;const pr=a.play();pr&&pr.catch&&pr.catch(()=>{})}catch(e){return null}
-    return{stop(){const v0=a.volume,t0=Date.now();const iv=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/800);a.volume=v0*(1-u);if(u>=1){clearInterval(iv);a.pause()}},40)}}}};
-})();
+/* 오프닝 음악은 이제 오프닝 영상 속 음악을 써요 (예전 파일은 보관함에서 지워요) */
+const OPMUSIC=(()=>{try{MUSIC_CACHE.prune(['bgm/main.mp3?v=2','bgm/play.mp3?v=3','bgm/fever.mp3?v=3'])}catch(e){}return{play(){return null}}})();
 document.addEventListener('pointerdown',()=>{SFX.init();BGM.kick()},{passive:true});
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.classList.contains('snd'))SFX.click()});
 ['sndBtn','sndBtn2'].forEach(id=>$(id).addEventListener('click',()=>{SFX.init();SFX.click();openSettings()}));
@@ -4538,104 +4502,39 @@ $('diceBtn').addEventListener('click',()=>{$('nick').value=randomNick();fitNick(
 document.addEventListener('visibilitychange',()=>{const c=SFX.ctx;if(document.hidden){pause();c&&c.suspend&&c.suspend();BGM.sleep()}else if(!audioLost){c&&c.resume&&c.resume();BGM.wake()}});
 updateTime();syncSnd();
 
-/* ================= 오프닝 ================= */
+/* ================= 오프닝: 세 친구 영상 (7초, 영상 속 음악) → 메인 ================= */
 (function(){
   const op=$('opening');if(!op)return;
   let seen=false;try{seen=sessionStorage.getItem('mung-op')==='1'}catch(e){}
   if(seen){op.remove();BGM.allow();setTimeout(checkAttendance,500);return}
-  const NS='http://www.w3.org/2000/svg';
-  function sideDog(o){
-    const st=o.st?` stroke="${o.st}" stroke-width="1.6"`:'';
-    const leg=(x,c,cls)=>`<rect class="leg ${cls}" x="${x-3.6}" y="-21" width="7.2" height="21" rx="3.6" fill="${c}"${st}/>`;
-    const far=o.far||o.body;
-    return `<g class="bob">
-      <path class="tail" d="${o.tailD||'M-27 -33 Q-42 -42 -40 -58'}" stroke="${o.tail||o.body}" stroke-width="${o.tailW||6}" fill="none" stroke-linecap="round"/>
-      ${leg(-17,far,'b')}${leg(19,far,'')}
-      <ellipse cx="0" cy="-30" rx="30" ry="15" fill="${o.body}"${st}/>
-      ${o.patch||''}
-      <ellipse cx="14" cy="-24" rx="13" ry="8" fill="${o.chest}"/>
-      ${leg(-11,o.body,'')}${leg(24,o.body,'b')}
-      ${o.earBack||''}
-      <circle cx="30" cy="-48" r="15" fill="${o.head||o.body}"${st}/>
-      ${o.face||''}
-      <ellipse cx="43" cy="-42" rx="9" ry="7" fill="${o.snout||o.chest}"${st}/>
-      <circle cx="51" cy="-44.5" r="3" fill="#2B1B17"/>
-      <circle cx="35" cy="-51" r="2.9" fill="#2B1B17"/><circle cx="35.9" cy="-52" r=".95" fill="#fff"/>
-      <path d="M43 -37.5 Q46.5 -35 50 -38" stroke="#2B1B17" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-      <ellipse cx="46.5" cy="-34" rx="2.6" ry="3.4" fill="#FF8FA3"/>
-      ${o.ear||''}
-    </g>`;
+  const vid=$('oVideo'),poster=$('oPoster');
+  let done=false,fell=false,ending=false;const timers=[];
+  const at=(ms,f)=>timers.push(setTimeout(()=>{if(!done)f()},ms));
+  function finish(){if(done)return;done=true;timers.forEach(clearTimeout);try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();
+    // 소리는 0.4초 동안 줄이며 끝내요
+    try{const v0=vid.volume,t0=Date.now();const iv=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/400);try{vid.volume=v0*(1-u)}catch(e){}if(u>=1){clearInterval(iv);try{vid.pause()}catch(e){}}},40)}catch(e){}
+    setTimeout(()=>BGM.allow(),450);setTimeout(checkAttendance,1000);op.classList.add('fade','out');
+    setTimeout(()=>{try{vid.pause();vid.removeAttribute('src');vid.querySelectorAll('source').forEach(x=>x.remove());vid.load()}catch(e){}op.remove()},800)}
+  function end(){if(ending)return;ending=true;at(700,()=>op.classList.add('fade'));at(1700,finish)}   // 마지막 장면 잠깐 보여 주고 메인으로
+  const fallback=()=>{if(fell||done)return;fell=true;op.classList.remove('playing');poster.classList.add('kb');at(4500,end)};   // 영상을 못 틀면 그림으로
+  function start(){
+    if(vid.error||vid.networkState===3){fallback();return}
+    vid.muted=!BGM.on;vid.volume=1;   // 설정에서 음악을 껐으면 소리 없이
+    const ok=()=>{op.classList.add('playing')};
+    let pr;try{pr=vid.play()}catch(e){pr=null}
+    if(pr&&pr.then)pr.then(ok).catch(()=>{
+      // 소리 있는 자동 재생을 폰이 막으면: 소리 없이 먼저 틀고, 화면을 한 번 만지면 소리를 켜요
+      vid.muted=true;const p2=vid.play();if(p2&&p2.then)p2.then(ok).catch(fallback);else ok();
+      const un=()=>{if(!done&&!vid.paused&&BGM.on){vid.muted=false}};document.addEventListener('pointerdown',un,{once:true,capture:true})});
+    else ok();
   }
-  const DOGDEF=[
-    // 킹찰스 스패니얼 (뒤쪽)
-    {s:.95,y:560,x0:-70,html:sideDog({body:'#FFFFFF',st:'#EADFD2',far:'#F1E9DF',chest:'#FFFFFF',
-      patch:'<ellipse cx="-6" cy="-36" rx="17" ry="8.5" fill="#B5562B"/>',
-      face:'<ellipse cx="29" cy="-53" rx="11" ry="8" fill="#B5562B"/>',
-      tail:'#B5562B',tailW:7,
-      ear:'<ellipse class="ear" cx="23" cy="-38" rx="7.5" ry="15" fill="#B5562B"/>'})},
-    // 말티즈 (가운데)
-    {s:.8,y:598,x0:-150,html:sideDog({body:'#FFFFFF',st:'#E3D6C6',far:'#F3EDE6',chest:'#FFFFFF',tailW:9,tail:'#FFFFFF',
-      tailD:'M-27 -34 Q-46 -40 -42 -56',
-      ear:'<ellipse class="ear" cx="24" cy="-42" rx="7" ry="12" fill="#FFFFFF" stroke="#E3D6C6" stroke-width="1.6"/><path d="M24 -66 l7 4 -7 4z M38 -66 l-7 4 7 4z" fill="#F48FB1"/><circle cx="31" cy="-62" r="2.6" fill="#E66A97"/>'})},
-    // 치와와 (앞쪽)
-    {s:.68,y:636,x0:-230,html:sideDog({body:'#E9BE85',far:'#D9AA70',chest:'#FFF6EA',snout:'#F3D3A6',tailW:4.5,
-      ear:'<path class="ear" d="M21 -58 L16 -84 L34 -62Z" fill="#E9BE85"/><path d="M22.5 -61 L19.5 -77 L30.5 -63Z" fill="#F7B5B5"/>'})}
-  ];
-  const dogsG=$('opDogs'),sparkG=$('opSpark'),manLayer=$('opManLayer'),haloG=$('opHaloG'),heaven=op.querySelector('.heaven'),vflash=op.querySelector('.vflash');
-  const dogs=DOGDEF.map(d=>{const g=document.createElementNS(NS,'g');g.innerHTML=d.html;g.setAttribute('opacity','0');dogsG.appendChild(g);
-    const h=document.createElementNS(NS,'circle');h.setAttribute('fill','url(#opHalo)');h.setAttribute('opacity','0');h.setAttribute('r','0');haloG.appendChild(h);return{...d,g,h}});
-  // 화면 방향에 맞춰 장면 맞추기
-  const scenes=op.querySelectorAll('svg.scene');
-  function fit(){
-    const W=innerWidth,H=innerHeight,land=W>H*1.05;
-    const vb=land?[0,28,400,652]:[0,0,400,700];
-    scenes.forEach(sc=>{sc.setAttribute('viewBox',vb.join(' '));sc.setAttribute('preserveAspectRatio',land?'xMidYMid meet':'xMidYMid slice')});
-  }
-  fit();addEventListener('resize',fit);
-  // 무지개 길 (가운데 띠 위)
-  const P=[[-110,650],[60,560],[210,310],[330,202]];
-  const bez=u=>{const v=1-u;return[0,1].map(k=>v*v*v*P[0][k]+3*v*v*u*P[1][k]+3*v*u*u*P[2][k]+u*u*u*P[3][k])};
-  const tan=u=>{const v=1-u;return[0,1].map(k=>3*v*v*(P[1][k]-P[0][k])+6*v*u*(P[2][k]-P[1][k])+3*u*u*(P[3][k]-P[2][k]))};
-  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
-  const CLIMB=5200,GAP=520,STEP0=150;
-  let t0=null,done=false,lastSpk=0,manShown=false,vanished=[false,false,false],ended=false,fading=false;
-  function spark(x,y,big){
-    const g=document.createElementNS(NS,'path');const r=big?7:3+Math.random()*2.5;
-    g.setAttribute('d',`M${x} ${y-r} Q${x} ${y} ${x+r} ${y} Q${x} ${y} ${x} ${y+r} Q${x} ${y} ${x-r} ${y} Q${x} ${y} ${x} ${y-r}Z`);
-    g.setAttribute('fill',['#FFF3B0','#FFFFFF','#FFD6E8','#D6E8FF'][Math.random()*4|0]);g.setAttribute('class','opSpk');
-    g.style.transformBox='fill-box';g.style.transformOrigin='center';sparkG.appendChild(g);setTimeout(()=>g.remove(),1200);
-  }
-  function frame(ts){
-    if(done)return;if(t0===null)t0=ts;const t=ts-t0;
-    dogs.forEach((d,i)=>{
-      const lt=t-STEP0-i*GAP;if(lt<0)return;
-      const u=Math.min(1,lt/CLIMB),e=ease(u),[x,y]=bez(.13+e*.87),[tx,ty]=tan(.13+e*.87);
-      let rot=Math.atan2(ty,tx)*180/Math.PI;rot=Math.max(-42,Math.min(0,rot));
-      const sc=d.s*(1-.58*e);const op=u<.04?u/.04:(u>.86?Math.max(0,(1-u)/.14):1);
-      d.g.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(1)}) scale(${sc.toFixed(3)})`);
-      d.g.setAttribute('opacity',op.toFixed(2));
-      d.h.setAttribute('cx',x.toFixed(1));d.h.setAttribute('cy',(y-14*sc/d.s).toFixed(1));d.h.setAttribute('r',(46*sc/d.s).toFixed(1));d.h.setAttribute('opacity',(op*(.35+.6*e)).toFixed(2));
-      if(u>=1&&!vanished[i]){vanished[i]=true;for(let k=0;k<6;k++)setTimeout(()=>spark(330+(Math.random()-.5)*30,205+(Math.random()-.5)*24,true),k*60);SFX.spawn();vflash.animate([{opacity:0},{opacity:.85},{opacity:0}],{duration:850,easing:'ease-out'});}
-      if(u<.98&&t-lastSpk>110){spark(x+(Math.random()-.5)*10,y-4)}
-    });
-    if(t-lastSpk>110)lastSpk=t;
-    const dogsEnd=STEP0+2*GAP+CLIMB;
-    if(!manShown&&t>dogsEnd-200){manShown=true;manLayer.classList.add('on')}
-    if(!ended&&t>dogsEnd+500){ended=true;op.classList.add('end')}
-    if(!fading&&t>dogsEnd+3400){fading=true;op.classList.add('fade')}
-    if(t>dogsEnd+4700){finish();return}
-    requestAnimationFrame(frame);
-  }
-  let started=false,wv=null,mb=null;
-  function finish(){if(done)return;done=true;try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();if(wv)wv.stop();if(mb)mb.stop();setTimeout(()=>BGM.allow(),450);setTimeout(checkAttendance,1000);op.classList.add('fade','out');setTimeout(()=>op.remove(),750)}
-  function go(){
-    if(started)return;started=true;SFX.init();op.classList.add('go');
-    mb=OPMUSIC.play()||SFX.musicbox();   // 오프닝 음악 파일 (못 불러오면 예전 오르골)
-    [[2,.35],[1,.85],[0,1.35]].forEach(([k,dl])=>SFX.bark(k,dl));   // 해피, 뭉치, 샌드가 밝게 한 번씩
-    requestAnimationFrame(frame);
-  }
+  vid.addEventListener('error',fallback);
+  vid.addEventListener('ended',end);
+  vid.addEventListener('timeupdate',()=>{if(vid.duration&&vid.currentTime>=vid.duration-.05)end()});
+  if(vid.readyState>=2)start();else{vid.addEventListener('canplay',start,{once:true});try{vid.load()}catch(e){}}
+  at(2500,()=>{if(!op.classList.contains('playing'))fallback()});   // 영상이 너무 늦게 오면
+  at(12000,end);
   $('skipBtn').addEventListener('click',e=>{e.stopPropagation();finish()});
-  op.addEventListener('click',()=>{if(!started)go();else finish()});
 })();
 </script>
 
