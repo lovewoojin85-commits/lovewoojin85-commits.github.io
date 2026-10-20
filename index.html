@@ -1040,10 +1040,11 @@ body.eco .menu-friends svg,body.eco .tile.friend .in,body.eco .tile.friend .in::
 #time{display:inline-block;transform-origin:50% 60%;will-change:transform}
 /* 강아지 칸을 처음부터 별도 층으로 준비 → 많이 내려와도 매번 새로 그리지 않아요 */
 #board .tile{will-change:transform}
+#board .tile .in{will-change:transform}   /* 터질 때 새 층을 만들지 않게 미리 준비 (사라졌다 나타나는 깜빡임 방지) */
 
 /* ===== 화려한 피버 타임 (모두 투명도·이동·회전만 써서 폰에서도 가볍게) ===== */
-.fvfx{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:0;transition:opacity .3s;will-change:opacity}
-#game .frame.fever .fvfx{opacity:1}
+.fvfx{position:absolute;inset:0;pointer-events:none;z-index:3;display:none}
+#game .frame.fever .fvfx{display:block}   /* 피버 때만 그려요 (평소엔 그래픽 메모리 아끼기) */
 #game .frame:not(.fever) .fvfx *{animation-play-state:paused!important}
 .fvglow{position:absolute;inset:-6px;border-radius:26px;opacity:0;will-change:opacity}
 .fvglow.g1{box-shadow:0 0 22px 6px rgba(255,120,200,.85),inset 0 0 18px 4px rgba(255,120,200,.45);animation:fvPulse 1.5s ease-in-out infinite}
@@ -1576,8 +1577,8 @@ body.ingame main{overflow:hidden;overflow:clip}
 <div id="opening" aria-hidden="true">
   <div class="o-bgblur" style="background-image:url(data:image/jpeg;base64,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)"></div>
   <div class="o-vbox" id="oVbox">
-    <img class="o-poster" id="oPoster" src="bgm/opening.jpg?v=2" alt="" decoding="async">
-    <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto" poster="bgm/opening.jpg?v=2"><source src="bgm/opening.mp4?v=2" type="video/mp4"></video>
+    <img class="o-poster" id="oPoster" src="bgm/opening.jpg?v=3" alt="" decoding="async">
+    <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto" poster="bgm/opening.jpg?v=3"><source src="bgm/opening.mp4?v=3" type="video/mp4"></video>
   </div>
   <div class="white"></div>
   <button id="skipBtn">건너뛰기</button>
@@ -2545,8 +2546,8 @@ function genBoard(){
   boardEl.querySelectorAll('.tile').forEach(e=>e.remove());
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];t.el=makeEl(t);t.el.style.transition='none';t.el.style.transform=`translate(${c*100}%,${(r-N)*100}%)`}
   boardEl.offsetHeight;
-  const all=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];t.el.style.transition='';place(t,r,c);all.push(t)}
-  jellyDrop(all,false);
+  const go=()=>{const all=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];if(!t||!t.el)continue;t.el.style.transition='';place(t,r,c);all.push(t)}jellyDrop(all,false)};
+  requestAnimationFrame(()=>requestAnimationFrame(go));   // 64마리 그림을 먼저 준비하고 떨어뜨려요
 }
 function countObs(){let n=0;for(const row of board)for(const t of row)if(t&&(t.type===SAND||t.shell||t.sleep))n++;return n}
 let goldThisGame=0;
@@ -2716,10 +2717,13 @@ $('boneBtn').addEventListener('click',useBone);
 
 /* ---- 젤리처럼 탱글탱글 떨어지기 ---- */
 const FALL_MS=300;
-function jellyDrop(tiles,withSound){   // 애니팡처럼 툭툭: 출렁임 없이 깔끔하게 떨어져요
-  tiles.forEach(t=>t.el.classList.add('falling'));
-  setTimeout(()=>{tiles.forEach(t=>t.el.classList.remove('falling'))},FALL_MS-10);
+function jellyDrop(tiles,withSound,durs){   // 애니팡처럼 툭툭: 출렁임 없이 깔끔하게 떨어져요 (멀리 떨어질수록 조금 더 오래)
+  const groups=new Map();
+  tiles.forEach(t=>{const d=(durs&&durs.get(t))||FALL_MS;t.el.style.transitionDuration=d+'ms';t.el.classList.add('falling');if(!groups.has(d))groups.set(d,[]);groups.get(d).push(t)});
+  groups.forEach((ts,d)=>setTimeout(()=>{ts.forEach(t=>{t.el.classList.remove('falling');t.el.style.transitionDuration=''})},d-10));
 }
+const fallDur=d=>Math.round(130+70*Math.sqrt(Math.max(1,d)));   // 1칸 200ms … 8칸 330ms
+const nextFrames=(n=2)=>new Promise(r=>{const f=()=>(--n<=0?r():requestAnimationFrame(f));requestAnimationFrame(f)});
 
 /* ---- 장애물 ---- */
 function bubbleBurst(t){
@@ -2771,29 +2775,32 @@ async function clearSet(set,gain){
   await sleep(lite?110:150);
   const[cx,cy]=burst(cells);
   if(gain)floatText(cx,cy,'+'+gain,gain>=200);
-  let maxDelay=0;
+  let maxDelay=0;const rm=[];
   keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el,w=el.firstChild;
     const delay=lite?Math.min(Math.hypot((c+.5)/N*100-cx,(r+.5)/N*100-cy)*2.2,170):0;maxDelay=Math.max(maxDelay,delay);
     if(w&&w.animate)w.animate(lite?[{transform:'scale(1)',opacity:1},{transform:'scale(1.25)',opacity:1,offset:.3},{transform:'scale(0)',opacity:0}]
                                :[{transform:'translateY(-8%) scale(1.18) rotate(4deg)',opacity:1},{transform:'scale(1.35)',opacity:1,offset:.35},{transform:'scale(0) rotate(30deg)',opacity:0}],
                          {duration:lite?200:230,delay,easing:'ease-in',fill:'forwards'});
     else el.style.opacity=0;
-    setTimeout(()=>el.remove(),(lite?200:230)+delay);board[r][c]=null});
+    rm.push(el);board[r][c]=null});
   await sleep((lite?200:230)+maxDelay);
-  const moved=[];
+  rm.forEach(el=>el.remove());
+  const moved=[],dist=new Map();
   for(const c of myCols){   // 내가 정리한 줄만 내려요 (다른 줄은 동시에 따로 정리될 수 있어요)
     let write=N-1;
-    for(let r=N-1;r>=0;r--){if(board[r][c]){if(write!==r){board[write][c]=board[r][c];board[r][c]=null;moved.push(board[write][c])}write--}}
+    for(let r=N-1;r>=0;r--){if(board[r][c]){if(write!==r){board[write][c]=board[r][c];board[r][c]=null;moved.push(board[write][c]);dist.set(board[write][c],write-r)}write--}}
     const missing=write+1;
     for(let r=write;r>=0;r--){
-      const t=newTile();t.el=makeEl(t);board[r][c]=t;moved.push(t);
+      const t=newTile();t.el=makeEl(t);board[r][c]=t;moved.push(t);dist.set(t,missing);
       t.el.style.transition='none';t.el.style.transform=`translate(${c*100}%,${(r-missing)*100}%)`;
     }
   }
   boardEl.offsetHeight;
-  for(let r=0;r<N;r++)for(const c of myCols){const t=board[r][c];if(t){t.el.style.transition='';place(t,r,c)}}
-  jellyDrop(moved,true);
-  await sleep(320);
+  await nextFrames(2);   // 새 강아지 그림을 판 위(안 보이는 곳)에서 먼저 준비한 다음 떨어뜨려요 → 첫 움직임이 툭 끊기지 않아요
+  const durs=new Map();let maxD=0;moved.forEach(t=>{const d=fallDur(dist.get(t)||1);durs.set(t,d);if(d>maxD)maxD=d});
+  for(let r=0;r<N;r++)for(const c of myCols){const t=board[r][c];if(t){t.el.style.transition='';const d=durs.get(t);if(d)t.el.style.transitionDuration=d+'ms';place(t,r,c)}}
+  jellyDrop(moved,true,durs);
+  await sleep(Math.max(200,maxD)+20);
   myCols.forEach(c=>unlockCol(c,myTop[c]));
   checkTrio();updatePairs();
 }
