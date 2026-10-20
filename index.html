@@ -1509,7 +1509,7 @@ body.ingame main{overflow:hidden;overflow:clip}
 #opening{background:#F6C98A}
 #opening .o-bgblur{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:saturate(1.1)}
 #opening .o-bgblur::after{content:"";position:absolute;inset:0;background:rgba(255,236,200,.18)}
-#opening .o-vbox{position:absolute;left:50%;top:50%;width:min(100vw,calc(100vh * 9 / 16));aspect-ratio:9/16;transform:translate(-50%,-50%);overflow:hidden;--w:min(100vw,calc(100vh * 9 / 16));box-shadow:0 0 40px rgba(120,70,20,.25)}
+#opening .o-vbox{position:absolute;left:50%;top:0;height:100%;width:auto;aspect-ratio:9/16;transform:translateX(-50%);overflow:hidden;box-shadow:0 0 40px rgba(120,70,20,.25)}
 #opening .o-poster,#opening .o-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 #opening .o-video{opacity:0;transition:opacity .25s}
 #opening.playing .o-video{opacity:1}
@@ -1530,6 +1530,34 @@ body.ingame main{overflow:hidden;overflow:clip}
 #opening .o-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(80,40,10,.22) 100%)}
 #opening .tapgo{z-index:3}
 #opening #skipBtn{z-index:3}
+
+/* ---- 잠깐 쉬어요 ---- */
+.pcard{position:relative;max-width:330px;width:100%;align-items:stretch;text-align:center;gap:8px;padding:0 18px 14px;overflow:hidden;background:linear-gradient(180deg,#FFFDF6 0,#FFFDF6 100%)}
+.ptop{position:relative;height:132px;margin:0 -18px 2px;background:radial-gradient(ellipse 80% 90% at 50% 100%,#8E86E0 0,#6C63C9 55%,#4E47A8 100%);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+.ptop::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-38px;height:60px;border-radius:50%;background:#FFFDF6}
+.pmoon{position:absolute;right:30px;top:18px;width:34px;height:34px;border-radius:50%;box-shadow:-9px 5px 0 0 #FFE9A6;transform:rotate(-20deg)}
+.pst{position:absolute;font-style:normal;color:#FFF3C4;font-size:14px;animation:pTw 1.8s ease-in-out infinite alternate}
+.pst.s1{left:28px;top:22px}.pst.s2{left:70px;top:48px;font-size:11px;animation-delay:-.6s}.pst.s3{right:84px;top:58px;font-size:10px;animation-delay:-1.2s}
+@keyframes pTw{from{opacity:.3;transform:scale(.8)}to{opacity:1;transform:scale(1.15)}}
+.pdog{position:relative;z-index:1;width:104px;height:104px;margin-bottom:-6px;animation:pNod 2.4s ease-in-out infinite;transform-origin:50% 90%}
+.pdog svg{width:100%;height:100%}
+.pdog .ring{animation:none}
+@keyframes pNod{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(4deg) translateY(3px)}}
+.pz{position:absolute;z-index:2;font-family:"Jua",sans-serif;color:#fff;text-shadow:0 2px 0 #4E47A8;opacity:0;animation:pZ 2.4s ease-out infinite}
+.pz.z1{left:calc(50% + 40px);top:46px;font-size:16px}.pz.z2{left:calc(50% + 54px);top:30px;font-size:20px;animation-delay:.8s}.pz.z3{left:calc(50% + 70px);top:12px;font-size:26px;animation-delay:1.6s}
+@keyframes pZ{0%{opacity:0;transform:translate(0,8px) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translate(10px,-14px) scale(1.1)}}
+.ptitle{margin:4px 0 0;font-family:"Jua",sans-serif;font-size:1.8rem;color:#3A2A1A}
+.psub{margin:-4px 0 4px;font-size:.88rem;color:#8A7A6A;word-break:keep-all}
+.pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pstats>div{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px;border-radius:14px;background:#F6F2FF;box-shadow:0 2px 0 #E4DCFA}
+.pstats span{font-size:1rem;line-height:1}
+.pstats b{font-family:"Jua",sans-serif;font-weight:400;font-size:1.15rem;color:#5A4AB8;line-height:1.2;font-variant-numeric:tabular-nums}
+.pstats small{font-size:.7rem;color:#9A8FC0}
+.pgo{width:100%;margin-top:6px;font-size:1.25rem;padding:13px 0;background:linear-gradient(100deg,#FFB547,#FF8A5C 60%,#FF6F91);color:#fff;box-shadow:0 5px 0 #D9576F;text-shadow:0 1px 1px rgba(150,40,40,.35)}
+.pcard .kklater{margin-top:2px}
+.pgo:focus{outline:none}
+.pnote{margin:0;font-size:.75rem;color:#9AA6B2;word-break:keep-all}
+@media (prefers-reduced-motion: reduce){.pdog,.pz,.pst{animation:none}.pz{opacity:.8}}
 </style>
 </head>
 <body>
@@ -1789,10 +1817,15 @@ body.ingame main{overflow:hidden;overflow:clip}
 
 <!-- 일시정지 -->
 <div class="modal" id="pauseModal" hidden>
-  <div class="card">
-    <h2>잠깐 쉬어요</h2>
-    <div class="row"><button id="resumeBtn">계속하기</button><button class="sub" id="quitBtn">그만하기</button></div>
-    <p class="msg" id="quitNote">그만하면 지금까지의 점수를 순위표에 등록할 수 있어요.</p>
+  <div class="card pcard">
+    <div class="ptop"><i class="pmoon"></i><i class="pst s1">✦</i><i class="pst s2">✧</i><i class="pst s3">✦</i>
+      <div class="pdog" id="pDog"></div><span class="pz z1">z</span><span class="pz z2">z</span><span class="pz z3">Z</span></div>
+    <h2 class="ptitle">잠깐 쉬어요</h2>
+    <p class="psub">강아지들이 꾸벅꾸벅<br>기다리고 있어요&nbsp;🐾</p>
+    <div class="pstats"><div><span>🏆</span><b id="pScore">0</b><small>지금 점수</small></div><div><span>⭐</span><b id="pLv">1</b><small>레벨</small></div><div><span>⏰</span><b id="pTime">0</b><small>남은 시간</small></div></div>
+    <button class="pgo" id="resumeBtn">▶ 계속하기</button>
+    <button class="kklater" id="quitBtn">그만하고 점수 보기</button>
+    <p class="msg pnote" id="quitNote">그만하면 지금까지의 점수를 순위표에 등록할 수 있어요.</p>
   </div>
 </div>
 
@@ -3276,7 +3309,9 @@ function startGame(){
 }
 function stopGame(){clearInterval(tick);running=false;paused=false;ended=true;endFever();$('pauseModal').hidden=true;$('endModal').hidden=true}
 function pause(){if(!running||paused||ended)return;if(placing!==null)cancelPlacing();paused=true;BGM.hold(true);   // 게임이 멈추면 음악도 멈춰요 (전화가 와서 멈춘 경우 포함)
-  $('quitNote').textContent=score>0?'그만하면 지금까지의 점수를 순위표에 등록할 수 있어요.':'';$('pauseModal').hidden=false;$('resumeBtn').focus()}
+  $('quitNote').textContent=score>0?'그만하면 지금까지의 점수를 순위표에 등록할 수 있어요.':'';$('quitNote').hidden=!(score>0);
+  try{const pd=$('pDog');if(!pd.firstChild)pd.innerHTML=svgFor(TYPES+1);$('pScore').textContent=Math.floor(score).toLocaleString();$('pLv').textContent=level;$('pTime').textContent=Math.max(0,Math.ceil(time))+'초'}catch(e){}
+  $('pauseModal').hidden=false;$('resumeBtn').focus()}
 function resume(){paused=false;BGM.hold(false);BGM.duck(false);lastAct=Date.now();lastT=performance.now();$('pauseModal').hidden=true}
 
 let lastScore=0;
