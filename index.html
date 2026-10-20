@@ -1577,6 +1577,29 @@ body.ingame main{overflow:hidden;overflow:clip}
 @media (max-width:340px){#menu .menu-grid{gap:6px}#menu .menu-grid button{min-height:62px;font-size:.72rem}#menu .menu-grid .mi{font-size:1.35rem}}
 /* ---- 게임 화면: 위아래 여백을 똑같이 ---- */
 @media (orientation:portrait){#game{justify-content:center;padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:14px;gap:9px}}
+
+/* ---- 메인화면 2차 정리: 위쪽 띄우고, 덩어리마다 고르게 간격 ---- */
+#menu{justify-content:space-evenly;gap:10px;padding-top:calc(78px + env(safe-area-inset-top,0px));padding-bottom:calc(26px + env(safe-area-inset-bottom,0px))}
+#menu .menu-friends{margin-top:0}
+#menu .topright{top:calc(18px + env(safe-area-inset-top,0px));right:16px}
+#menu .menu-btns{gap:18px}
+#menu .menu-grid{gap:12px 10px}
+#menu .menu-grid button{min-height:74px;border-radius:20px}
+#menu .menu-best{margin-top:4px}
+@media (orientation:portrait) and (max-height:780px){#menu{padding-top:calc(70px + env(safe-area-inset-top,0px));padding-bottom:20px}#menu .menu-grid{gap:10px 8px}#menu .menu-grid button{min-height:66px}#menu .menu-btns{gap:14px}}
+@media (orientation:portrait) and (max-height:680px){#menu{padding-top:64px}#menu .menu-friends svg{width:3.9rem;height:3.9rem}#menu .menu-friends svg:nth-child(2){width:4.4rem;height:4.4rem}#menu .logo{font-size:2.6rem}#menu .menu-grid button{min-height:58px}}
+/* ---- 게임 화면: 맨 위를 띄우고 줄 사이를 고르게 ---- */
+@media (orientation:portrait){#game{justify-content:space-evenly;padding-top:calc(30px + env(safe-area-inset-top,0px));padding-bottom:16px;gap:8px}}
+@media (orientation:portrait) and (max-height:700px){#game{padding-top:calc(12px + env(safe-area-inset-top,0px))}}
+
+/* ---- 메인화면 3차: 큰 메뉴 4개 + 작은 링크 3개, 설정은 왼쪽 위 ---- */
+#menu .topleft{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:16px;z-index:2}
+#menu .topleft .ticon{font-size:inherit}
+#menu .menu-grid{grid-template-columns:repeat(4,1fr)}
+.menu-links{display:flex;justify-content:center;gap:8px;flex-wrap:nowrap}
+.menu-links button{flex:0 1 auto;width:auto!important;padding:7px 12px;font-size:.82rem;border-radius:999px;white-space:nowrap;box-shadow:0 2px 0 var(--frame);background:rgba(255,255,255,.85)}
+@media (max-width:350px){.menu-links{gap:5px}.menu-links button{padding:6px 9px;font-size:.74rem}}
+@media (orientation:landscape) and (max-height:560px){#menu .topleft{top:6px;left:10px}}
 </style>
 </head>
 <body>
@@ -1607,6 +1630,7 @@ body.ingame main{overflow:hidden;overflow:clip}
 <main>
   <!-- 메인 화면 -->
   <section class="screen" id="menu">
+    <div class="topleft"><button class="ticon snd" id="sndBtn2" aria-label="설정"><span class="ti">⚙️</span><small>설정</small></button></div>
     <div class="topright"><button class="coinpill" id="coinPill" aria-label="내 코인 (상점 열기)"><i class="ci"></i> <b id="coinPillN">0</b></button>
       <div class="ticons"><button class="ticon" id="shopBtn" aria-label="상점"><span class="ti">🛒</span><small>상점</small></button><button class="ticon" id="menuBagBtn" aria-label="가방"><span class="ti">🎒</span><small>가방</small><span class="badge cnt" id="menuBagN" hidden>0</span></button><button class="ticon" id="missionBtn" aria-label="오늘의 미션"><span class="ti">🎯</span><small>미션</small><span class="badge" id="missionBadge" hidden>!</span></button></div></div>
     <div class="menu-friends" id="menuFriends"></div>
@@ -1620,11 +1644,8 @@ body.ingame main{overflow:hidden;overflow:clip}
         <button class="sub mission-btn" id="dexBtn"><span class="mi">📖</span><span class="ml">도감</span><span class="badge" id="dexBadge" hidden>N</span></button>
         <button class="sub mission-btn" id="achBtn"><span class="mi">🏅</span><span class="ml">업적</span><span class="achlvtag" id="achLvTag">Lv.1</span><span class="badge" id="achBadge" hidden>0</span></button>
         <button class="sub mission-btn" id="eventBtn"><span class="mi">🎁</span><span class="ml">이벤트</span><span class="badge now" id="eventBadge" hidden>NOW</span></button>
-        <button class="sub mission-btn" id="themeBtn"><span class="mi">🎨</span><span class="ml">배경</span></button>
-        <button class="sub mission-btn" id="helpBtn"><span class="mi">💡</span><span class="ml">게임 방법</span></button>
-        <button class="sub mission-btn" id="creditBtn"><span class="mi">💝</span><span class="ml">만든 사람</span></button>
-        <button class="sub snd mission-btn" id="sndBtn2" aria-label="설정"><span class="mi">⚙️</span><span class="ml">설정</span></button>
       </div>
+      <div class="menu-links"><button class="sub" id="themeBtn">🎨 배경</button><button class="sub" id="helpBtn">💡 게임 방법</button><button class="sub" id="creditBtn">💝 만든 사람</button></div>
     </div>
   </section>
 
