@@ -1040,7 +1040,7 @@ body.eco .menu-friends svg,body.eco .tile.friend .in,body.eco .tile.friend .in::
 #time{display:inline-block;transform-origin:50% 60%;will-change:transform}
 /* 강아지 칸을 처음부터 별도 층으로 준비 → 많이 내려와도 매번 새로 그리지 않아요 */
 #board .tile{will-change:transform}
-#board .tile .in{will-change:transform}   /* 터질 때 새 층을 만들지 않게 미리 준비 (사라졌다 나타나는 깜빡임 방지) */
+#board .tile.prep .in{will-change:transform}   /* 터지기 직전 강아지만 미리 준비 (깜빡임 방지, 평소엔 층을 줄여 가볍게) */
 
 /* ===== 화려한 피버 타임 (모두 투명도·이동·회전만 써서 폰에서도 가볍게) ===== */
 .fvfx{position:absolute;inset:0;pointer-events:none;z-index:3;display:none}
@@ -1633,6 +1633,8 @@ body.opening .app{opacity:0}
 #fx .fxc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
 #board .tile.parked{visibility:hidden;transform:translate(0,-200%)!important}
+
+#game .frame.fvwarm:not(.fever) .fvfx{display:block;opacity:.01}
 </style>
 </head>
 <body>
@@ -2735,7 +2737,7 @@ function checkLevel(){
 }
 
 /* 레벨업: 게임판 가운데에 크게 (1.6초, 판은 그대로 움직일 수 있어요) */
-function levelSplash(icon,title,sub){
+function levelSplash(icon,title,sub){ftag('레벨업');
   const frame=document.querySelector('#game .frame');if(!frame)return;
   frame.querySelectorAll('.lvfx').forEach(e=>e.remove());
   const box=document.createElement('div');box.className='lvfx'+(icon?'':' plain');
@@ -2770,8 +2772,10 @@ function feverConfetti(){
   FXC.add(items);
 }
 let feverGainAt=0;   // 마지막으로 피버 게이지를 채운 때 (게임 시간 기준)
-function addFever(n){if(feverOn||!running)return;feverGainAt=elapsed;fever=Math.min(100,fever+n);updateFever();if(fever>=100)startFever()}
-function startFever(msg){
+function addFever(n){if(feverOn||!running)return;feverGainAt=elapsed;fever=Math.min(100,fever+n);updateFever();
+  if(fever>=70){const fr=document.querySelector('#game .frame');if(fr&&!fr.classList.contains('fvwarm'))fr.classList.add('fvwarm')}   // 피버 직전: 피버 효과를 안 보이게 미리 준비해 둬요 (켜지는 순간 끊김 방지)
+  if(fever>=100)startFever()}
+function startFever(msg){ftag('피버');
   if(!running)return;
   if(feverOn){feverLeft=FEVER_SEC;updateFever();if(msg)toast(msg);return}
   feverOn=true;feverLeft=FEVER_SEC;fever=0;trackM('fever',1);
@@ -2783,7 +2787,7 @@ function startFever(msg){
 }
 function endFever(){
   const was=feverOn;feverOn=false;feverLeft=0;fever=0;clearInterval(feverBeatTimer);BGM.fever(false);
-  document.querySelector('#game .frame').classList.remove('fever');document.body.classList.remove('fevering');updateFever();
+  document.querySelector('#game .frame').classList.remove('fever','fvwarm');document.body.classList.remove('fevering');updateFever();
   if(was&&running){toast('피버 타임 끝! 다시 게이지를 모아요');SFX.feverEnd()}
 }
 
@@ -2875,7 +2879,7 @@ function wake(t){
 }
 
 /* ---- 터뜨리기 ---- */
-async function clearSet(set,gain){
+async function clearSet(set,gain){ftag(set.size>=12?'큰정리':liveN>0?'동시정리':'터짐');
   const hits=new Set();
   set.forEach(k=>{const[r,c]=keyRC(k);[[1,0],[-1,0],[0,1],[0,-1]].forEach(([dr,dc])=>{const rr=r+dr,cc=c+dc;if(inB(rr,cc)&&!set.has(rr*N+cc)&&!colLocks[cc].length)hits.add(rr*N+cc)})});   // 다른 정리가 진행 중인 줄은 건드리지 않아요
   let sandN=0,hitB=0;
@@ -2894,6 +2898,7 @@ async function clearSet(set,gain){
   myCols.forEach(c=>lockCol(c,myTop[c]));   // 정리되는 칸과 그 위만 떨어지는 동안 잠가요
   if(sel&&locked(sel.r,sel.c))clearSel();
   const lite=keys.length>14;   // 한꺼번에 많이 터질 땐 가볍게, 가운데서 바깥으로 물결처럼
+  keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el;el.classList.add('prep')});await nextFrames(1);   // 한 프레임 먼저 준비
   keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el;el.classList.remove('wob','falling');el.classList.add('happy');
     if(lite)return;const w=el.firstChild;
     if(w&&w.animate)w.animate([{transform:'scale(1)'},{transform:'translateY(-10%) scale(1.2) rotate(-6deg)',offset:.6},{transform:'translateY(-8%) scale(1.18) rotate(4deg)'}],{duration:150,easing:'ease-out',fill:'forwards'})});
@@ -2929,7 +2934,7 @@ async function clearSet(set,gain){
   myCols.forEach(c=>unlockCol(c,myTop[c]));
   checkTrio();updatePairs();
 }
-function becomeFriend(r,c,f){
+function becomeFriend(r,c,f){ftag('무지개친구');
   trackM('friend',1);
   const t=board[r][c];t.type=TYPES+f;t.shell=0;t.sleep=false;met[f]++;
   t.el.className='tile friend';t.el.textContent='';t.el.appendChild(tileNode(t));
@@ -3001,7 +3006,7 @@ function liveSwap(r1,c1,r2,c2){
   setTimeout(()=>{[a,b].forEach(t=>{const p=posOf(t);if(p&&t.el)place(t,p[0],p[1])})},200);
 }
 /* 움직일 곳이 없으면: 장애물은 그대로 두고 강아지들만 섞어요 (시간 -3초) */
-async function shuffleBoard(){
+async function shuffleBoard(){ftag('섞기');
   const cells=[];
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];if(t&&isDog(t)&&!t.shell&&!t.sleep)cells.push([r,c])}
   const types=cells.map(([r,c])=>board[r][c].type);
@@ -3402,7 +3407,7 @@ const HERO=(()=>{
   }
   return{preload,play};
 })();
-async function megaBlast(r1,c1,r2,c2){
+async function megaBlast(r1,c1,r2,c2){ftag('판전체');
   if(busy||!active())return;trackM('mega',1);
   busy=true;clearHint();clearSel();lastAct=Date.now();
   const f1=board[r1][c1].type-TYPES,f2=board[r2][c2].type-TYPES;
@@ -4193,17 +4198,19 @@ applyEco();
   // 판 시작 후 처음 약 6초만 재고 멈춰요 (계속 재면 그 자체로 폰이 쉬지 못해서 열이 나요)
   setInterval(()=>{if(!running){wasRun=false;wins=0;slow=0;return}if(!wasRun){wasRun=true;wins=0}if(!on&&wins<4&&!paused&&!document.hidden){on=true;requestAnimationFrame(tick)}},1000)})();   // 게임 중에만 감시 (메뉴에서는 쉬게)
 setTimeout(()=>{try{prewarmTiles()}catch(e){}},300);
+/* 끊김 측정기용 사건 표시 */
+var FTAG={t:0,n:''};function ftag(n){FTAG={t:performance.now(),n}}
 /* ---- 숨은 기능: 끊김 측정기 (만든 사람 화면의 🏡를 5번 연속 누르면 켜지고 꺼져요) ----
    게임 중 화면 왼쪽 아래에 초당 화면 수(FPS)와 끊긴 횟수를 보여줘요. 폰에서 직접 확인하는 용도 */
 (function(){
-  let on=false,raf=0,last=0,frames=0,acc=0,j50=0,j100=0,worst=0,box=null,taps=0,tapT=0;
-  function loop(t){if(!on)return;if(last){const d=t-last;if(running&&!paused){if(d>50)j50++;if(d>100)j100++;if(d>worst&&d<2000)worst=d}frames++;acc+=d}last=t;
-    if(acc>=1000){if(box)box.textContent=`FPS ${Math.round(frames*1000/acc)} · 끊김 ${j50}회(심함 ${j100}) · 최대 ${Math.round(worst)}ms`;frames=0;acc=0}
+  let on=false,raf=0,last=0,frames=0,acc=0,j50=0,j100=0,worst=0,box=null,taps=0,tapT=0,cause={};
+  function loop(t){if(!on)return;if(last){const d=t-last;if(running&&!paused){if(d>50){j50++;const k=(t-d-FTAG.t<450&&FTAG.n)?FTAG.n:'기타';cause[k]=(cause[k]||0)+1}if(d>100)j100++;if(d>worst&&d<2000)worst=d}frames++;acc+=d}last=t;
+    if(acc>=1000){if(box){const c=Object.entries(cause).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ');box.textContent=`FPS ${Math.round(frames*1000/acc)} · 끊김 ${j50}회(심함 ${j100}) · 최대 ${Math.round(worst)}ms`+(c?'\n원인: '+c:'')}frames=0;acc=0}
     raf=requestAnimationFrame(loop)}
   function set(v){on=v;try{ls.set('mung-fps',v)}catch(e){}
-    if(on){if(!box){box=document.createElement('div');box.id='fpsBox';box.style.cssText='position:fixed;left:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;background:rgba(0,0,0,.65);color:#fff;font:12px/1.4 monospace;padding:3px 7px;border-radius:6px;pointer-events:none';document.body.appendChild(box)}box.hidden=false;last=0;raf=requestAnimationFrame(loop)}
+    if(on){if(!box){box=document.createElement('div');box.id='fpsBox';box.style.cssText='white-space:pre;position:fixed;left:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;background:rgba(0,0,0,.65);color:#fff;font:12px/1.4 monospace;padding:3px 7px;border-radius:6px;pointer-events:none';document.body.appendChild(box)}box.hidden=false;last=0;raf=requestAnimationFrame(loop)}
     else{cancelAnimationFrame(raf);if(box)box.hidden=true}}
-  window.fpsReset=()=>{j50=0;j100=0;worst=0};
+  window.fpsReset=()=>{j50=0;j100=0;worst=0;cause={}};
   const h=document.querySelector('#credits .mkicon');if(h)h.addEventListener('click',()=>{const n=Date.now();taps=n-tapT<600?taps+1:1;tapT=n;if(taps>=5){taps=0;set(!on);toast(on?'끊김 측정기 켜짐':'끊김 측정기 꺼짐')}});
   if(ls.get('mung-fps',false))setTimeout(()=>set(true),1500);
 })();
