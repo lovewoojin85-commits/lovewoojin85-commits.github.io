@@ -1637,7 +1637,8 @@ body.opening .app{opacity:0}
 #game .frame.fvwarm:not(.fever) .fvfx{display:block;opacity:.01}
 </style>
 </head>
-<body>
+<body class="opening">
+<script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="rb" x1="0" y1="0" x2="1" y2="1">
@@ -2926,7 +2927,7 @@ async function clearSet(set,gain){ftag(set.size>=12?'큰정리':liveN>0?'동시�
     }
   }
   boardEl.offsetHeight;
-  await nextFrames(2);   // 새 강아지 그림을 판 위(안 보이는 곳)에서 먼저 준비한 다음 떨어뜨려요 → 첫 움직임이 툭 끊기지 않아요
+  await nextFrames(2);ftag('떨어짐');   // 새 강아지 그림을 판 위(안 보이는 곳)에서 먼저 준비한 다음 떨어뜨려요 → 첫 움직임이 툭 끊기지 않아요
   const durs=new Map();let maxD=0;moved.forEach(t=>{const d=fallDur(dist.get(t)||1);durs.set(t,d);if(d>maxD)maxD=d});
   for(let r=0;r<N;r++)for(const c of myCols){const t=board[r][c];if(t){t.el.style.transition='';const d=durs.get(t);if(d)t.el.style.transitionDuration=d+'ms';place(t,r,c)}}
   jellyDrop(moved,true,durs);
@@ -3457,7 +3458,7 @@ function startGame(){
   },100);
 }
 function stopGame(){clearInterval(tick);running=false;paused=false;ended=true;endFever();$('pauseModal').hidden=true;$('endModal').hidden=true}
-function pause(){if(!running||paused||ended)return;if(placing!==null)cancelPlacing();paused=true;BGM.hold(true);   // 게임이 멈추면 음악도 멈춰요 (전화가 와서 멈춘 경우 포함)
+function pause(){if(!running||paused||ended)return;if(SAVE_LATER)setTimeout(flushSaves,300);if(placing!==null)cancelPlacing();paused=true;BGM.hold(true);   // 게임이 멈추면 음악도 멈춰요 (전화가 와서 멈춘 경우 포함)
   $('quitNote').textContent=score>0?'그만하면 지금까지의 점수를 순위표에 등록할 수 있어요.':'';$('quitNote').hidden=!(score>0);
   try{const pd=$('pDog');if(!pd.firstChild)pd.innerHTML=svgFor(TYPES+1);$('pScore').textContent=Math.floor(score).toLocaleString();$('pLv').textContent=level;$('pTime').textContent=Math.max(0,Math.ceil(time))+'초'}catch(e){}
   $('pauseModal').hidden=false;$('resumeBtn').focus()}
@@ -4046,13 +4047,14 @@ const dexReward=(k,i=0)=>(DEX_REWARD+DEX_UP*k)*(DEX_MUL[i]||1);
 const dexTier=(d,i)=>(d.tier&&d.tier[i])|0;
 /* 저장은 모아서 가끔만 (게임 중 매번 저장하면 폰이 멈칫해요) */
 var POPS_MEM=null,MST_MEM=null,saveT=null;   // var: 위쪽 코드에서 먼저 써도 안전
-function flushSaves(){clearTimeout(saveT);saveT=null;if(POPS_MEM)ls.set('mung-pops',POPS_MEM);if(MST_MEM)ls.set('mung-missions',MST_MEM);if(STATS_MEM)ls.set('mung-stats',STATS_MEM)}
+function flushSaves(){clearTimeout(saveT);saveT=null;SAVE_LATER=false;if(POPS_MEM)ls.set('mung-pops',POPS_MEM);if(MST_MEM)ls.set('mung-missions',MST_MEM);if(STATS_MEM)ls.set('mung-stats',STATS_MEM)}
 /* ---- 업적용 기록: 메모리에 모았다가 가끔 저장 ---- */
 var STATS_MEM=null;
 function getStats(){if(!STATS_MEM)STATS_MEM=Object.assign({},ls.get('mung-stats',{}));return STATS_MEM}
 function statAdd(k,n=1){const s=getStats();s[k]=(s[k]|0)+n;queueSave()}
 function statMax(k,v){const s=getStats();if((v|0)>(s[k]|0)){s[k]=v|0;queueSave()}}
-function queueSave(){if(!saveT)saveT=setTimeout(flushSaves,2500)}
+function queueSave(){if(typeof running!=='undefined'&&running&&!ended){SAVE_LATER=true;return}if(!saveT)saveT=setTimeout(flushSaves,2500)}   // 게임 중엔 저장을 미뤄요 (저장하는 순간 폰 화면이 잠깐 멈출 수 있어서)
+var SAVE_LATER=false;
 addEventListener('visibilitychange',()=>{if(document.hidden)flushSaves()});addEventListener('pagehide',flushSaves);
 function getPops(){if(!POPS_MEM){const v=ls.get('mung-pops',[]);POPS_MEM=DEX.map((_,i)=>v[i]|0)}return POPS_MEM.slice()}
 function getDex(){return ls.get('mung-dex',{got:[],seen:[]})}
@@ -4437,11 +4439,12 @@ async function cloudLoad(){
 }
 function cloudDirty(){
   if(!CLOUD.on||!CLOUD.loaded)return;
-  CLOUD.dirty=true;clearTimeout(CLOUD.t);CLOUD.t=setTimeout(cloudSaveNow,8000);
+  CLOUD.dirty=true;clearTimeout(CLOUD.t);if(running&&!ended)return;CLOUD.t=setTimeout(cloudSaveNow,8000);   // 게임 중엔 클라우드 저장도 판이 끝난 뒤에
 }
 async function cloudSaveNow(){
   clearTimeout(CLOUD.t);
   if(!CLOUD.on||!CLOUD.loaded||!CLOUD.dirty||CLOUD.saving)return;
+  if(running&&!ended&&!paused&&!document.hidden)return;
   CLOUD.saving=true;CLOUD.dirty=false;
   try{const o=cloudLocal();o._t=Date.now();o._v=1;
     await CLOUD.plugin.save({name:CLOUD_SLOT,data:JSON.stringify(o),desc:'최고 '+(o['mung-best']|0).toLocaleString()+'점'})}
@@ -4733,9 +4736,9 @@ updateTime();syncSnd();
 
 /* ================= 오프닝: 투명 영상 (8초) — 각자 고른 배경 위에서 재생 → 메인 ================= */
 (function(){
-  const op=$('opening');if(!op)return;
+  const op=$('opening');if(!op){document.body.classList.remove('opening');return}
   let seen=false;try{seen=sessionStorage.getItem('mung-op')==='1'}catch(e){}
-  if(seen){op.remove();BGM.allow();setTimeout(checkAttendance,500);return}
+  if(seen){op.remove();document.body.classList.remove('opening');BGM.allow();setTimeout(checkAttendance,500);return}
   document.body.classList.add('opening');   // 오프닝 동안 메뉴는 숨기고 배경만 보여요
   const vid=$('oVideo'),poster=$('oPoster');
   /* 영상은 한 번 받으면 폰에 저장해 두고, 다음부터는 인터넷 없이도 저장본으로 틀어요 */
