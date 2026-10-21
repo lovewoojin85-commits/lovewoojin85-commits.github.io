@@ -1640,6 +1640,7 @@ body.opening .app{opacity:0}
 </style>
 </head>
 <body class="opening">
+<script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -4214,14 +4215,20 @@ var FTAG={t:0,n:''};function ftag(n){FTAG={t:performance.now(),n}}
 /* ---- 숨은 기능: 끊김 측정기 (만든 사람 화면의 🏡를 5번 연속 누르면 켜지고 꺼져요) ----
    게임 중 화면 왼쪽 아래에 초당 화면 수(FPS)와 끊긴 횟수를 보여줘요. 폰에서 직접 확인하는 용도 */
 (function(){
-  let on=false,raf=0,last=0,frames=0,acc=0,j50=0,j100=0,worst=0,box=null,taps=0,tapT=0,cause={};
-  function loop(t){if(!on)return;if(last){const d=t-last;if(running&&!paused){if(d>50){j50++;const k=(t-d-FTAG.t<450&&FTAG.n)?FTAG.n:'기타';cause[k]=(cause[k]||0)+1}if(d>100)j100++;if(d>worst&&d<2000)worst=d}frames++;acc+=d}last=t;
-    if(acc>=1000){if(box){const c=Object.entries(cause).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ');box.textContent=`FPS ${Math.round(frames*1000/acc)} · 끊김 ${j50}회(심함 ${j100}) · 최대 ${Math.round(worst)}ms`+(c?'\n원인: '+c:'')}frames=0;acc=0}
+  let on=false,raf=0,last=0,frames=0,acc=0,j50=0,j100=0,worst=0,box=null,taps=0,tapT=0,cause={},slow={},wrapped=false;
+  const ACC={};
+  function wrapAll(){if(wrapped)return;wrapped=true;
+    ['burst','floatText','shake','updateScore','addTime','addFever','showCombo','updatePairs','checkTrio','jellyDrop','findGroups','buzz','becomeFriend','parkTile','makeEl','updateTime','updateFever','trackM','findMove','bestMove','clearSet','resolve','trySwap','startFever','levelSplash','coinFly','iconToast','toast'].forEach(n=>{const f=window[n];if(typeof f!=='function')return;
+      window[n]=function(){const t=performance.now();try{return f.apply(this,arguments)}finally{ACC[n]=(ACC[n]||0)+performance.now()-t}}});
+    try{const p=SFX.pop;SFX.pop=function(){const t=performance.now();try{return p.apply(this,arguments)}finally{ACC['소리']=(ACC['소리']||0)+performance.now()-t}}}catch(e){}}
+  function loop(t){if(!on)return;if(last){const d=t-last;if(running&&!paused){if(d>50){j50++;const k=(t-d-FTAG.t<450&&FTAG.n)?FTAG.n:'기타';cause[k]=(cause[k]||0)+1;
+        let top='그리기',tm=4;for(const n in ACC)if(ACC[n]>tm){tm=ACC[n];top=n}slow[top]=(slow[top]||0)+1}if(d>100)j100++;if(d>worst&&d<2000)worst=d}frames++;acc+=d}last=t;for(const n in ACC)delete ACC[n];
+    if(acc>=1000){if(box){const c=Object.entries(cause).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ');const sl=Object.entries(slow).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>k+' '+v).join(' · ');box.textContent=`FPS ${Math.round(frames*1000/acc)} · 끊김 ${j50}회(심함 ${j100}) · 최대 ${Math.round(worst)}ms`+(c?'\n원인: '+c:'')+(sl?'\n느린 일: '+sl:'')}frames=0;acc=0}
     raf=requestAnimationFrame(loop)}
   function set(v){on=v;try{ls.set('mung-fps',v)}catch(e){}
-    if(on){if(!box){box=document.createElement('div');box.id='fpsBox';box.style.cssText='white-space:pre;position:fixed;left:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;background:rgba(0,0,0,.65);color:#fff;font:12px/1.4 monospace;padding:3px 7px;border-radius:6px;pointer-events:none';document.body.appendChild(box)}box.hidden=false;last=0;raf=requestAnimationFrame(loop)}
+    if(on){wrapAll();if(!box){box=document.createElement('div');box.id='fpsBox';box.style.cssText='white-space:pre;position:fixed;left:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;background:rgba(0,0,0,.65);color:#fff;font:12px/1.4 monospace;padding:3px 7px;border-radius:6px;pointer-events:none';document.body.appendChild(box)}box.hidden=false;last=0;raf=requestAnimationFrame(loop)}
     else{cancelAnimationFrame(raf);if(box)box.hidden=true}}
-  window.fpsReset=()=>{j50=0;j100=0;worst=0;cause={}};
+  window.fpsReset=()=>{j50=0;j100=0;worst=0;cause={};slow={}};
   const h=document.querySelector('#credits .mkicon');if(h)h.addEventListener('click',()=>{const n=Date.now();taps=n-tapT<600?taps+1:1;tapT=n;if(taps>=5){taps=0;set(!on);toast(on?'끊김 측정기 켜짐':'끊김 측정기 꺼짐')}});
   if(ls.get('mung-fps',false))setTimeout(()=>set(true),1500);
 })();
