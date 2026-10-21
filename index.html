@@ -1040,7 +1040,7 @@ body.eco .menu-friends svg,body.eco .tile.friend .in,body.eco .tile.friend .in::
 #time{display:inline-block;transform-origin:50% 60%;will-change:transform}
 /* 강아지 칸을 처음부터 별도 층으로 준비 → 많이 내려와도 매번 새로 그리지 않아요 */
 #board .tile{will-change:transform}
-#board .tile.prep .in{will-change:transform}   /* 터지기 직전 강아지만 미리 준비 (깜빡임 방지, 평소엔 층을 줄여 가볍게) */
+
 
 /* ===== 화려한 피버 타임 (모두 투명도·이동·회전만 써서 폰에서도 가볍게) ===== */
 .fvfx{position:absolute;inset:0;pointer-events:none;z-index:3;display:none}
@@ -2573,7 +2573,7 @@ const TILE_POOL=[];
 function parkTile(el){
   try{el.getAnimations({subtree:true}).forEach(a=>a.cancel())}catch(e){}
   if(TILE_POOL.length>=24){el.remove();return}
-  el.className='tile parked';el.style.transition='none';el.style.transitionDuration='';el.style.opacity='';TILE_POOL.push(el);
+  el.className='tile parked';el.style.transformOrigin='';el.style.transition='none';el.style.transitionDuration='';el.style.opacity='';TILE_POOL.push(el);
 }
 function reuseTile(t){
   if(!TILE_POOL.length||t.shell||t.sleep||t.type===SAND||t.gold)return null;
@@ -2899,17 +2899,24 @@ async function clearSet(set,gain){ftag(set.size>=12?'큰정리':liveN>0?'동시�
   myCols.forEach(c=>lockCol(c,myTop[c]));   // 정리되는 칸과 그 위만 떨어지는 동안 잠가요
   if(sel&&locked(sel.r,sel.c))clearSel();
   const lite=keys.length>14;   // 한꺼번에 많이 터질 땐 가볍게, 가운데서 바깥으로 물결처럼
-  keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el;el.classList.add('prep')});await nextFrames(1);   // 한 프레임 먼저 준비
+  /* 터지는 움직임은 강아지 칸(이미 있는 화면 층) 자체에 줘요 → 새 층을 만들지 않아서 큰정리에도 덜 끊겨요.
+     칸마다 기준점을 그 칸 한가운데로 맞춰서, 커지고 작아질 때 제자리에서 움직여요 */
+  const POPOK=CSS&&CSS.supports&&CSS.supports('scale','1');
   keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el;el.classList.remove('wob','falling');el.classList.add('happy');
-    if(lite)return;const w=el.firstChild;
-    if(w&&w.animate)w.animate([{transform:'scale(1)'},{transform:'translateY(-10%) scale(1.2) rotate(-6deg)',offset:.6},{transform:'translateY(-8%) scale(1.18) rotate(4deg)'}],{duration:150,easing:'ease-out',fill:'forwards'})});
+    if(POPOK)el.style.transformOrigin=`calc(${c*100}% + 50%) calc(${r*100}% + 50%)`;
+    if(lite)return;
+    if(POPOK&&el.animate)el.animate([{scale:'1',rotate:'0deg',translate:'0 0'},{scale:'1.2',rotate:'-6deg',translate:'0 -10%',offset:.6},{scale:'1.18',rotate:'4deg',translate:'0 -8%'}],{duration:150,easing:'ease-out',fill:'forwards'});
+    else{const w=el.firstChild;if(w&&w.animate)w.animate([{transform:'scale(1)'},{transform:'translateY(-10%) scale(1.2) rotate(-6deg)',offset:.6},{transform:'translateY(-8%) scale(1.18) rotate(4deg)'}],{duration:150,easing:'ease-out',fill:'forwards'})}});
   await sleep(lite?110:150);
   const[cx,cy]=burst(cells);
   if(gain)floatText(cx,cy,'+'+gain,gain>=200);
   let maxDelay=0;const rm=[];
   keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el,w=el.firstChild;
     const delay=lite?Math.min(Math.hypot((c+.5)/N*100-cx,(r+.5)/N*100-cy)*2.2,170):0;maxDelay=Math.max(maxDelay,delay);
-    if(w&&w.animate)w.animate(lite?[{transform:'scale(1)',opacity:1},{transform:'scale(1.25)',opacity:1,offset:.3},{transform:'scale(0)',opacity:0}]
+    if(POPOK&&el.animate)el.animate(lite?[{scale:'1',opacity:1},{scale:'1.25',opacity:1,offset:.3},{scale:'0',opacity:0}]
+                               :[{scale:'1.18',rotate:'4deg',translate:'0 -8%',opacity:1},{scale:'1.35',rotate:'0deg',translate:'0 0',opacity:1,offset:.35},{scale:'0',rotate:'30deg',translate:'0 0',opacity:0}],
+                         {duration:lite?200:230,delay,easing:'ease-in',fill:'forwards'});
+    else if(w&&w.animate)w.animate(lite?[{transform:'scale(1)',opacity:1},{transform:'scale(1.25)',opacity:1,offset:.3},{transform:'scale(0)',opacity:0}]
                                :[{transform:'translateY(-8%) scale(1.18) rotate(4deg)',opacity:1},{transform:'scale(1.35)',opacity:1,offset:.35},{transform:'scale(0) rotate(30deg)',opacity:0}],
                          {duration:lite?200:230,delay,easing:'ease-in',fill:'forwards'});
     else el.style.opacity=0;
