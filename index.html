@@ -1637,6 +1637,11 @@ body.opening .app{opacity:0}
 #game .frame.fvwarm:not(.fever) .fvfx{display:block;opacity:.01}
 
 #opening video::-webkit-media-controls,#opening video::-webkit-media-controls-overlay-play-button,#opening video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
+
+body.exp3 #bgfx{display:none!important}
+body.exp3{background:#2A2F5A!important}
+body.exp4 #board{border-radius:0!important}
+body.exp4 #game .frame{border-radius:0!important}
 </style>
 </head>
 <body class="opening">
@@ -2412,7 +2417,7 @@ const FXC=(()=>{
     g.globalAlpha=1;
     if(list.length)raf=requestAnimationFrame(frame);else{raf=0;g.clearRect(0,0,W,H)}
   }
-  return{add(items){if(!ensure())return;const now=performance.now();items.forEach(p=>{p.t0=now+(p.delay||0);list.push(p)});if(list.length>260)list.splice(0,list.length-260);if(!raf)raf=requestAnimationFrame(frame)},
+  return{add(items){if(EXP===2)return;if(!ensure())return;const now=performance.now();items.forEach(p=>{p.t0=now+(p.delay||0);list.push(p)});if(list.length>260)list.splice(0,list.length-260);if(!raf)raf=requestAnimationFrame(frame)},
     clear(){list=[];if(g){g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height)}}};
 })();
 function burst(cells){
@@ -2439,7 +2444,7 @@ function coinFly(x,y,n){
   el.animate([{transform:'translate(-50%,-40%) scale(.4)',opacity:0},{transform:'translate(-50%,-80%) scale(1.25)',opacity:1,offset:.18},{transform:'translate(-50%,-110%) scale(1)',opacity:1,offset:.45},{transform:'translate(-50%,-260%) scale(.95)',opacity:0}],{duration:1400,easing:'ease-out'}).onfinish=()=>el.remove();
 }
 function floatText(x,y,text,big){
-  if(RM)return;const el=document.createElement('div');el.className='float';el.textContent=text;
+  if(RM||EXP===2)return;const el=document.createElement('div');el.className='float';el.textContent=text;
   el.style.left=x+'%';el.style.top=y+'%';if(big)el.style.fontSize='2rem';$('fx').appendChild(el);
   el.animate([{transform:'translate(-50%,-30%) scale(.5)',opacity:0},{transform:'translate(-50%,-60%) scale(1.15)',opacity:1,offset:.2},{transform:'translate(-50%,-160%) scale(1)',opacity:0}],{duration:800,easing:'ease-out'}).onfinish=()=>el.remove();
 }
@@ -2905,7 +2910,7 @@ async function clearSet(set,gain){ftag(set.size>=12?'큰정리':liveN>0?'동시�
   /* 터지는 움직임은 강아지 칸(이미 있는 화면 층) 자체에 줘요 → 새 층을 만들지 않아서 큰정리에도 덜 끊겨요.
      칸마다 기준점을 그 칸 한가운데로 맞춰서, 커지고 작아질 때 제자리에서 움직여요 */
   const POPOK=CSS&&CSS.supports&&CSS.supports('scale','1');
-  keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el;el.classList.remove('wob','falling');el.classList.add('happy');
+  keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el;el.classList.remove('wob','falling');if(EXP!==1)el.classList.add('happy');
     if(POPOK)el.style.transformOrigin=`calc(${c*100}% + 50%) calc(${r*100}% + 50%)`;
     if(lite)return;
     if(POPOK&&el.animate)el.animate([{scale:'1',rotate:'0deg',translate:'0 0'},{scale:'1.2',rotate:'-6deg',translate:'0 -10%',offset:.6},{scale:'1.18',rotate:'4deg',translate:'0 -8%'}],{duration:150,easing:'ease-out',fill:'forwards'});
@@ -4211,7 +4216,7 @@ applyEco();
   setInterval(()=>{if(!running){wasRun=false;wins=0;slow=0;return}if(!wasRun){wasRun=true;wins=0}if(!on&&wins<4&&!paused&&!document.hidden){on=true;requestAnimationFrame(tick)}},1000)})();   // 게임 중에만 감시 (메뉴에서는 쉬게)
 setTimeout(()=>{try{prewarmTiles()}catch(e){}},300);
 /* 끊김 측정기용 사건 표시 */
-var FTAG={t:0,n:''};function ftag(n){FTAG={t:performance.now(),n}}
+var FTAG={t:0,n:''};var EXP=0;const EXP_NAMES=['보통','웃는얼굴 끔','반짝이 끔','배경 끔','모서리 각지게'];function ftag(n){FTAG={t:performance.now(),n}}
 /* ---- 숨은 기능: 끊김 측정기 (만든 사람 화면의 🏡를 5번 연속 누르면 켜지고 꺼져요) ----
    게임 중 화면 왼쪽 아래에 초당 화면 수(FPS)와 끊긴 횟수를 보여줘요. 폰에서 직접 확인하는 용도 */
 (function(){
@@ -4223,11 +4228,13 @@ var FTAG={t:0,n:''};function ftag(n){FTAG={t:performance.now(),n}}
     try{const p=SFX.pop;SFX.pop=function(){const t=performance.now();try{return p.apply(this,arguments)}finally{ACC['소리']=(ACC['소리']||0)+performance.now()-t}}}catch(e){}}
   function loop(t){if(!on)return;if(last){const d=t-last;if(running&&!paused){if(d>50){j50++;const k=(t-d-FTAG.t<450&&FTAG.n)?FTAG.n:'기타';cause[k]=(cause[k]||0)+1;
         let top='그리기',tm=4;for(const n in ACC)if(ACC[n]>tm){tm=ACC[n];top=n}slow[top]=(slow[top]||0)+1}if(d>100)j100++;if(d>worst&&d<2000)worst=d}frames++;acc+=d}last=t;for(const n in ACC)delete ACC[n];
-    if(acc>=1000){if(box){const c=Object.entries(cause).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ');const sl=Object.entries(slow).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>k+' '+v).join(' · ');box.textContent=`FPS ${Math.round(frames*1000/acc)} · 끊김 ${j50}회(심함 ${j100}) · 최대 ${Math.round(worst)}ms`+(c?'\n원인: '+c:'')+(sl?'\n느린 일: '+sl:'')}frames=0;acc=0}
+    if(acc>=1000){if(box){const c=Object.entries(cause).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v).join(' · ');const sl=Object.entries(slow).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>k+' '+v).join(' · ');box.textContent=`[실험: ${EXP_NAMES[EXP]}]\nFPS ${Math.round(frames*1000/acc)} · 끊김 ${j50}회(심함 ${j100}) · 최대 ${Math.round(worst)}ms`+(c?'\n원인: '+c:'')+(sl?'\n느린 일: '+sl:'')}frames=0;acc=0}
     raf=requestAnimationFrame(loop)}
   function set(v){on=v;try{ls.set('mung-fps',v)}catch(e){}
-    if(on){wrapAll();if(!box){box=document.createElement('div');box.id='fpsBox';box.style.cssText='white-space:pre;position:fixed;left:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;background:rgba(0,0,0,.65);color:#fff;font:12px/1.4 monospace;padding:3px 7px;border-radius:6px;pointer-events:none';document.body.appendChild(box)}box.hidden=false;last=0;raf=requestAnimationFrame(loop)}
-    else{cancelAnimationFrame(raf);if(box)box.hidden=true}}
+    if(on){wrapAll();if(!box){box=document.createElement('div');box.id='fpsBox';box.style.cssText='white-space:pre;pointer-events:none;position:fixed;left:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;background:rgba(0,0,0,.65);color:#fff;font:12px/1.4 monospace;padding:3px 7px;border-radius:6px';document.body.appendChild(box);
+      const chip=document.createElement('button');chip.id='expChip';chip.textContent='🔁 실험 바꾸기';chip.style.cssText='position:fixed;right:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;font:12px/1 sans-serif;padding:6px 8px;border-radius:8px;background:#222;color:#fff;box-shadow:none';document.body.appendChild(chip);
+      chip.addEventListener('click',e=>{e.stopPropagation();EXP=(EXP+1)%EXP_NAMES.length;document.body.classList.toggle('exp3',EXP===3);document.body.classList.toggle('exp4',EXP===4);j50=0;j100=0;worst=0;cause={};slow={};box.textContent='실험: '+EXP_NAMES[EXP]+' (측정 다시 시작)'})}box.hidden=false;{const ch=$('expChip');if(ch)ch.hidden=false}last=0;raf=requestAnimationFrame(loop)}
+    else{cancelAnimationFrame(raf);if(box)box.hidden=true;const ch=$('expChip');if(ch)ch.hidden=true;EXP=0;document.body.classList.remove('exp3','exp4')}}
   window.fpsReset=()=>{j50=0;j100=0;worst=0;cause={};slow={}};
   const h=document.querySelector('#credits .mkicon');if(h)h.addEventListener('click',()=>{const n=Date.now();taps=n-tapT<600?taps+1:1;tapT=n;if(taps>=5){taps=0;set(!on);toast(on?'끊김 측정기 켜짐':'끊김 측정기 꺼짐')}});
   if(ls.get('mung-fps',false))setTimeout(()=>set(true),1500);
