@@ -1923,7 +1923,7 @@ body.ingame main{overflow:hidden;overflow:clip}
         <button class="sub dice" id="diceBtn" aria-label="랜덤 닉네임">🎲</button>
       </div>
       <div class="kkme" id="kkMe" hidden></div>
-      <button id="submitBtn">점수 등록</button>
+      <button id="submitBtn">🏆 순위표 보기</button>
       <button class="kkbtn small" id="kkEndBtn" hidden></button>
     </div>
     <p class="msg" id="submitMsg"></p>
@@ -3388,9 +3388,9 @@ function endGame(reason){
   let endCG=score>0?Math.max(1,Math.min(50,Math.floor(score/1000))+Math.max(0,Math.floor((score-50000)/10000))):0;const endHappy=endCG>0&&happyNow();if(endHappy)endCG=Math.round(endCG*1.5);
   {const cg=endCG;if(cg)addCoin(cg);$('coinGet').innerHTML=cg?`${COIN} ${cg}코인을 모았어요!`:''}
   trackM('score',score);trackM('level',level);trackM('games',1);SFX.end();endFever();BGM.duck(false);BGM.hold(false);setTimeout(()=>{if(ended)BGM.play('menu')},900);
-  $('endReason').textContent=reason==='nomove'?'더 이상 움직일 수 있는 강아지가 없어요':reason==='quit'?'여기까지! 지금 점수로 기록을 남겨요':'시간이 다 됐어요';
+  $('endReason').textContent=reason==='nomove'?'더 이상 움직일 수 있는 강아지가 없어요':reason==='quit'?'여기까지! 수고 많았어요 🐾':'시간이 다 됐어요';
   const isBest=score>best;
-  if(isBest){best=score;ls.set('mung-best',best);showBest()}
+  if(isBest){best=score;ls.set('mung-best',best);ls.set('mung-best-mk',seasonInfo().key);showBest()}
   $('final').textContent=score.toLocaleString();
   {const em=$('endMsg'),nb=isBest&&score>0;em.className='endbest'+(nb?' nb':'');em.textContent=nb?'🏆 새 최고 점수예요!':'👑 내 최고 '+best.toLocaleString()+'점'}
   const sec=Math.floor(elapsed);$('stTime').textContent=(sec>=60?Math.floor(sec/60)+'분 ':'')+(sec%60)+'초';$('stLv').textContent=level;
@@ -3409,10 +3409,11 @@ function endGame(reason){
   }
   {const sv=ls.get('mung-nick','');$('nick').value=validNick(sv)?sv:randomNick()}
   requestAnimationFrame(fitNick);
-  $('submitBtn').disabled=score<=0;$('nick').disabled=false;
-  $('submitMsg').textContent=score>0?'🎲를 누르면 닉네임이 바뀌어요':'';
+  $('submitBtn').disabled=false;$('nick').disabled=false;
+  $('submitMsg').textContent='';
   kakaoEndUI();
   $('endModal').hidden=false;
+  if(score>0)autoSubmit();
 }
 
 /* ================= 순위표 ================= */
@@ -3474,42 +3475,69 @@ function seasonInfo(offset=0){
 }
 const REPORT_HIDE=10;   // 서로 다른 플레이어 10명이 신고하면 자동으로 이름을 가려요
 let submitNote={month:'',all:''};
-async function upsertShared(coll,pid,nick){
-  try{return await upsertShared0(coll,pid,nick)}catch(e){if(!PL_BLOCKED&&myPlate()&&/permission/i.test(String(e&&(e.code||e.message)))){PL_BLOCKED=true;return await upsertShared0(coll,pid,nick)}throw e}
+async function upsertShared(coll,pid,nick,S=lastScore,LV=level){
+  try{return await upsertShared0(coll,pid,nick,S,LV)}catch(e){if(!PL_BLOCKED&&myPlate()&&/permission/i.test(String(e&&(e.code||e.message)))){PL_BLOCKED=true;return await upsertShared0(coll,pid,nick,S,LV)}throw e}
 }
-async function upsertShared0(coll,pid,nick){
+async function upsertShared0(coll,pid,nick,S=lastScore,LV=level){
   const ref=db.collection(coll).doc(pid),snap=await ref.get();
   const old=snap.exists?snap.data():null,oldScore=old?Math.floor(Number(old.score)||0):-1;
   const reset=old&&old.nick!==nick&&(Number(old.reports)||0)>0?{reports:0}:{};   // 닉네임을 바꾸면 신고 수 초기화
   const K={...kakaoRec(old),...plateRec(old)};
-  if(old&&oldScore>=lastScore){const up={...K};if(old.nick!==nick)Object.assign(up,{nick},reset);if(Object.keys(up).length)await ref.update(up);return{newBest:false,best:oldScore}}
-  const rec={nick,score:Math.floor(lastScore),level:Math.floor(level),at:Date.now(),ver:2,...(old?reset:{}),...K};
+  if(old&&oldScore>=S){const up={...K};if(old.nick!==nick)Object.assign(up,{nick},reset);if(Object.keys(up).length)await ref.update(up);return{newBest:false,best:oldScore}}
+  const rec={nick,score:Math.floor(S),level:Math.floor(LV),at:Date.now(),ver:2,...(old?reset:{}),...K};
   if(old)await ref.update(rec);else await ref.set(rec);
-  return{newBest:true,best:lastScore};
+  return{newBest:true,best:S};
 }
-function upsertLocal(coll,pid,nick){
+function upsertLocal(coll,pid,nick,S=lastScore,LV=level){
   const k='mung-local-'+coll,list=ls.get(k,[]),old=list.find(v=>v.id===pid);let res;
-  if(old&&old.score>=lastScore){old.nick=nick;res={newBest:false,best:old.score}}
-  else{if(old)Object.assign(old,{score:lastScore,nick,level,at:Date.now()});else list.push({id:pid,nick,score:lastScore,level,at:Date.now(),ver:2});res={newBest:true,best:lastScore}}
+  if(old&&old.score>=S){old.nick=nick;res={newBest:false,best:old.score}}
+  else{if(old)Object.assign(old,{score:S,nick,level:LV,at:Date.now()});else list.push({id:pid,nick,score:S,level:LV,at:Date.now(),ver:2});res={newBest:true,best:S}}
   list.sort((a,b)=>b.score-a.score);ls.set(k,list.slice(0,100));return res;
 }
-async function submitScore(){
-  const nick=cleanNick($('nick').value);
-  if(!validNick(nick)){$('nick').value=randomNick();fitNick();$('submitMsg').textContent='🎲 주사위로 닉네임을 골라 주세요.';return}
-  if(NickFilter.bad(nick)){$('submitMsg').textContent='모두가 보는 이름이라 고운 말로 지어 주세요. 🎲를 누르면 귀여운 이름을 지어줘요!';$('nick').select();SFX.bad();return}
-  ls.set('mung-nick',nick);
-  $('submitBtn').disabled=true;$('nick').disabled=true;$('submitMsg').textContent='등록하는 중...';
-  await waitFB();
-  const pid=playerId(),mk=seasonInfo().key;let rAll=null,rMon=null;
-  const run=async()=>{rAll=await upsertShared('scores',pid,nick);rMon=await upsertShared(mk,pid,nick)};
+/* 점수는 게임이 끝나면 자동으로 순위표에 올라가요 (버튼 없이). 인터넷이 없으면 저장해 뒀다가 연결되면 올려요 */
+let SUBMIT_SEQ=0;
+async function pushScore(nick,sc,lv,mk){
+  await waitFB();const pid=playerId();let rAll=null,rMon=null;
+  const run=async()=>{rAll=await upsertShared('scores',pid,nick,sc,lv);rMon=await upsertShared(mk,pid,nick,sc,lv)};
   if(db){try{await run()}catch(e){if(e&&e.code==='unavailable'){try{await sleep(700);await run()}catch(_){}}}}
-  if(!rAll||!rMon){rAll=upsertLocal('scores',pid,nick);rMon=upsertLocal(mk,pid,nick)}
-  const note=(r,word)=>r.newBest?word+' 새 기록!':'최고 '+r.best.toLocaleString()+'점 유지';
-  submitNote={month:note(rMon,'이번 달'),all:note(rAll,'역대')};
-  myEntry={id:pid};
-  $('endModal').hidden=true;
-  openRank('month');
+  const shared=!!(rAll&&rMon);
+  if(!shared){rAll=upsertLocal('scores',pid,nick,sc,lv);rMon=upsertLocal(mk,pid,nick,sc,lv)}
+  return{rAll,rMon,shared};
 }
+async function autoSubmit(rename){
+  const sc=Math.floor(lastScore),lv=Math.floor(level);if(sc<=0)return;
+  const seq=++SUBMIT_SEQ;
+  let nick=cleanNick($('nick').value);if(!validNick(nick)||NickFilter.bad(nick)){nick=randomNick();$('nick').value=nick;fitNick()}
+  ls.set('mung-nick',nick);
+  const mk=seasonInfo().key;
+  
+  const {rAll,rMon,shared}=await pushScore(nick,sc,lv,mk);
+  if(!shared){const p=ls.get('mung-pending',null);if(!p||p.mk!==mk||(p.sc|0)<=sc)ls.set('mung-pending',{nick,sc,lv,mk})}
+  const note=(r,word)=>r.newBest?word+' 새 기록!':'최고 '+r.best.toLocaleString()+'점 유지';
+  if(!rename)submitNote={month:note(rMon,'이번 달'),all:note(rAll,'역대')};myEntry={id:playerId()};
+  if(seq!==SUBMIT_SEQ||$('endModal').hidden)return;
+  $('submitMsg').textContent=!shared?'📶 인터넷이 연결되면 순위표에 올라가요':'';
+}
+async function retryPending(){
+  const p=ls.get('mung-pending',null);if(!p||!p.sc||(typeof navigator!=='undefined'&&navigator.onLine===false))return;
+  try{const r=await pushScore(validNick(p.nick)?p.nick:randomNick(),p.sc,p.lv||1,p.mk||seasonInfo().key);if(r.shared)ls.set('mung-pending',null)}catch(e){}
+}
+setTimeout(retryPending,5000);
+/* 폰에 저장된 내 최고 점수가 순위표 기록보다 높으면 자동으로 올려요 (예전에 등록 버튼을 안 눌렀던 기록도 반영) */
+async function syncBest(){
+  try{
+    const b=ls.get('mung-best',0)|0;if(b<=0)return;await waitFB();if(!db||!FBUID)return;
+    const pid=playerId(),mk=seasonInfo().key;
+    const bmk=ls.get('mung-best-mk','')||(mk==='m202610'?mk:'');   // 월간 순위가 시작된 10월에 낸 최고 기록은 이번 달에도 반영
+    const need=async coll=>{const sn=await db.collection(coll).doc(pid).get();return !sn.exists||(Math.floor(Number(sn.data().score)||0)<b)};
+    let nick=cleanNick(ls.get('mung-nick',''));if(!validNick(nick)){nick=randomNick();ls.set('mung-nick',nick)}
+    const lv=Math.max(1,ls.get('mung-maxlv',1)|0);
+    if(await need('scores'))await upsertShared('scores',pid,nick,b,lv);
+    if(bmk===mk&&await need(mk))await upsertShared(mk,pid,nick,b,lv);
+  }catch(e){}
+}
+setTimeout(syncBest,6000);addEventListener('online',()=>setTimeout(retryPending,1500));
+function submitScore(){$('endModal').hidden=true;openRank('month')}   // 이제 "순위표 보기" 버튼
 let rankTab='month';
 async function readTop(coll,n){
   if(db){try{const snap=await db.collection(coll).where('ver','==',2).orderBy('score','desc').limit(n).get();
@@ -4364,9 +4392,8 @@ function kakaoEndUI(){
     me.textContent='';me.appendChild(avatarEl(KAKAO.me.img));const w=document.createElement('div');w.append(KAKAO.me.nick);
     const sm=document.createElement('small');sm.textContent='카카오 이름으로 순위표에 올라가요';w.appendChild(sm);me.appendChild(w);
     me.hidden=false;btn.hidden=true;if(row)row.hidden=true;
-    if(!$('submitBtn').disabled)$('submitMsg').textContent='';
   }else{
-    me.hidden=true;if(row)row.hidden=false;btn.innerHTML=KK_SVG+'카카오 이름으로 등록하기';btn.hidden=$('submitBtn').disabled;
+    me.hidden=true;if(row)row.hidden=false;btn.innerHTML=KK_SVG+'카카오 이름으로 바꾸기';btn.hidden=!(lastScore>0);
   }
 }
 function kakaoSet(r){
@@ -4600,8 +4627,8 @@ $('quitBtn').onclick=()=>{   // 중간에 그만둬도 지금 점수로 결과 �
   stopGame();showScreen('menu')};
 $('homeBtn').onclick=()=>{stopGame();showScreen('menu')};
 $('submitBtn').onclick=submitScore;
-$('nick').addEventListener('keydown',e=>{if(e.key==='Enter')submitScore()});
-$('diceBtn').addEventListener('click',()=>{$('nick').value=randomNick();fitNick();$('submitMsg').textContent='마음에 들면 점수 등록을 눌러요!'});
+
+let diceT=0;$('diceBtn').addEventListener('click',()=>{$('nick').value=randomNick();fitNick();clearTimeout(diceT);if(lastScore>0){diceT=setTimeout(()=>autoSubmit(true),1200)}});
 document.addEventListener('visibilitychange',()=>{const c=SFX.ctx;if(document.hidden){pause();c&&c.suspend&&c.suspend();BGM.sleep()}else if(!audioLost){c&&c.resume&&c.resume();BGM.wake()}});
 updateTime();syncSnd();
 
