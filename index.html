@@ -1393,7 +1393,7 @@ body:is(.ingame,.subscr) #bgfx .fx-palace .sweep{display:none}
 /* ---- 순위표 이름표 ---- */
 .rank li.pl{position:relative;overflow:hidden;border:2px solid var(--pb);background:var(--pg);color:var(--pt,#3A2A1A)}
 .rank li.pl .no,.rank li.pl .sc,.rank li.pl .nm{position:relative;z-index:1;color:var(--pt,#3A2A1A)}
-.rank li.pl .plic{flex:none;font-size:1.05em;margin-right:4px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+  .rank li.pl .plic{flex:none;font-size:1.05em;margin-left:6px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
 .rank li.pl .nm{display:flex;align-items:center}
 .rank li.pl-sakura{--pg:linear-gradient(100deg,#FFE3EE,#FFF6FA 55%,#FFD6E6);--pb:#FF9FC2}
 .rank li.pl-clover{--pg:linear-gradient(100deg,#DDF7DF,#F6FFF2 55%,#C9F0CF);--pb:#6CCB7A}
@@ -1619,6 +1619,13 @@ body.ingame main{overflow:hidden;overflow:clip}
 #opening.out{transition:opacity .6s ease}
 body.opening .app{opacity:0}
 .app{transition:opacity .6s ease}
+
+/* 어두운 배경(오로라·밤하늘 등)을 골라도 밝은 카드 안 글자는 진하게 */
+#dex .dcard,#themes .tcard,#credits .fr,#credits .dedi,.mcard.all,#shopList .scard,#achList .achc,.plcard{--ink:#3A2A1A;--ink-soft:#7A6A5A;color:var(--ink)}
+
+/* 화면 배경 위에 바로 놓인 안내 글: 배경이 어두워도 보이게 */
+#themes .tnote{color:var(--ink-soft)}
+#credits .crsec{display:inline-block;align-self:center;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,.88);color:#7A5AC8;box-shadow:0 2px 0 rgba(122,90,200,.18)}
 </style>
 </head>
 <body>
@@ -3124,7 +3131,7 @@ function plateDecor(li,pl){const p=plateOf(pl);if(!p)return;li.classList.add('pl
   const fx=document.createElement('div');fx.className='plfx';
   (PLFX[p.id]?PLFX[p.id]():[]).forEach(o=>{const e=document.createElement('i');e.className=o.c;if(o.v)e.style.cssText=o.v;if(o.t)e.textContent=o.t;fx.appendChild(e)});
   li.prepend(fx);
-  const nm=li.querySelector('.nm');if(nm){const ic=document.createElement('span');ic.className='plic';ic.textContent=p.ic;nm.prepend(ic)}}
+  const nm=li.querySelector('.nm');if(nm){const ic=document.createElement('span');ic.className='plic';ic.textContent=p.ic;nm.appendChild(ic)}}   // 아이콘은 이름 뒤에 (이름 줄이 다른 사람과 나란히)
 function renderPlates(L){
   const h=document.createElement('div');h.className='plhead';h.innerHTML='<b>✨ 순위표 이름표</b><span>순위표의 내 이름 줄이 반짝반짝 움직여요!<br>다른 플레이어들에게도 모두 보여요</span>';L.appendChild(h);
   const own=ownedPlates(),on=myPlate(),who=(typeof KAKAO!=='undefined'&&KAKAO.me&&KAKAO.me.nick)||ls.get('mung-nick','')||'멍멍이';
