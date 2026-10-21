@@ -1609,6 +1609,16 @@ body.ingame main{overflow:hidden;overflow:clip}
 @media (orientation:portrait) and (max-height:780px){#menu .topleft,#menu .topright{top:calc(26px + env(safe-area-inset-top,0px))}#menu{padding-top:calc(94px + env(safe-area-inset-top,0px))}}
 @media (orientation:portrait) and (max-height:680px){#menu .topleft,#menu .topright{top:calc(16px + env(safe-area-inset-top,0px))}#menu{padding-top:76px}}
 @media (orientation:landscape) and (max-height:560px){#menu .topleft,#menu .topright{top:6px}#menu{padding-top:8px}}
+
+/* ---- 투명 오프닝: 뒤에는 내가 고른 배경, 메뉴는 오프닝이 끝나면 스르륵 ---- */
+#opening{background:transparent!important}
+#opening .o-vbox{left:0!important;top:0!important;right:0;bottom:0;width:100%!important;height:100%!important;aspect-ratio:auto!important;transform:none!important;box-shadow:none!important}
+#opening .o-poster{opacity:0}
+#opening.poster .o-poster{opacity:1;transition:opacity .4s}
+#opening .o-poster,#opening .o-video{object-fit:cover}
+#opening.out{transition:opacity .6s ease}
+body.opening .app{opacity:0}
+.app{transition:opacity .6s ease}
 </style>
 </head>
 <body>
@@ -1623,14 +1633,12 @@ body.ingame main{overflow:hidden;overflow:clip}
 </svg>
 
 
-<!-- ================= 오프닝: 세 친구 영상 (영상 속 음악 그대로) ================= -->
+<!-- ================= 오프닝: 투명 영상 (각자 고른 배경 위에서 재생) ================= -->
 <div id="opening" aria-hidden="true">
-  <div class="o-bgblur" style="background-image:url(data:image/jpeg;base64,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)"></div>
   <div class="o-vbox" id="oVbox">
     <img class="o-poster" id="oPoster" alt="" decoding="async">
     <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto"></video>
   </div>
-  <div class="white"></div>
   <button id="skipBtn">건너뛰기</button>
 </div>
 
@@ -4632,32 +4640,33 @@ let diceT=0;$('diceBtn').addEventListener('click',()=>{$('nick').value=randomNic
 document.addEventListener('visibilitychange',()=>{const c=SFX.ctx;if(document.hidden){pause();c&&c.suspend&&c.suspend();BGM.sleep()}else if(!audioLost){c&&c.resume&&c.resume();BGM.wake()}});
 updateTime();syncSnd();
 
-/* ================= 오프닝: 세 친구 영상 (7초, 영상 속 음악) → 메인 ================= */
+/* ================= 오프닝: 투명 영상 (8초) — 각자 고른 배경 위에서 재생 → 메인 ================= */
 (function(){
   const op=$('opening');if(!op)return;
   let seen=false;try{seen=sessionStorage.getItem('mung-op')==='1'}catch(e){}
   if(seen){op.remove();BGM.allow();setTimeout(checkAttendance,500);return}
+  document.body.classList.add('opening');   // 오프닝 동안 메뉴는 숨기고 배경만 보여요
   const vid=$('oVideo'),poster=$('oPoster');
-  /* 영상·첫 그림은 한 번 받으면 폰에 저장해 두고, 다음부터는 인터넷 없이도 저장본으로 틀어요 */
-  const VSRC='bgm/opening.mp4?v=3',PSRC='bgm/opening.jpg?v=3';
+  /* 영상은 한 번 받으면 폰에 저장해 두고, 다음부터는 인터넷 없이도 저장본으로 틀어요 */
+  const VSRC='bgm/opening.webm?v=1',PSRC='bgm/opening_end.webp?v=1';
+  const canAlpha=!!(vid.canPlayType&&vid.canPlayType('video/webm; codecs="vp9, opus"'));
   const fromStore=url=>(typeof caches!=='undefined'&&/^https?:/.test(location.protocol))?caches.open('mung-music').then(c=>c.match(url)).then(r=>r?r.blob().then(b=>URL.createObjectURL(b)):null).catch(()=>null):Promise.resolve(null);
   const keep=url=>{try{if(typeof caches==='undefined'||!/^https?:/.test(location.protocol))return;caches.open('mung-music').then(c=>c.match(url).then(r=>r||fetch(url).then(n=>{if(n.ok)return c.put(url,n)}))).catch(()=>{})}catch(e){}};
   let done=false,fell=false,ending=false;const timers=[];
   const at=(ms,f)=>timers.push(setTimeout(()=>{if(!done)f()},ms));
   function finish(){if(done)return;done=true;timers.forEach(clearTimeout);try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();
-    // 소리는 0.4초 동안 줄이며 끝내요
     try{const v0=vid.volume,t0=Date.now();const iv=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/400);try{vid.volume=v0*(1-u)}catch(e){}if(u>=1){clearInterval(iv);try{vid.pause()}catch(e){}}},40)}catch(e){}
-    setTimeout(()=>BGM.allow(),450);setTimeout(checkAttendance,1000);op.classList.add('fade','out');
-    setTimeout(()=>{try{vid.pause();vid.removeAttribute('src');vid.querySelectorAll('source').forEach(x=>x.remove());vid.load()}catch(e){}op.remove()},800)}
-  function end(){if(ending)return;ending=true;at(700,()=>op.classList.add('fade'));at(1700,finish)}   // 마지막 장면 잠깐 보여 주고 메인으로
-  const fallback=()=>{if(fell||done)return;fell=true;op.classList.remove('playing');poster.classList.add('kb');at(4500,end)};   // 영상을 못 틀면 그림으로
+    setTimeout(()=>BGM.allow(),450);setTimeout(checkAttendance,1000);
+    op.classList.add('out');document.body.classList.remove('opening');   // 오프닝은 사라지고 메뉴가 스르륵
+    setTimeout(()=>{try{vid.pause();vid.removeAttribute('src');vid.load()}catch(e){}op.remove()},700)}
+  function end(){if(ending)return;ending=true;at(500,finish)}   // 마지막 장면 잠깐 보여 주고 메인으로
+  const fallback=()=>{if(fell||done)return;fell=true;op.classList.remove('playing');op.classList.add('poster');poster.classList.add('kb');at(3000,end)};   // 영상을 못 틀면 마지막 그림으로
   function start(){
     if(vid.error||vid.networkState===3){fallback();return}
-    vid.muted=!BGM.on;vid.volume=1;   // 설정에서 음악을 껐으면 소리 없이
+    vid.muted=!BGM.on;vid.volume=1;
     const ok=()=>{op.classList.add('playing')};
     let pr;try{pr=vid.play()}catch(e){pr=null}
     if(pr&&pr.then)pr.then(ok).catch(()=>{
-      // 소리 있는 자동 재생을 폰이 막으면: 소리 없이 먼저 틀고, 화면을 한 번 만지면 소리를 켜요
       vid.muted=true;const p2=vid.play();if(p2&&p2.then)p2.then(ok).catch(fallback);else ok();
       const un=()=>{if(!done&&!vid.paused&&BGM.on){vid.muted=false}};document.addEventListener('pointerdown',un,{once:true,capture:true})});
     else ok();
@@ -4665,14 +4674,15 @@ updateTime();syncSnd();
   vid.addEventListener('error',fallback);
   vid.addEventListener('ended',end);
   vid.addEventListener('timeupdate',()=>{if(vid.duration&&vid.currentTime>=vid.duration-.05)end()});
-  Promise.all([fromStore(VSRC),fromStore(PSRC)]).then(([v,pi])=>{
+  Promise.all([canAlpha?fromStore(VSRC):Promise.resolve(null),fromStore(PSRC)]).then(([v,pi])=>{
     if(done)return;
-    poster.src=pi||PSRC;vid.poster=pi||PSRC;
+    poster.src=pi||PSRC;
+    if(!canAlpha){fallback();return}
     vid.src=v||VSRC;vid.addEventListener('canplay',start,{once:true});try{vid.load()}catch(e){}
-    if(!v)setTimeout(()=>{keep(VSRC);keep(PSRC)},400);   // 처음엔 인터넷으로 틀고, 뒤에서 몰래 저장
+    if(!v)setTimeout(()=>{keep(VSRC);keep(PSRC)},400);
   });
-  at(2500,()=>{if(!op.classList.contains('playing'))fallback()});   // 영상이 너무 늦게 오면
-  at(12000,end);
+  at(3000,()=>{if(!op.classList.contains('playing'))fallback()});   // 영상이 너무 늦게 오면
+  at(13000,end);
   $('skipBtn').addEventListener('click',e=>{e.stopPropagation();finish()});
 })();
 </script>
