@@ -1635,6 +1635,8 @@ body.opening .app{opacity:0}
 #board .tile.parked{visibility:hidden;transform:translate(0,-200%)!important}
 
 #game .frame.fvwarm:not(.fever) .fvfx{display:block;opacity:.01}
+
+#opening video::-webkit-media-controls,#opening video::-webkit-media-controls-overlay-play-button,#opening video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
 </style>
 </head>
 <body class="opening">
@@ -1654,7 +1656,7 @@ body.opening .app{opacity:0}
 <div id="opening" aria-hidden="true">
   <div class="o-vbox" id="oVbox">
     <img class="o-poster" id="oPoster" alt="" decoding="async">
-    <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto"></video>
+    <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto" disablepictureinpicture poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
   </div>
   <button id="skipBtn">건너뛰기</button>
 </div>
@@ -4765,7 +4767,7 @@ updateTime();syncSnd();
   function start(){
     if(vid.error||vid.networkState===3){fallback();return}
     vid.muted=!BGM.on;vid.volume=1;
-    const ok=()=>{op.classList.add('playing')};
+    const ok=()=>{const show=()=>op.classList.add('playing');if(vid.requestVideoFrameCallback)vid.requestVideoFrameCallback(()=>show());else setTimeout(show,60)};   // 첫 장면이 그려진 다음에 보여요 (안드로이드 기본 재생 버튼이 비치지 않게)
     let pr;try{pr=vid.play()}catch(e){pr=null}
     if(pr&&pr.then)pr.then(ok).catch(()=>{
       vid.muted=true;const p2=vid.play();if(p2&&p2.then)p2.then(ok).catch(fallback);else ok();
