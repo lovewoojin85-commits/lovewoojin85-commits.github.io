@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="darkreader-lock">
+<script>/* 화면이 그려지기 전에 내 배경색을 먼저 깔아 둬요 (느린 폰에서 발자국 배경이 잠깐 보이는 것 막기) */
+try{var __b=JSON.parse(localStorage.getItem('mung-theme')||'"paw"'),__c={park:'#E2F5D8',beach:'#FFF3D9',snow:'#E6F0FB',night:'#56679E',sakura:'#FFE6EF',treat:'#FFEFE0',autumn:'#FFE9D2',cloud:'#DDEFFF',rainbow:'#E8F9E6',aurora:'#3A2E6E',ocean:'#0F5F92',fireworks:'#1C1F52',galaxy:'#1A1240',palace:'#F8C963'}[__b];
+if(__c){document.documentElement.style.background=__c;document.write('<style id="prebg">body:not([data-bg]){background:transparent!important}</style>')}}catch(e){}</script>
 <title>멍멍 톡톡</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#8DBDE6">
@@ -1645,7 +1648,7 @@ body.exp4 #game .frame{border-radius:0!important}
 </style>
 </head>
 <body class="opening">
-<script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}</script>
+<script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}try{document.documentElement.style.background='';var __p=document.getElementById('prebg');if(__p)__p.remove()}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -2424,12 +2427,12 @@ const FXC=(()=>{
 })();
 function burst(cells){
   let sx=0,sy=0;
-  const n=cells.length;let per=n>24?1:n>12?2:n>6?4:6,rings=n<=14;
+  const n=cells.length;let per=n>12?1:n>6?3:5,rings=n<=6;   // 크게 터질수록 반짝이 수를 줄여요 (폰 끊김 ↓)
   if(PERF_LITE){per=Math.max(1,per>>1);rings=false}
   const fx=$('fx'),W=fx.clientWidth||300,H=fx.clientHeight||300,items=[];
   cells.forEach(({r,c,type},idx)=>{
     const cx=(c+.5)/N*100,cy=(r+.5)/N*100;sx+=cx;sy+=cy;
-    if(RM||(n>24&&idx%2))return;
+    if(RM||(n>12&&idx%2))return;
     const x=cx/100*W,y=cy/100*H;
     if(rings)items.push({ring:1,x,y,r:W/N/2,dur:320});
     for(let i=0;i<per;i++){const a=Math.random()*Math.PI*2,d=25+Math.random()*50;
