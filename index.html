@@ -85,7 +85,7 @@ button.small{font-size:1rem;padding:8px 18px}
 .tile{position:absolute;top:0;left:0;width:calc(100% / 8);height:calc(100% / 8);display:flex;align-items:center;justify-content:center;transition:transform .26s cubic-bezier(.3,1.25,.5,1)}
 .tile svg{width:92%;height:92%;overflow:visible}
 .tile .v{position:absolute;left:4%;top:4%;width:92%;height:92%;pointer-events:none;-webkit-user-drag:none;-webkit-touch-callout:none;user-select:none}
-.tile .h{opacity:0}
+.tile .h{opacity:1}
 .tile.happy .n{opacity:0}
 .tile.happy .h{opacity:1}
 .tile .in{transition:transform .2s}
@@ -111,7 +111,7 @@ button.small{font-size:1rem;padding:8px 18px}
 .tile .angryO{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;z-index:2}
 .tile.angry .angryO{animation:angryIn .72s ease-out forwards}
 .tile.angry .in{animation:angryShake .45s ease-in-out}
-.tile.angry .in img{filter:saturate(1.25) brightness(.97)}
+.tile.angry .in img,.tile.angry .in .v{filter:saturate(1.25) brightness(.97)}
 @keyframes angryIn{0%{opacity:0;transform:scale(.9)}18%{opacity:1;transform:scale(1.06)}75%{opacity:1;transform:scale(1)}100%{opacity:0}}
 @keyframes angryShake{0%,100%{transform:rotate(0)}20%{transform:rotate(-9deg) scale(1.05)}40%{transform:rotate(8deg) scale(1.05)}60%{transform:rotate(-6deg)}80%{transform:rotate(4deg)}}
 .frame{will-change:transform}
@@ -1286,7 +1286,7 @@ body.native-ads .ad #adSlot{display:none}
 /* ---- 황금 강아지 ---- */
 .tile.gold{z-index:2}
 /* 강아지 얼굴 전체가 금빛으로 + 반짝 빛줄기가 지나가요 */
-.tile.gold .in img{filter:sepia(1) saturate(6) hue-rotate(-12deg) brightness(.98) contrast(1.35)}
+.tile.gold .in img,.tile.gold .in .v{filter:sepia(1) saturate(6) hue-rotate(-12deg) brightness(.98) contrast(1.35)}
 .tile.gold .in{filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 5px rgba(255,190,30,1))}
 .tile.gold::after{content:"";position:absolute;inset:6%;border-radius:50%;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.95) 46%,rgba(255,250,210,.6) 52%,rgba(255,255,255,0) 66%);mix-blend-mode:screen;opacity:0;animation:goldShine 1.4s ease-in-out infinite}
 @keyframes goldShine{0%,45%,100%{opacity:0}62%{opacity:1}75%{opacity:.2}84%{opacity:.85}}
@@ -1626,6 +1626,13 @@ body.opening .app{opacity:0}
 /* 화면 배경 위에 바로 놓인 안내 글: 배경이 어두워도 보이게 */
 #themes .tnote{color:var(--ink-soft)}
 #credits .crsec{display:inline-block;align-self:center;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,.88);color:#7A5AC8;box-shadow:0 2px 0 rgba(122,90,200,.18)}
+
+/* 아틀라스 그림 */
+.tile i.v.a{display:block;background-image:var(--atlas);background-repeat:no-repeat;background-size:1200% 300%;font-style:normal}
+
+#fx .fxc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+#board .tile.parked{visibility:hidden;transform:translate(0,-200%)!important}
 </style>
 </head>
 <body>
@@ -2378,25 +2385,44 @@ const PCOL=['#FF9F45','#8CCB5E','#F48FB1','#FFD54F','#64B5F6','#B39DDB','#4DD0C4
 var P_POOL=[],P_LIVE=0;
 function getP(){let p=P_POOL.pop();if(!p)p=document.createElement('div');else p.style.display='';if(!p.isConnected)$('fx').appendChild(p);return p}
 function relP(p){if(P_POOL.includes(p))return;p.style.display='none';if(P_POOL.length<140)P_POOL.push(p);else p.remove()}
+/* 터질 때 반짝이: 그림판(캔버스) 한 장에 그려요.
+   예전처럼 알갱이마다 화면 층을 만들었다 지우면 폰이 층 정리에 바빠서 버벅이고 깜빡일 수 있어요 */
+const FXC=(()=>{
+  let cv=null,g=null,W=0,H=0,dpr=1,list=[],raf=0;
+  const STAR=[[.5,0],[.61,.35],[.98,.35],[.68,.57],[.79,.91],[.5,.7],[.21,.91],[.32,.57],[.02,.35],[.39,.35]];
+  function ensure(){const fx=$('fx');if(!fx)return false;if(cv&&!cv.isConnected){cv=null;W=H=0}if(!cv){cv=document.createElement('canvas');cv.className='fxc';fx.prepend(cv);g=cv.getContext('2d')}
+    const w=fx.clientWidth,h=fx.clientHeight,d=Math.min(2,window.devicePixelRatio||1);if(!w||!h)return false;
+    if(w!==W||h!==H||d!==dpr){W=w;H=h;dpr=d;cv.width=Math.round(w*d);cv.height=Math.round(h*d)}return true}
+  const eo3=t=>1-Math.pow(1-t,3),eo2=t=>1-Math.pow(1-t,2);
+  function frame(now){
+    g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+    list=list.filter(p=>{const t=(now-p.t0)/p.dur;if(t<0)return true;if(t>=1)return false;
+      if(p.ring){const e=eo2(t),r=p.r*(.3+1.2*e);g.globalAlpha=1-t;g.lineWidth=3;g.strokeStyle='rgba(255,255,255,.95)';g.beginPath();g.arc(p.x,p.y,r,0,Math.PI*2);g.stroke();return true}
+      const e=eo3(t),x=p.x+p.dx*e,y=p.y+(p.dy+(p.gy??14))*e,sc=1-(1-(p.s1||0))*e,sz=p.sz*sc;if(sz<.3)return true;
+      g.globalAlpha=Math.max(0,1-(1-(p.o1??.3))*e);g.fillStyle=p.c;
+      if(p.star){g.save();g.translate(x,y);g.rotate(p.rot*e);g.beginPath();STAR.forEach(([a,b],i)=>{const px=(a-.5)*sz,py=(b-.5)*sz;i?g.lineTo(px,py):g.moveTo(px,py)});g.closePath();g.fill();g.restore()}
+      else{g.beginPath();g.arc(x,y,sz/2,0,Math.PI*2);g.fill()}
+      return true});
+    g.globalAlpha=1;
+    if(list.length)raf=requestAnimationFrame(frame);else{raf=0;g.clearRect(0,0,W,H)}
+  }
+  return{add(items){if(!ensure())return;const now=performance.now();items.forEach(p=>{p.t0=now+(p.delay||0);list.push(p)});if(list.length>260)list.splice(0,list.length-260);if(!raf)raf=requestAnimationFrame(frame)},
+    clear(){list=[];if(g){g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height)}}};
+})();
 function burst(cells){
-  const fx=$('fx');let sx=0,sy=0;
+  let sx=0,sy=0;
   const n=cells.length;let per=n>24?1:n>12?2:n>6?4:6,rings=n<=14;
   if(PERF_LITE){per=Math.max(1,per>>1);rings=false}
-  if($('fx').childElementCount-P_POOL.length>70)per=Math.min(per,1);
+  const fx=$('fx'),W=fx.clientWidth||300,H=fx.clientHeight||300,items=[];
   cells.forEach(({r,c,type},idx)=>{
     const cx=(c+.5)/N*100,cy=(r+.5)/N*100;sx+=cx;sy+=cy;
     if(RM||(n>24&&idx%2))return;
-    if(rings){const ring=document.createElement('div');ring.className='fxring';ring.style.left=cx+'%';ring.style.top=cy+'%';fx.appendChild(ring);
-    ring.animate([{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:'translate(-50%,-50%) scale(1.5)',opacity:0}],{duration:320,easing:'ease-out'}).onfinish=()=>ring.remove();}
-    for(let i=0;i<per;i++){
-      const p=getP();p.className='p'+(Math.random()<.35?' star':'');
-      const sz=6+Math.random()*8;p.style.width=p.style.height=sz+'px';p.style.marginLeft=p.style.marginTop=(-sz/2)+'px';
-      p.style.background=Math.random()<.2?'#fff':(PCOL[type]||'#A86E43');p.style.left=cx+'%';p.style.top=cy+'%';fx.appendChild(p);
-      const a=Math.random()*Math.PI*2,d=25+Math.random()*50,dx=Math.cos(a)*d,dy=Math.sin(a)*d;
-      p.animate([{transform:'translate(0,0) scale(1) rotate(0)',opacity:1},{transform:`translate(${dx}px,${dy+14}px) scale(0) rotate(${(Math.random()*360)|0}deg)`,opacity:.3}],
-        {duration:450+Math.random()*300,easing:'cubic-bezier(.2,.8,.3,1)'}).onfinish=()=>relP(p);
-    }
+    const x=cx/100*W,y=cy/100*H;
+    if(rings)items.push({ring:1,x,y,r:W/N/2,dur:320});
+    for(let i=0;i<per;i++){const a=Math.random()*Math.PI*2,d=25+Math.random()*50;
+      items.push({x,y,dx:Math.cos(a)*d,dy:Math.sin(a)*d,sz:6+Math.random()*8,c:Math.random()<.2?'#fff':(PCOL[type]||'#A86E43'),star:Math.random()<.35,rot:(Math.random()*6.28),dur:450+Math.random()*300})}
   });
+  if(items.length)FXC.add(items);
   return[sx/cells.length,sy/cells.length];
 }
 /* 황금 강아지 자리에서 동전 ×100 이 위로 둥실 올라가며 사라져요 */
@@ -2505,10 +2531,28 @@ function rasterize(key,u){
     im.src=u;
   }catch(e){}
 }
+/* 모든 강아지 그림(보통·웃음·잠)을 큰 그림 한 장에 모아 둬요.
+   폰은 화면에 안 보이는 그림을 메모리에서 지웠다가 다시 풀 때 한 프레임 비어 보일 수 있는데,
+   한 장으로 묶으면 판에 늘 보이는 그림이라 항상 준비돼 있어요 → 웃는 얼굴로 바뀔 때·새 강아지가 나올 때 깜빡임 없음 */
+const ATL_T=[0,1,2,3,4,5,6,7,TYPES,TYPES+1,TYPES+2,SAND],ATL_V=['n','h','s'];
+let ATLAS=null;   // {url}
+function atlasPos(type,v){const c=ATL_T.indexOf(type),r=ATL_V.indexOf(v);if(c<0||r<0)return null;return`${(c/(ATL_T.length-1)*100).toFixed(4)}% ${(r/(ATL_V.length-1)*100).toFixed(4)}%`}
+function buildAtlas(){
+  try{
+    const cell=(boardEl&&boardEl.clientWidth?boardEl.clientWidth/N:50),dpr=Math.min(window.devicePixelRatio||1,3);
+    const S=Math.max(96,Math.min(200,Math.ceil(cell*dpr*0.95)));
+    const cv=document.createElement('canvas');cv.width=S*ATL_T.length;cv.height=S*ATL_V.length;const g=cv.getContext('2d');
+    const jobs=[];ATL_T.forEach((t,ci)=>ATL_V.forEach((v,ri)=>{if(t===SAND&&v!=='n')return;
+      const svgUrl=imgSrc(t,v);
+      jobs.push(new Promise(res=>{const im=new Image();im.onload=()=>{try{g.drawImage(im,ci*S,ri*S,S,S)}catch(e){}res()};im.onerror=res;im.src=svgUrl}))}));
+    Promise.all(jobs).then(()=>{if(!cv.toBlob)return;cv.toBlob(b=>{if(!b)return;const u=URL.createObjectURL(b);const pre=new Image();
+      pre.onload=()=>{const go=()=>{ATLAS={url:u};boardEl.style.setProperty('--atlas',`url("${u}")`);try{TPL.clear()}catch(e){}};if(pre.decode)pre.decode().then(go,go);else go()};pre.src=u},'image/png')});
+  }catch(e){}
+}
 function prewarmTiles(){[...Array(8).keys(),TYPES,TYPES+1,TYPES+2,SAND].forEach(t=>['n','h','s'].forEach(v=>{if(t===SAND&&v!=='n')return;imgSrc(t,v)}))}
 function tileHTML(t){
-  let h=`<img class="v n" alt="" draggable="false" decoding="sync" src="${imgSrc(t.type,t.sleep?'s':'n')}">`;
-  if(t.type!==SAND)h+=`<img class="v h" alt="" draggable="false" decoding="sync" src="${imgSrc(t.type,'h')}">`;
+  let h;
+  h=(t.type!==SAND?`<img class="v h" alt="" draggable="false" decoding="sync" src="${imgSrc(t.type,'h')}">`:'')+`<img class="v n" alt="" draggable="false" decoding="sync" src="${imgSrc(t.type,t.sleep?'s':'n')}">`;   // 웃는 얼굴은 밑에 늘 그려 두고, 위의 보통 얼굴만 숨겨요
   if(t.shell)h+=SHELL_OVL;if(t.sleep)h+=ZZ_OVL;return h;
 }
 // 처음에 한 번 미리 그려두기
@@ -2521,7 +2565,23 @@ function tileNode(t){
   return tp.content.firstChild.cloneNode(true);
 }
 const inner=t=>t&&t.el&&t.el.firstChild;
+/* 터진 강아지 칸은 버리지 않고 다음 강아지에 다시 써요 (폰이 화면 층을 새로 만들 일이 줄어서 덜 버벅이고 깜빡임도 줄어요) */
+const TILE_POOL=[];
+function parkTile(el){
+  try{el.getAnimations({subtree:true}).forEach(a=>a.cancel())}catch(e){}
+  if(TILE_POOL.length>=24){el.remove();return}
+  el.className='tile parked';el.style.transition='none';el.style.transitionDuration='';el.style.opacity='';TILE_POOL.push(el);
+}
+function reuseTile(t){
+  if(!TILE_POOL.length||t.shell||t.sleep||t.type===SAND||t.gold)return null;
+  const d=TILE_POOL.pop(),w=d.firstChild;const imgs=w?w.querySelectorAll('img.v'):[];
+  if(!w||w.childElementCount!==2||imgs.length!==2){d.remove();return null}
+  w.style.transform='';w.style.opacity='';w.style.filter='';w.style.transition='';
+  const h=imgs[0],n=imgs[1],hs=imgSrc(t.type,'h'),ns=imgSrc(t.type,'n');if(h.getAttribute('src')!==hs)h.src=hs;if(n.getAttribute('src')!==ns)n.src=ns;
+  d.className='tile'+(isFriend(t.type)?' friend':'');if(!d.isConnected)boardEl.appendChild(d);return d;
+}
 function makeEl(t){
+  {const r=reuseTile(t);if(r)return r}
   const d=document.createElement('div');
   d.className='tile'+(isFriend(t.type)?' friend':'')+(t.type===SAND?' sand':'')+(t.shell?' shell':'')+(t.shell===1?' cracked':'')+(t.sleep?' sleep':'')+(t.gold?' gold':'');
   d.appendChild(tileNode(t));boardEl.appendChild(d);return d;
@@ -2608,7 +2668,7 @@ function genBoard(){
         do{t=rnd()}while((c>=2&&row[c-1].type===t&&row[c-2].type===t)||(r>=2&&board[r-1][c].type===t&&board[r-2][c].type===t));
         row.push({type:t,shell:0,sleep:false})}}
   }while(!findMove());
-  boardEl.querySelectorAll('.tile').forEach(e=>e.remove());
+  boardEl.querySelectorAll('.tile').forEach(e=>e.remove());TILE_POOL.length=0;
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];t.el=makeEl(t);t.el.style.transition='none';t.el.style.transform=`translate(${c*100}%,${(r-N)*100}%)`}
   boardEl.offsetHeight;
   const go=()=>{const all=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];if(!t||!t.el)continue;t.el.style.transition='';place(t,r,c);all.push(t)}jellyDrop(all,false)};
@@ -2704,10 +2764,10 @@ let feverBeatTimer=null;
 function feverConfetti(){
   const fx=$('fx');const cols=['#FF6B8B','#FFB347','#FFE14D','#6FD98A','#58B4FF','#B27CFF','#fff'];
   if(PERF_LITE)return;
-  for(let i=0;i<14;i++){const p=document.createElement('div');p.className='p'+(i%3?'':' star');const sz=7+Math.random()*9;
-    p.style.width=p.style.height=sz+'px';p.style.marginLeft=p.style.marginTop=(-sz/2)+'px';p.style.background=cols[i%cols.length];p.style.left='50%';p.style.top='50%';fx.appendChild(p);
-    const a=Math.random()*Math.PI*2,d=90+Math.random()*120;
-    p.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d+30}px) scale(.2) rotate(${(Math.random()*540)|0}deg)`,opacity:0}],{duration:900+Math.random()*500,easing:'cubic-bezier(.15,.8,.3,1)'}).onfinish=()=>p.remove()}
+  const W=fx.clientWidth||300,H=fx.clientHeight||300,items=[];   // 피버 꽃가루도 그림판 한 장에
+  for(let i=0;i<14;i++){const a=Math.random()*Math.PI*2,d=90+Math.random()*120;
+    items.push({x:W/2,y:H/2,dx:Math.cos(a)*d,dy:Math.sin(a)*d,gy:30,sz:7+Math.random()*9,c:cols[i%cols.length],star:!(i%3),rot:Math.random()*9.4,s1:.2,o1:0,dur:900+Math.random()*500})}
+  FXC.add(items);
 }
 let feverGainAt=0;   // 마지막으로 피버 게이지를 채운 때 (게임 시간 기준)
 function addFever(n){if(feverOn||!running)return;feverGainAt=elapsed;fever=Math.min(100,fever+n);updateFever();if(fever>=100)startFever()}
@@ -2810,7 +2870,7 @@ function hitShell(t){
   else t.el.classList.add('cracked');
 }
 function wake(t){
-  t.sleep=false;t.el.classList.remove('sleep');const o=t.el.querySelector('.zzO');o&&o.remove();const nimg=t.el.querySelector('.n');if(nimg)nimg.src=imgSrc(t.type,'n');
+  t.sleep=false;t.el.classList.remove('sleep');const o=t.el.querySelector('.zzO');o&&o.remove();const nimg=t.el.querySelector('.n');if(nimg){if(nimg.tagName==='I')nimg.style.backgroundPosition=atlasPos(t.type,'n');else nimg.src=imgSrc(t.type,'n')}
   const s=inner(t);s&&s.animate&&s.animate([{transform:'translateY(0)'},{transform:'translateY(-14%) scale(1.1)'},{transform:'translateY(0)'}],{duration:280});
 }
 
@@ -2849,7 +2909,7 @@ async function clearSet(set,gain){
     else el.style.opacity=0;
     rm.push(el);board[r][c]=null});
   await sleep((lite?200:230)+maxDelay);
-  rm.forEach(el=>el.remove());
+  rm.forEach(parkTile);
   const moved=[],dist=new Map();
   for(const c of myCols){   // 내가 정리한 줄만 내려요 (다른 줄은 동시에 따로 정리될 수 있어요)
     let write=N-1;
@@ -3371,6 +3431,7 @@ function startGame(){
   level=1;activeTypes=levelInfo(1).types;$('lvl').innerHTML='<i>⭐</i>레벨 <b>1</b>';
   running=false;endFever();
   score=0;time=START_T;elapsed=0;feverGainAt=0;combo=0;ended=false;busy=false;paused=false;sel=null;hintCells=null;met=[0,0,0];lastSwap=null;trioShown=false;friendBag=[];
+  try{window.fpsReset&&fpsReset()}catch(e){}
   updateScore();updateTime();genBoard();
   running=true;lastAct=Date.now();
   clearInterval(tick);
@@ -4132,6 +4193,22 @@ applyEco();
   // 판 시작 후 처음 약 6초만 재고 멈춰요 (계속 재면 그 자체로 폰이 쉬지 못해서 열이 나요)
   setInterval(()=>{if(!running){wasRun=false;wins=0;slow=0;return}if(!wasRun){wasRun=true;wins=0}if(!on&&wins<4&&!paused&&!document.hidden){on=true;requestAnimationFrame(tick)}},1000)})();   // 게임 중에만 감시 (메뉴에서는 쉬게)
 setTimeout(()=>{try{prewarmTiles()}catch(e){}},300);
+/* ---- 숨은 기능: 끊김 측정기 (만든 사람 화면의 🏡를 5번 연속 누르면 켜지고 꺼져요) ----
+   게임 중 화면 왼쪽 아래에 초당 화면 수(FPS)와 끊긴 횟수를 보여줘요. 폰에서 직접 확인하는 용도 */
+(function(){
+  let on=false,raf=0,last=0,frames=0,acc=0,j50=0,j100=0,worst=0,box=null,taps=0,tapT=0;
+  function loop(t){if(!on)return;if(last){const d=t-last;if(running&&!paused){if(d>50)j50++;if(d>100)j100++;if(d>worst&&d<2000)worst=d}frames++;acc+=d}last=t;
+    if(acc>=1000){if(box)box.textContent=`FPS ${Math.round(frames*1000/acc)} · 끊김 ${j50}회(심함 ${j100}) · 최대 ${Math.round(worst)}ms`;frames=0;acc=0}
+    raf=requestAnimationFrame(loop)}
+  function set(v){on=v;try{ls.set('mung-fps',v)}catch(e){}
+    if(on){if(!box){box=document.createElement('div');box.id='fpsBox';box.style.cssText='position:fixed;left:6px;bottom:calc(var(--banner-h,0px) + 6px);z-index:9999;background:rgba(0,0,0,.65);color:#fff;font:12px/1.4 monospace;padding:3px 7px;border-radius:6px;pointer-events:none';document.body.appendChild(box)}box.hidden=false;last=0;raf=requestAnimationFrame(loop)}
+    else{cancelAnimationFrame(raf);if(box)box.hidden=true}}
+  window.fpsReset=()=>{j50=0;j100=0;worst=0};
+  const h=document.querySelector('#credits .mkicon');if(h)h.addEventListener('click',()=>{const n=Date.now();taps=n-tapT<600?taps+1:1;tapT=n;if(taps>=5){taps=0;set(!on);toast(on?'끊김 측정기 켜짐':'끊김 측정기 꺼짐')}});
+  if(ls.get('mung-fps',false))setTimeout(()=>set(true),1500);
+})();
+
+addEventListener('resize',()=>{clearTimeout(window.__atlT);window.__atlT=setTimeout(()=>{try{if(ATLAS&&boardEl.clientWidth)buildAtlas()}catch(e){}},800)});
 /* 콤보·피버 글씨를 처음 띄울 때 생기는 버벅임 방지: 게임 시작 때 보이지 않게 한 번 그려 두기 */
 function warmTextLayers(){
   const c=$('combo'),f=$('feverBanner');if(!c||!f)return;
