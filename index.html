@@ -3761,13 +3761,15 @@ const myFr=()=>{const a=ls.get('mung-myfr',[]);return Array.isArray(a)?a.filter(
 function setMyFr(a){ls.set('mung-myfr',[...new Set(a)].slice(0,200));try{cloudDirty()}catch(e){}}
 function frBtn(li,kid,nick,onRemove){
   if(!KAKAO.plugin||!kid||(KAKAO.me&&kid===KAKAO.me.id))return;
+  if(!onRemove&&myFr().includes(kid))return;   // 전체 순위표: 추가만 (빼기는 카톡 친구 탭에서)
   const b=document.createElement('button');b.type='button';b.className='frb';
   const paint=()=>{const on=myFr().includes(kid);b.classList.toggle('on',on);b.textContent=on?'−':'＋';b.setAttribute('aria-label',on?nick+' 친구 빼기':nick+' 친구 추가')};paint();
   b.addEventListener('click',async e=>{e.stopPropagation();
     if(!KAKAO.me){toast('카카오로 로그인하면 친구를 추가할 수 있어요');if(!(await kakaoLogin()))return}
     const a=myFr();
     if(a.includes(kid)){setMyFr(a.filter(x=>x!==kid));toast(nick+' 님을 친구에서 뺐어요');if(onRemove){onRemove();return}}
-    else{if(a.length>=200){toast('친구는 200명까지 추가할 수 있어요');return}setMyFr([...a,kid]);toast('🐶 '+nick+' 님을 친구로 추가했어요!');try{SFX.reward()}catch(e){}}
+    else{if(a.length>=200){toast('친구는 200명까지 추가할 수 있어요');return}setMyFr([...a,kid]);toast('🐶 '+nick+' 님을 친구로 추가했어요!');try{SFX.reward()}catch(e){}
+      if(!onRemove){const sp=document.createElement('span');sp.style.width='30px';b.replaceWith(sp);return}}
     paint()});
   li.classList.add('hasfr');li.appendChild(b);
 }
