@@ -196,6 +196,10 @@ body.ingame .house .ring{animation-play-state:paused}
 .rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .rank li{display:grid;grid-template-columns:2.4rem 1fr auto;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:10px 14px}
 .rank li.me{outline:3px solid var(--accent)}
+.rank li.hasfr{grid-template-columns:2.4rem 1fr auto auto}
+.rank .frb{position:relative;z-index:2;width:30px;height:30px;border-radius:50%;border:2px solid #FEE500;background:#FEE500;color:#3A1D1D;font:700 1.05rem/1 "Jua",sans-serif;display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.rank .frb.on{background:#FEE500;border-color:#FEE500;color:#E53935;font-size:1.35rem}
+.rank .frb:active{transform:scale(.9)}
 .rank .no{font-family:"Jua",sans-serif;font-size:1.25rem;text-align:center;color:var(--ink-soft)}
 .rank .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank .sc{font-family:"Jua",sans-serif;font-size:1.2rem;font-variant-numeric:tabular-nums}
@@ -3699,9 +3703,10 @@ async function openRank(tab){
   const medals=['🥇','🥈','🥉'];
   let shown=false;
   rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe)shown=true;const li=rankRow(medals[i]||String(i+1),r.nick,r.score,isMe,r.img,r.kk,starsOf(CW,r.id,r.kid));plateDecor(li,isMe?myPlate():r.pl);
+    if(!isMe&&shared)frBtn(li,r.kid,r.nick);
     list.appendChild(li)});
   if(me&&!shown){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);{const li=rankRow(String(me.rank),safeNick(me.nick),me.score,true,me.img,me.kk,starsOf(CW,pid,me.kid));plateDecor(li,myPlate());list.appendChild(li)}}
-  box.hidden=false;box.className='myrank';box.textContent='';
+  alignFr(list);box.hidden=false;box.className='myrank';box.textContent='';
   const nt=submitNote[rankTab];
   if(me){
     const a=document.createElement('div');a.className='big2';a.textContent=(me.capped?'1000+':me.rank)+'위';
@@ -3751,24 +3756,30 @@ async function champWins(){
   return W;
 }
 const starsOf=(W,id,kid)=>W?(kid?(W.kid[kid]||0)+(W.id[id]||0):(W.id[id]||0)):0;
-/* 카톡 친구 순위: 멍멍 톡톡을 하는 카톡 친구들의 역대 최고 기록 */
+/* 내가 추가한 카톡 친구 (순위표에서 ＋ 를 눌러 추가) */
+const myFr=()=>{const a=ls.get('mung-myfr',[]);return Array.isArray(a)?a.filter(x=>/^[0-9]{1,20}$/.test(String(x))).map(String):[]};
+function setMyFr(a){ls.set('mung-myfr',[...new Set(a)].slice(0,200));try{cloudDirty()}catch(e){}}
+function frBtn(li,kid,nick,onRemove){
+  if(!KAKAO.plugin||!kid||(KAKAO.me&&kid===KAKAO.me.id))return;
+  const b=document.createElement('button');b.type='button';b.className='frb';
+  const paint=()=>{const on=myFr().includes(kid);b.classList.toggle('on',on);b.textContent=on?'−':'＋';b.setAttribute('aria-label',on?nick+' 친구 빼기':nick+' 친구 추가')};paint();
+  b.addEventListener('click',async e=>{e.stopPropagation();
+    if(!KAKAO.me){toast('카카오로 로그인하면 친구를 추가할 수 있어요');if(!(await kakaoLogin()))return}
+    const a=myFr();
+    if(a.includes(kid)){setMyFr(a.filter(x=>x!==kid));toast(nick+' 님을 친구에서 뺐어요');if(onRemove){onRemove();return}}
+    else{if(a.length>=200){toast('친구는 200명까지 추가할 수 있어요');return}setMyFr([...a,kid]);toast('🐶 '+nick+' 님을 친구로 추가했어요!');try{SFX.reward()}catch(e){}}
+    paint()});
+  li.classList.add('hasfr');li.appendChild(b);
+}
+function alignFr(list){if(!list.querySelector('.frb'))return;list.querySelectorAll('li:not(.gap):not(.hasfr)').forEach(li=>{const sp=document.createElement('span');sp.style.width='30px';li.classList.add('hasfr');li.appendChild(sp)})}
+/* 카톡 친구 순위: 내가 추가한 카톡 친구들의 역대 최고 기록 */
 async function openFriendRank(){
   const si=$('seasonInfo'),list=$('rankList'),box=$('myRank'),note=$('rankNote');
-  si.innerHTML='<span class="schip">💬 카톡 친구들의 역대 최고 기록</span>';list.innerHTML='';box.hidden=true;$('champs').hidden=true;note.textContent='';
+  si.innerHTML='<span class="schip">💬 내 친구들의 역대 최고 기록</span>';list.innerHTML='';box.hidden=true;$('champs').hidden=true;note.textContent='';
   const cta=(txt,btn,fn)=>{$('rankCtaTxt').textContent=txt;const b=$('rankCtaBtn');b.hidden=false;b.innerHTML=KK_SVG+btn;b.onclick=fn;$('rankCta').hidden=false};
   if(!KAKAO.me){cta('카카오로 로그인하면 카톡 친구들과 순위를 겨룰 수 있어요!','카카오로 시작하기',async()=>{if(await kakaoLogin())openRank('friend')});return}
-  note.textContent='친구 목록을 불러오는 중...';
-  let r=null;try{r=await KAKAO.plugin.friends({ask:true})}catch(e){}
-  if(rankTab!=='friend')return;
-  if(!r||!r.ok){note.textContent='';
-    if(r&&r.loggedOut){kakaoClear(true);openFriendRank();return}
-    if(r&&r.denied)cta('카톡 친구 목록 제공에 동의하면 친구들의 순위를 볼 수 있어요.','친구 목록 동의하기',()=>openRank('friend'));
-    else if(r&&/team member|unreviewed/i.test(String(r.error||''))){$('rankCtaTxt').textContent='🐾 카톡 친구 순위는 준비 중이에요!\n카카오 확인이 끝나면 곧 열려요.';$('rankCtaBtn').hidden=true;$('rankCta').hidden=false}
-    else cta('친구 목록을 불러오지 못했어요. 잠시 후 다시 해 주세요.'+(r&&r.error?`\n(오류: ${String(r.error).slice(0,160)})`:''),'다시 불러오기',()=>openRank('friend'));
-    return}
-  const fr=(r.friends||[]).filter(f=>/^[0-9]{1,20}$/.test(String(f.id)));
-  const fmap={};fr.forEach(f=>{fmap[String(f.id)]=f});
-  const ids=[KAKAO.me.id,...Object.keys(fmap).filter(id=>id!==KAKAO.me.id)].slice(0,300);
+  note.textContent='불러오는 중...';
+  const ids=[KAKAO.me.id,...myFr().filter(id=>id!==KAKAO.me.id)].slice(0,300);
   await waitFB();
   const best={};
   if(db){
@@ -3779,12 +3790,11 @@ async function openFriendRank(){
     catch(e){if(rankTab!=='friend')return;note.textContent='';cta('순위를 불러오지 못했어요. 잠시 후 다시 해 주세요.','다시 불러오기',()=>openRank('friend'));return}
   }
   if(rankTab!=='friend')return;
-  Object.values(best).forEach(b=>{const f=fmap[b.kid];if(f&&!b.img)b.img=kkPhoto(f.image)});
   const rows=Object.values(best).sort((a,b)=>b.score-a.score);
   const CW=db?await champWins():null;if(rankTab!=='friend')return;
   const medals=['🥇','🥈','🥉'];let myRank=0;
-  rows.forEach((b,i)=>{const isMe=b.kid===KAKAO.me.id;if(isMe)myRank=i+1;{const li=rankRow(medals[i]||String(i+1),b.nick,b.score,isMe,b.img,true,starsOf(CW,b.id,b.kid));plateDecor(li,isMe?myPlate():b.pl);list.appendChild(li)}});
-  box.className='myrank';box.textContent='';box.hidden=false;
+  rows.forEach((b,i)=>{const isMe=b.kid===KAKAO.me.id;if(isMe)myRank=i+1;{const li=rankRow(medals[i]||String(i+1),b.nick,b.score,isMe,b.img,true,starsOf(CW,b.id,b.kid));plateDecor(li,isMe?myPlate():b.pl);if(!isMe)frBtn(li,b.kid,b.nick,()=>openRank('friend'));list.appendChild(li)}});
+  alignFr(list);box.className='myrank';box.textContent='';box.hidden=false;
   if(myRank){const m=rows[myRank-1];
     const a=document.createElement('div');a.className='big2';a.textContent=myRank+'위';
     const b=document.createElement('div');b.className='lab';b.innerHTML=`<span class="l1">카톡 친구 중 내 순위</span><span class="l2">${rows.length}명 중</span>`;
@@ -3792,7 +3802,7 @@ async function openFriendRank(){
     const d=document.createElement('div');d.className='who';d.appendChild(avatarWithStars(m.img||KAKAO.me.img,starsOf(CW,m.id,m.kid)));d.append(m.nick);
     box.append(a,b,c,d)}
   else{box.classList.add('none');box.textContent='게임이 끝나고 점수를 등록하면 친구 순위에 내가 나와요!'}
-  note.textContent=rows.length>(myRank?1:0)?'멍멍 톡톡을 하는 카톡 친구들이에요.':'아직 멍멍 톡톡을 하는 카톡 친구가 없어요. 친구에게 게임을 알려 주세요!';
+  note.textContent=rows.length>(myRank?1:0)?'내가 추가한 친구들이에요. 빨간 − 를 누르면 친구에서 빠져요.':'이번 달·명예의 전당 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!';
 }
 
 /* ================= 입력 ================= */
@@ -4410,7 +4420,7 @@ async function watchRewardAd(sync){
 /* ===== Google Play 게임즈: 자동 로그인 + 클라우드 저장 (앱에서만 동작) ===== */
 const CLOUD={plugin:null,on:false,loaded:false,name:'',dirty:false,saving:false,t:null};
 const CLOUD_SLOT='mung-save';
-const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','mung-bonus','mung-dex','mung-pops','mung-themes-owned','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick','mung-stats','mung-ach','mung-plates-owned','mung-plate'];
+const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','mung-bonus','mung-dex','mung-pops','mung-themes-owned','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick','mung-stats','mung-ach','mung-plates-owned','mung-plate','mung-myfr'];
 (function(){
   try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.PlayGames)CLOUD.plugin=C.Plugins.PlayGames}catch(e){}
   if(!CLOUD.plugin)return;
@@ -4440,7 +4450,7 @@ const popSum=o=>(Array.isArray(o['mung-pops'])?o['mung-pops']:[]).reduce((a,b)=>
 function cloudMerge(L,R){
   /* 계속 늘어나기만 하는 기록은 큰 값/합집합, 코인·아이템 같은 소모품은 더 많이 플레이한 쪽 */
   const main=popSum(R)>popSum(L)||(popSum(R)===popSum(L)&&(R._t||0)>(L._t||0))?R:L, M={};
-  ['mung-coin','mung-inv','mung-items','mung-bonus','mung-theme','mung-plate','mung-attend','mung-missions','mung-adrew','mung-nick'].forEach(k=>{if(main[k]!==undefined)M[k]=main[k];else if(L[k]!==undefined)M[k]=L[k];else if(R[k]!==undefined)M[k]=R[k]});
+  ['mung-coin','mung-inv','mung-items','mung-bonus','mung-theme','mung-plate','mung-attend','mung-missions','mung-adrew','mung-nick','mung-myfr'].forEach(k=>{if(main[k]!==undefined)M[k]=main[k];else if(L[k]!==undefined)M[k]=L[k];else if(R[k]!==undefined)M[k]=R[k]});
   M['mung-best']=Math.max(L['mung-best']|0,R['mung-best']|0);
   M['mung-maxlv']=Math.max(L['mung-maxlv']|0,R['mung-maxlv']|0,1);
   const lp=L['mung-pops']||[],rp=R['mung-pops']||[];M['mung-pops']=DEX.map((_,i)=>Math.max(lp[i]|0,rp[i]|0));
