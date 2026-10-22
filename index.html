@@ -4787,7 +4787,7 @@ updateTime();syncSnd();
   document.body.classList.add('opening');   // 오프닝 동안 메뉴는 숨기고 배경만 보여요
   const vid=$('oVideo'),poster=$('oPoster');
   /* 영상은 한 번 받으면 폰에 저장해 두고, 다음부터는 인터넷 없이도 저장본으로 틀어요 */
-  const VSRC='bgm/opening.webm?v=1',PSRC='bgm/opening_end.webp?v=1';
+  const VSRC='bgm/opening.webm?v=2',PSRC='bgm/opening_end.webp?v=2';
   const canAlpha=!!(vid.canPlayType&&vid.canPlayType('video/webm; codecs="vp9, opus"'));
   const fromStore=url=>(typeof caches!=='undefined'&&/^https?:/.test(location.protocol))?caches.open('mung-music').then(c=>c.match(url)).then(r=>r?r.blob().then(b=>URL.createObjectURL(b)):null).catch(()=>null):Promise.resolve(null);
   const keep=url=>{try{if(typeof caches==='undefined'||!/^https?:/.test(location.protocol))return;caches.open('mung-music').then(c=>c.match(url).then(r=>r||fetch(url).then(n=>{if(n.ok)return c.put(url,n)}))).catch(()=>{})}catch(e){}};
