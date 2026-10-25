@@ -3359,13 +3359,13 @@ function pickItem(f){
   if(itemsUsed>=ITEM_PER_GAME){toast('무지개 친구는 한 판에 '+ITEM_PER_GAME+'번까지 부를 수 있어요');SFX.bad();return}
   dropFriendRandom(f);
 }
-/* 공평하게: 무지개 친구는 판의 빈 강아지 자리 중 랜덤으로 와요 (다른 무지개 친구 바로 옆은 피해요) */
+/* 무지개 친구는 판의 빈 강아지 자리 아무 데나 완전히 랜덤으로 와요. 운이 좋으면 다른 무지개 친구 바로 옆! (합체 기회) */
 function dropFriendRandom(f){
   const it=getItems();if(!it[f])return false;
   const near=(r,c)=>[[1,0],[-1,0],[0,1],[0,-1]].some(([dr,dc])=>{const rr=r+dr,cc=c+dc;return inB(rr,cc)&&board[rr][cc]&&isFriend(board[rr][cc].type)});
   const ok=[],ok2=[];
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];if(!isDog(t)||t.shell||t.sleep||isFriend(t.type)||locked(r,c))continue;(near(r,c)?ok2:ok).push([r,c])}
-  const pool=ok.length?ok:ok2;if(!pool.length){toast('지금은 부를 자리가 없어요. 잠시 후 다시 눌러 주세요');SFX.bad();return false}
+  const pool=[...ok,...ok2];if(!pool.length){toast('지금은 부를 자리가 없어요. 잠시 후 다시 눌러 주세요');SFX.bad();return false}
   const[r,c]=pool[Math.floor(Math.random()*pool.length)];
   if(placing!==null)cancelPlacing();clearSel();
   it[f]--;setItems(it);itemsUsed++;usedItems.friend=usedOf('friend')+1;updateTray();
