@@ -3771,7 +3771,7 @@ function frBtn(li,kid,nick,onRemove){
   b.addEventListener('click',async e=>{e.stopPropagation();
     if(!KAKAO.me){toast('카카오로 로그인하면 친구를 추가할 수 있어요');if(!(await kakaoLogin()))return}
     const a=myFr();
-    if(a.includes(kid)){setMyFr(a.filter(x=>x!==kid));toast(nick+' 님을 친구에서 뺐어요');if(onRemove){onRemove();return}}
+    if(a.includes(kid)){if(!confirm(`'${nick}' 님을 친구에서 삭제할까요?\n삭제하면 카톡 친구 순위에서 빠져요.`))return;setMyFr(a.filter(x=>x!==kid));toast(nick+' 님을 친구에서 뺐어요');if(onRemove){onRemove();return}}
     else{if(a.length>=200){toast('친구는 200명까지 추가할 수 있어요');return}setMyFr([...a,kid]);toast('🐶 '+nick+' 님을 친구로 추가했어요!');try{SFX.reward()}catch(e){}
       if(!onRemove){const sp=document.createElement('span');sp.style.width='30px';b.replaceWith(sp);return}}
     paint()});
