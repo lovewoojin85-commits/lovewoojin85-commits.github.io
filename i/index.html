@@ -1,1 +1,50 @@
-
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>멍멍 톡톡 초대장</title>
+<meta name="robots" content="noindex">
+<meta property="og:title" content="🐶 멍멍 톡톡에 초대받았어요!">
+<meta property="og:description" content="같이 강아지 퍼즐하고 순위 겨뤄요 🏆">
+<meta property="og:image" content="https://lovewoojin85-commits.github.io/icons/icon-512.png">
+<link rel="icon" href="../icons/icon-192.png">
+<style>
+:root{--ink:#3A2A1A;--soft:#7A6A5A;--bg1:#FFF0F5;--bg2:#EAF5FF}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink);background:linear-gradient(165deg,var(--bg1),var(--bg2))}
+.card{width:100%;max-width:380px;background:#fff;border-radius:28px;padding:28px 22px 22px;text-align:center;box-shadow:0 8px 0 #E9E1D6,0 18px 40px rgba(120,90,60,.12)}
+.card img{width:96px;height:96px;border-radius:24px;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+h1{font-size:1.45rem;margin:16px 0 6px}
+p{margin:0 0 18px;color:var(--soft);line-height:1.5}
+.btn{display:block;width:100%;padding:15px;border-radius:18px;text-decoration:none;font-size:1.08rem;font-weight:700;margin-top:10px}
+.open{background:#FEE500;color:#3A1D1D;box-shadow:0 4px 0 #E2C800}
+.store{background:#F3F6FA;color:#2A4A6A}
+.tip{font-size:.85rem;margin:16px 0 0;color:var(--soft)}
+.tip b{color:var(--ink)}
+.ios{display:none;background:#FFF6E6;border-radius:14px;padding:12px;font-size:.9rem;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="card">
+  <img src="../icons/icon-192.png" alt="멍멍 톡톡">
+  <h1>🐶 친구가 초대했어요!</h1>
+  <p>멍멍 톡톡에서 같이 강아지 퍼즐하고<br>순위를 겨뤄 봐요 🏆</p>
+  <a class="btn open" id="open" href="#">게임 열고 친구 되기</a>
+  <a class="btn store" id="store" href="https://play.google.com/store/apps/details?id=com.woojin.mungmungtoktok">플레이 스토어에서 받기</a>
+  <p class="tip">게임을 처음 받았다면, 설치한 뒤<br><b>카톡의 초대 링크를 한 번 더</b> 눌러 주세요!</p>
+  <div class="ios" id="ios">멍멍 톡톡 앱은 지금 안드로이드에서만 받을 수 있어요.<br><a href="../">웹에서 게임해 보기</a></div>
+</div>
+<script>
+(function(){
+  var c=(new URLSearchParams(location.search).get('c')||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8);
+  var PKG='com.woojin.mungmungtoktok',STORE='https://play.google.com/store/apps/details?id='+PKG;
+  var isAndroid=/Android/i.test(navigator.userAgent),isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var intent='intent://invite?c='+c+'#Intent;scheme=mungmung;package='+PKG+';S.browser_fallback_url='+encodeURIComponent(STORE)+';end';
+  var o=document.getElementById('open');
+  if(isAndroid){o.href=intent;if(c)setTimeout(function(){location.href=intent},300)}
+  else{o.style.display='none';if(isIOS)document.getElementById('ios').style.display='block'}
+})();
+</script>
+</body>
+</html>
