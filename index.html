@@ -663,6 +663,9 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .tabs.three .tab{font-size:.98rem}
 .rankcta{display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center;background:var(--card);border-radius:18px;padding:16px}
 .rankcta[hidden]{display:none}
+.invbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:2px 0 10px;padding:12px 16px;border:0;border-radius:16px;background:#FEE500;color:#3A1D1D;font:1.08rem "Jua",sans-serif;box-shadow:0 4px 0 #E2C800;cursor:pointer}
+.invbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #E2C800}
+.invbtn[hidden]{display:none}
 .rankcta p{margin:0;white-space:pre-line;overflow-wrap:anywhere}
 
 /* ---- 오늘의 미션 · 출석 ---- */
@@ -1740,6 +1743,7 @@ body.exp4 #game .frame{border-radius:0!important}
     <p class="season" id="seasonInfo"></p>
     <div class="champs" id="champs" hidden></div>
     <div class="myrank" id="myRank" hidden></div>
+    <button class="invbtn" id="invBtn" type="button" hidden>💌 카톡으로 친구 초대하기</button>
     <div class="rankcta" id="rankCta" hidden><p id="rankCtaTxt"></p><button class="kkbtn" id="rankCtaBtn"></button></div>
     <ol class="rank" id="rankList"></ol>
     <p class="note" id="rankNote"></p>
@@ -3674,7 +3678,7 @@ async function openRank(tab){
   showScreen('rank');
   await waitFB();
   $('tabMonth').classList.toggle('on',rankTab==='month');$('tabAll').classList.toggle('on',rankTab==='all');$('tabFriend').classList.toggle('on',rankTab==='friend');
-  $('rankCta').hidden=true;
+  $('rankCta').hidden=true;$('invBtn').hidden=!(rankTab==='friend'&&INVITE.plugin);
   if(rankTab==='friend'){openFriendRank();return}
   const S=seasonInfo(),coll=rankTab==='month'?S.key:'scores',pid=FBUID||ls.get('mung-pid','');
   const si=$('seasonInfo');si.textContent='';
@@ -3781,6 +3785,7 @@ async function openFriendRank(){
   const cta=(txt,btn,fn)=>{$('rankCtaTxt').textContent=txt;const b=$('rankCtaBtn');b.hidden=false;b.innerHTML=KK_SVG+btn;b.onclick=fn;$('rankCta').hidden=false};
   if(!KAKAO.me){cta('카카오로 로그인하면 카톡 친구들과 순위를 겨룰 수 있어요!','카카오로 시작하기',async()=>{if(await kakaoLogin())openRank('friend')});return}
   note.textContent='불러오는 중...';
+  try{await inviteSync()}catch(e){}if(rankTab!=='friend')return;
   const ids=[KAKAO.me.id,...myFr().filter(id=>id!==KAKAO.me.id)].slice(0,300);
   await waitFB();
   const best={};
@@ -3804,7 +3809,7 @@ async function openFriendRank(){
     const d=document.createElement('div');d.className='who';d.appendChild(avatarWithStars(m.img||KAKAO.me.img,starsOf(CW,m.id,m.kid)));d.append(m.nick);
     box.append(a,b,c,d)}
   else{box.classList.add('none');box.textContent='게임이 끝나고 점수를 등록하면 친구 순위에 내가 나와요!'}
-  note.textContent=rows.length>(myRank?1:0)?'내가 추가한 친구들이에요. 빨간 − 를 누르면 친구에서 빠져요.':'이번 달·명예의 전당 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!';
+  note.textContent=rows.length>(myRank?1:0)?'내가 추가한 친구들이에요. 빨간 − 를 누르면 친구에서 빠져요.':(INVITE.plugin?'💌 카톡으로 친구를 초대하거나, 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!':'이번 달·명예의 전당 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!');
 }
 
 /* ================= 입력 ================= */
@@ -4562,6 +4567,73 @@ async function kakaoSilent(){
   }catch(e){}
   if(!KAKAO.me&&!ls.get('mung-kk-ask',0))kakaoAskLater();
 }
+/* ===== 초대 링크: 카톡으로 링크를 보내면, 친구가 누르는 순간 서로 친구가 돼요 (앱 1.6.0 이상) =====
+   invites/{코드} = 초대한 사람(uid·카카오 회원번호·이름), invites/{코드}/joins/{친구 uid} = 링크로 들어온 친구 */
+const INVITE={plugin:null,busy:false};
+const INV_URL='https://lovewoojin85-commits.github.io/i/?c=';
+const invOk=c=>/^[A-Za-z0-9]{8}$/.test(String(c||''));
+function invNewCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';let s='';const r=new Uint32Array(8);try{crypto.getRandomValues(r)}catch(e){for(let i=0;i<8;i++)r[i]=Math.random()*1e9}for(let i=0;i<8;i++)s+=A[r[i]%A.length];return s}
+/* 내 초대 코드 (이 기기·이 계정에서 한 번 만들어 계속 써요) */
+async function myInviteCode(){
+  await waitFB();if(!db||!FBUID||!KAKAO.me)return '';
+  let m=ls.get('mung-invc',null);
+  if(m&&m.uid===FBUID&&invOk(m.c)){
+    if(m.kn!==KAKAO.me.nick||m.kid!==KAKAO.me.id){try{await db.collection('invites').doc(m.c).set({uid:FBUID,kid:KAKAO.me.id,kn:KAKAO.me.nick,at:Date.now()});m.kn=KAKAO.me.nick;m.kid=KAKAO.me.id;ls.set('mung-invc',m)}catch(e){}}
+    return m.c}
+  for(let i=0;i<3;i++){const c=invNewCode();
+    try{await db.collection('invites').doc(c).set({uid:FBUID,kid:KAKAO.me.id,kn:KAKAO.me.nick,at:Date.now()});ls.set('mung-invc',{c,uid:FBUID,kid:KAKAO.me.id,kn:KAKAO.me.nick});return c}catch(e){}}
+  return '';
+}
+async function inviteShare(){
+  if(INVITE.busy)return;
+  if(!KAKAO.me){toast('카카오로 로그인하면 친구를 초대할 수 있어요');if(!(await kakaoLogin()))return}
+  INVITE.busy=true;const b=$('invBtn');b.disabled=true;
+  try{const c=await myInviteCode();
+    if(!c){toast('초대 링크를 만들지 못했어요. 인터넷 연결을 확인해 주세요');return}
+    const text=`🐶 ${KAKAO.me.nick}님이 멍멍 톡톡에 초대했어요!\n같이 강아지 퍼즐하고 순위 겨뤄요 🏆\n${INV_URL}${c}`;
+    await INVITE.plugin.share({title:'친구 초대하기',text});
+  }catch(e){toast('공유 창을 열지 못했어요')}
+  finally{INVITE.busy=false;b.disabled=false}
+}
+/* 내가 보낸 링크로 들어온 친구들을 내 친구 목록에 넣어요 */
+async function inviteSync(){
+  if(!KAKAO.me)return;const m=ls.get('mung-invc',null);if(!m||m.uid!==FBUID||!invOk(m.c))return;
+  await waitFB();if(!db)return;
+  try{const sn=await db.collection('invites/'+m.c+'/joins').get();const a=myFr(),add=[];
+    sn.docs.forEach(d=>{const v=d.data()||{},k=String(v.kid||'');if(/^[0-9]{1,20}$/.test(k)&&k!==KAKAO.me.id&&!a.includes(k)&&!add.includes(k))add.push(k)});
+    if(add.length){setMyFr([...a,...add]);toast(add.length===1?'🐶 초대한 친구가 들어왔어요! 카톡 친구 탭에서 확인해 보세요':`🐶 초대한 친구 ${add.length}명이 들어왔어요!`)}}catch(e){}
+}
+/* 친구가 보낸 링크를 눌러 앱이 열렸을 때 */
+async function inviteAccept(c){
+  if(!invOk(c))return;
+  if(!KAKAO.me){ls.set('mung-pinv',c);
+    toast('카카오로 로그인하면 초대한 친구와 바로 친구가 돼요!');
+    if(!(await kakaoLogin()))return}
+  ls.set('mung-pinv','');
+  await waitFB();if(!db){toast('인터넷에 연결되면 초대 링크를 다시 눌러 주세요');return}
+  try{const sn=await db.collection('invites').doc(c).get();
+    if(!sn.exists){toast('초대 링크가 올바르지 않아요');return}
+    const v=sn.data()||{},k=String(v.kid||''),nm=kkName(v.kn)||'친구';
+    if(v.uid===FBUID||k===KAKAO.me.id){toast('내가 보낸 초대 링크예요. 친구에게 보내 주세요!');return}
+    if(/^[0-9]{1,20}$/.test(k)){const a=myFr();if(!a.includes(k))setMyFr([...a,k])}
+    await db.collection('invites/'+c+'/joins').doc(FBUID).set({kid:KAKAO.me.id,kn:KAKAO.me.nick,at:Date.now()});
+    try{SFX.reward()}catch(e){}
+    toast(`🐶 ${safeNick(nm)}님과 친구가 됐어요!`);
+    if(!running||ended)setTimeout(()=>{try{if(!running||ended)openRank('friend')}catch(e){}},900);
+  }catch(e){toast('친구 추가를 하지 못했어요. 잠시 후 링크를 다시 눌러 주세요')}
+}
+(function(){
+  try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Invite)INVITE.plugin=C.Plugins.Invite}catch(e){}
+  if(!INVITE.plugin||!KAKAO.plugin){INVITE.plugin=null;return}
+  $('invBtn').onclick=inviteShare;
+  const take=c=>{if(!invOk(c))return;const go=(n=0)=>{if(document.getElementById('opening')&&n<40){setTimeout(()=>go(n+1),500);return}inviteAccept(c)};go()};
+  try{INVITE.plugin.addListener('invite',r=>take(r&&r.code))}catch(e){}
+  setTimeout(async()=>{
+    try{const r=await INVITE.plugin.getPending();if(r&&invOk(r.code)){take(r.code);return}}catch(e){}
+    const p=ls.get('mung-pinv','');if(invOk(p)&&KAKAO.me)take(p);   // 로그인 전에 눌렀던 링크
+    setTimeout(()=>{try{inviteSync()}catch(e){}},2500);
+  },1800);
+})();
 /* 처음 한 번: 오프닝·출석 창이 끝나고 메인 화면일 때 "카카오로 시작하기" */
 function kakaoAskLater(tries=0){
   if(KAKAO.me||tries>90)return;
