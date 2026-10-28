@@ -4425,11 +4425,76 @@ async function watchRewardAd(sync){
   }
 }
 /* ===== Google Play 게임즈: 자동 로그인 + 클라우드 저장 (앱에서만 동작) ===== */
+/* ===== 웹(아이폰)용 카카오 로그인 + 카카오 저장 =====
+   안드로이드 앱은 지금처럼 앱 안의 카카오 로그인 + Play 게임즈 저장을 써요. 여기는 앱이 아닐 때(사파리 등)만 켜져요.
+   카카오 로그인 → 확인 프로그램(클라우드 함수)이 카카오 회원인지 확인하고 Firestore 'saves' 에 기록을 보관해요. */
+const KWEB={
+  on:false,
+  REST:'e1783f178b1f9a5bcd873d5abc86da7a',
+  REDIRECT:'https://lovewoojin85-commits.github.io/',
+  FN:window.__KWEB_FN||'https://kakao-919593489876.asia-northeast3.run.app',   // 확인 프로그램 주소 (구글 클라우드 Cloud Run, 서울)
+  tok(){return ls.get('mung-kkweb',null)},
+  setTok(t){if(t)ls.set('mung-kkweb',t);else{try{localStorage.removeItem('mung-kkweb')}catch(e){}}},
+  async call(body){const r=await fetch(this.FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}if(!r.ok||!j.ok){const e=new Error(j.error||('http '+r.status));e.expired=!!j.expired||r.status===401;throw e}return j},
+  async at(){let t=this.tok();if(!t||!t.at)return '';
+    if(Date.now()>(t.exp||0)-120000){if(!t.rt){this.setTok(null);return ''}
+      try{const j=await this.call({op:'refresh',rt:t.rt});t={at:j.at,exp:j.exp,rt:j.rt||t.rt};this.setTok(t)}
+      catch(e){if(e.expired){this.setTok(null);return ''}throw e}}
+    return t.at},
+  login(){let st='';try{const a=new Uint32Array(2);crypto.getRandomValues(a);st=a[0].toString(36)+a[1].toString(36)}catch(e){st=String(Math.random()).slice(2)}
+    try{sessionStorage.setItem('mung-kkst',st);sessionStorage.setItem('mung-op','1')}catch(e){}
+    location.href='https://kauth.kakao.com/oauth/authorize?response_type=code&client_id='+this.REST+'&redirect_uri='+encodeURIComponent(this.REDIRECT)+'&state='+st;
+    return new Promise(()=>{})},   // 카카오 화면으로 넘어가요
+  /* 카카오 화면에서 돌아왔을 때 (?code=...&state=...) */
+  async back(){const q=new URLSearchParams(location.search),code=q.get('code'),st=q.get('state'),err=q.get('error');
+    if(!code&&!err)return;
+    try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+    let ok0='';try{ok0=sessionStorage.getItem('mung-kkst')||'';sessionStorage.removeItem('mung-kkst')}catch(e){}
+    if(err||!code||!st||st!==ok0){if(err&&err!=='access_denied')toast('카카오 로그인을 하지 못했어요');return}
+    try{const j=await this.call({op:'code',code});this.setTok({at:j.at,exp:j.exp,rt:j.rt});
+      kakaoSet(j.me);toast(`${KAKAO.me.nick}님, 반가워요! 🐾`);
+      try{await cloudSignIn(true)}catch(e){}
+      setTimeout(()=>{try{const p=ls.get('mung-pinv','');if(invOk(p))inviteAccept(p)}catch(e){}},600);
+    }catch(e){toast('카카오 로그인을 하지 못했어요. 잠시 후 다시 해 주세요')}}
+};
+(function(){
+  try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform())return}catch(e){}
+  if(IN_CLAUDE)return;
+  const here=location.origin==='https://lovewoojin85-commits.github.io'||window.__KWEB_TEST;
+  if(!here||!KWEB.FN)return;
+  KWEB.on=true;
+  // 카카오: 앱의 카카오 플러그인과 같은 모양으로
+  window.__KK_WEB={
+    async silent(){const c=ls.get('mung-kakao',null);try{const a=await KWEB.at();if(!a){if(c){KAKAO.me=null;try{localStorage.removeItem('mung-kakao')}catch(e){}kakaoUI()}return{signedIn:false}}}catch(e){}
+      return c&&c.id?{signedIn:true,id:c.id,nickname:c.nick,image:c.img}:{signedIn:false}},
+    login(){return KWEB.login()},
+    async logout(){KWEB.setTok(null);return{ok:true}},
+    async unlink(){KWEB.setTok(null);return{ok:true}},
+    async friends(){return{ok:false,error:'web'}}
+  };
+  // 저장: Play 게임즈 플러그인과 같은 모양으로
+  window.__CLOUD_WEB={
+    async signIn(o){let a='';try{a=await KWEB.at()}catch(e){}
+      if(a)return{signedIn:true,name:(KAKAO.me&&KAKAO.me.nick)||''};
+      if(!(o&&o.silent)){toast('카카오로 로그인하면 기록이 저장돼요');KWEB.login()}
+      return{signedIn:false}},
+    async load(){const a=await KWEB.at();if(!a)throw new Error('no login');const j=await KWEB.call({op:'load',at:a});return{data:j.data||''}},
+    async save(o){const a=await KWEB.at();if(!a)throw new Error('no login');await KWEB.call({op:'save',at:a,data:o.data});return{ok:true}}
+  };
+  window.__INV_WEB={
+    _l:null,addListener(n,cb){this._l=cb;return{remove(){}}},
+    async getPending(){const q=new URLSearchParams(location.search),c=q.get('inv');if(c){try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}return c?{code:c}:{}},
+    async share(o){if(navigator.share){try{await navigator.share({text:o.text});return}catch(e){if(e&&e.name==='AbortError')return}}
+      try{await navigator.clipboard.writeText(o.text);toast('초대 글을 복사했어요! 카톡 대화창에 붙여넣어 보내 주세요')}catch(e){toast('공유하지 못했어요')}}
+  };
+  setTimeout(()=>{KWEB.back()},900);
+})();
 const CLOUD={plugin:null,on:false,loaded:false,name:'',dirty:false,saving:false,t:null};
 const CLOUD_SLOT='mung-save';
 const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','mung-bonus','mung-dex','mung-pops','mung-themes-owned','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick','mung-stats','mung-ach','mung-plates-owned','mung-plate','mung-myfr'];
 (function(){
   try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.PlayGames)CLOUD.plugin=C.Plugins.PlayGames}catch(e){}
+  if(!CLOUD.plugin&&window.__CLOUD_WEB){CLOUD.plugin=window.__CLOUD_WEB;CLOUD.web=true}
   if(!CLOUD.plugin)return;
   const lsSet0=ls.set;
   ls.set=function(k,v){lsSet0(k,v);if(CLOUD_KEYS.includes(k)){try{localStorage.setItem('mung-lt',String(Date.now()))}catch(e){}cloudDirty()}};   // mung-lt: 이 기기에서 마지막으로 바뀐 때
@@ -4441,8 +4506,9 @@ const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','
 })();
 function cloudUI(){
   const t=$('cloudTxt'),s=$('cloudSt');if(!t)return;
-  if(CLOUD.on){t.innerHTML='Play&nbsp;게임즈<small>연결됨</small>';s.textContent=CLOUD.loaded?'자동 저장':'불러오는 중';s.className='cl ok'}
-  else{t.innerHTML='Play&nbsp;게임즈<small>기록 안전 보관</small>';s.textContent='연결하기';s.className='cl'}
+  const nm=CLOUD.web?'카카오 저장':'Play&nbsp;게임즈';
+  if(CLOUD.on){t.innerHTML=nm+'<small>연결됨</small>';s.textContent=CLOUD.loaded?'자동 저장':'불러오는 중';s.className='cl ok'}
+  else{t.innerHTML=nm+'<small>기록 안전 보관</small>';s.textContent=CLOUD.web?'로그인':'연결하기';s.className='cl'}
 }
 async function cloudSignIn(silent){
   try{
@@ -4456,7 +4522,8 @@ function cloudLocal(){flushSaves();const o={};CLOUD_KEYS.forEach(k=>{const v=ls.
 const popSum=o=>(Array.isArray(o['mung-pops'])?o['mung-pops']:[]).reduce((a,b)=>a+(b|0),0);
 function cloudMerge(L,R){
   /* 계속 늘어나기만 하는 기록은 큰 값/합집합, 코인·아이템 같은 소모품은 더 많이 플레이한 쪽 */
-  const main=popSum(R)>popSum(L)||(popSum(R)===popSum(L)&&(R._t||0)>(L._t||0))?R:L, M={};
+  const fresh=popSum(L)===0&&!(L['mung-best']|0);   // 이 기기에서 아직 한 판도 안 했으면 저장된 기록을 그대로
+  const main=fresh||popSum(R)>popSum(L)||(popSum(R)===popSum(L)&&(R._t||0)>(L._t||0))?R:L, M={};
   ['mung-coin','mung-inv','mung-items','mung-bonus','mung-theme','mung-plate','mung-attend','mung-missions','mung-adrew','mung-nick','mung-myfr'].forEach(k=>{if(main[k]!==undefined)M[k]=main[k];else if(L[k]!==undefined)M[k]=L[k];else if(R[k]!==undefined)M[k]=R[k]});
   M['mung-best']=Math.max(L['mung-best']|0,R['mung-best']|0);
   M['mung-maxlv']=Math.max(L['mung-maxlv']|0,R['mung-maxlv']|0,1);
@@ -4523,6 +4590,7 @@ function kakaoRec(old){
 }
 (function(){
   try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Kakao)KAKAO.plugin=C.Plugins.Kakao}catch(e){}
+  if(!KAKAO.plugin&&window.__KK_WEB){KAKAO.plugin=window.__KK_WEB;KAKAO.web=true}
   if(!KAKAO.plugin)return;
   try{$('kkDogs').innerHTML=[0,1,2].map(i=>svgFor(i)).join('')}catch(e){}
   const c=ls.get('mung-kakao',null);if(c&&c.id)KAKAO.me=c;
@@ -4624,6 +4692,7 @@ async function inviteAccept(c){
 }
 (function(){
   try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Invite)INVITE.plugin=C.Plugins.Invite}catch(e){}
+  if(!INVITE.plugin&&window.__INV_WEB)INVITE.plugin=window.__INV_WEB;
   if(!INVITE.plugin||!KAKAO.plugin){INVITE.plugin=null;return}
   $('invBtn').onclick=inviteShare;
   const take=c=>{if(!invOk(c))return;const go=(n=0)=>{if(document.getElementById('opening')&&n<40){setTimeout(()=>go(n+1),500);return}inviteAccept(c)};go()};
@@ -4655,6 +4724,7 @@ async function kakaoUnlink(){
   if(!confirm('카카오 연결을 끊을까요?\n순위표의 카카오 이름과 사진이 지워지고, 자동 닉네임으로 보여요.'))return;
   try{await KAKAO.plugin.unlink()}catch(e){}
   kakaoClear(true);toast('카카오 연결을 끊었어요');
+  if(KAKAO.web&&CLOUD.web){CLOUD.on=false;CLOUD.loaded=false;cloudUI()}
 }
 /* 이미 올린 내 기록에 카카오 이름·사진 붙이기 / 떼기 */
 async function kakaoStamp(){
