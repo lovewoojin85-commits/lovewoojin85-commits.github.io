@@ -13,6 +13,10 @@ if(__c){document.documentElement.style.background=__c;document.write('<style id=
 <meta name="theme-color" content="#8DBDE6">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="멍멍 톡톡">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="맞출수록 시간이 늘어나는 귀여운 강아지 퍼즐 게임, 멍멍 톡톡">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -666,6 +670,19 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .invbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:2px 0 10px;padding:12px 16px;border:0;border-radius:16px;background:#FEE500;color:#3A1D1D;font:1.08rem "Jua",sans-serif;box-shadow:0 4px 0 #E2C800;cursor:pointer}
 .invbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #E2C800}
 .invbtn[hidden]{display:none}
+/* 아이폰: 홈 화면에 추가 안내 */
+.a2hs{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:95;width:min(92vw,360px);background:#fff;color:#3A2A1A;border-radius:20px;padding:14px 16px 12px;box-shadow:0 10px 30px rgba(0,0,0,.25);text-align:center;font-size:.95rem;line-height:1.45;animation:a2in .45s cubic-bezier(.2,.9,.3,1.2)}
+.a2hs[hidden]{display:none}
+.a2hs b{font-family:"Jua",sans-serif;font-weight:400;font-size:1.15rem;display:block;margin-bottom:4px}
+.a2hs .sh{display:inline-flex;vertical-align:-3px;width:20px;height:20px;color:#2F7BF5}
+.a2hs .sub{font-size:.8rem;color:#8A7A6A;margin-top:4px}
+.a2hs .row{display:flex;gap:8px;margin-top:10px}
+.a2hs button{flex:1;border:0;border-radius:12px;padding:10px;font:1rem "Jua",sans-serif;cursor:pointer}
+.a2hs .ok{background:#FF8A4C;color:#fff}.a2hs .no{background:#F1ECE6;color:#7A6A5A}
+.a2hs::after{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-10px;border:10px solid transparent;border-bottom:0;border-top-color:#fff}
+.a2hs.up{bottom:auto;top:calc(14px + env(safe-area-inset-top,0px))}
+.a2hs.up::after{bottom:auto;top:-10px;border-top:0;border-bottom:10px solid #fff;border-top-color:transparent}
+@keyframes a2in{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
 .rankcta p{margin:0;white-space:pre-line;overflow-wrap:anywhere}
 
 /* ---- 오늘의 미션 · 출석 ---- */
@@ -1657,6 +1674,7 @@ body.exp4 #game .frame{border-radius:0!important}
 <body class="opening">
 <script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}try{document.documentElement.style.background='';var __p=document.getElementById('prebg');if(__p)__p.remove()}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
+<div class="a2hs" id="a2hs" hidden role="dialog" aria-label="홈 화면에 추가 안내"><b>📲 앱처럼 쓰기!</b>아래 <span class="sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v9h14v-9"/></svg></span> <b style="display:inline;font-size:1rem">공유 버튼</b>을 누르고<br><b style="display:inline;font-size:1rem">"홈 화면에 추가"</b>를 눌러 주세요<div class="sub">공유 버튼이 안 보이면 ··· 버튼 안에 있어요</div><div class="row"><button class="no" id="a2No" type="button">다음에</button><button class="ok" id="a2Ok" type="button">알겠어요</button></div></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="rb" x1="0" y1="0" x2="1" y2="1">
@@ -4489,6 +4507,23 @@ const KWEB={
   };
   setTimeout(()=>{KWEB.back()},900);
 })();
+/* 아이폰 사파리: 처음 한 번 "홈 화면에 추가" 안내 (자동 추가는 아이폰이 막아 둬서 안내만 해요) */
+(function(){
+  try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform())return}catch(e){}
+  const ua=navigator.userAgent||'',ios=/iPhone|iPod/.test(ua)||(/iPad/.test(ua))||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  if(!ios||IN_CLAUDE)return;
+  const standalone=navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
+  if(standalone||/KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(ua))return;   // 이미 홈 화면 앱이거나, 다른 앱 안의 브라우저
+  const left=ls.get('mung-a2hs',0);if(left===1||(left&&Date.now()<left))return;
+  const isPad=/iPad/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  const box=$('a2hs');if(!box)return;if(isPad)box.classList.add('up');
+  $('a2Ok').onclick=()=>{ls.set('mung-a2hs',1);box.hidden=true};
+  $('a2No').onclick=()=>{ls.set('mung-a2hs',Date.now()+3*864e5);box.hidden=true};   // 3일 뒤에 한 번 더
+  const show=(n=0)=>{const busy=document.getElementById('opening')||$('menu').hidden||document.querySelector('.modal:not([hidden])');
+    if(busy){if(n<120)setTimeout(()=>show(n+1),1500);return}box.hidden=false};
+  setTimeout(show,4000);
+  const _ss=showScreen;showScreen=function(id){_ss(id);if(id!=='menu')box.hidden=true};   // 게임 화면에서는 가려요
+})();
 const CLOUD={plugin:null,on:false,loaded:false,name:'',dirty:false,saving:false,t:null};
 const CLOUD_SLOT='mung-save';
 const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','mung-bonus','mung-dex','mung-pops','mung-themes-owned','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick','mung-stats','mung-ach','mung-plates-owned','mung-plate','mung-myfr'];
@@ -4676,6 +4711,7 @@ async function inviteAccept(c){
   if(!invOk(c))return;
   if(!KAKAO.me){ls.set('mung-pinv',c);
     toast('카카오로 로그인하면 초대한 친구와 바로 친구가 돼요!');
+    if(KAKAO.web)await new Promise(r=>setTimeout(r,1600));   // 웹: 안내를 읽을 시간 주고 카카오 화면으로
     if(!(await kakaoLogin()))return}
   ls.set('mung-pinv','');
   await waitFB();if(!db){toast('인터넷에 연결되면 초대 링크를 다시 눌러 주세요');return}
