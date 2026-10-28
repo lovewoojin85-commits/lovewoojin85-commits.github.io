@@ -43,7 +43,10 @@ p{margin:0 0 18px;color:var(--soft);line-height:1.5}
   var intent='intent://invite?c='+c+'#Intent;scheme=mungmung;package='+PKG+';S.browser_fallback_url='+encodeURIComponent(STORE)+';end';
   var o=document.getElementById('open');
   if(isAndroid){o.href=intent;if(c)setTimeout(function(){location.href=intent},300)}
-  else{o.style.display='none';if(isIOS){document.getElementById('ios').style.display='block';document.querySelector('.tip').style.display='none';document.getElementById('store').style.display='none';if(c)document.getElementById('web').href='../?inv='+c}}
+  else{o.style.display='none';if(isIOS){document.getElementById('ios').style.display='block';document.querySelector('.tip').style.display='none';document.getElementById('store').style.display='none';
+    // 아이폰: 바로 사파리 웹 게임으로 (카톡 안 브라우저면 사파리로 열어요)
+    var web=location.origin+'/'+(c?'?inv='+c:''),go=/KAKAOTALK/i.test(navigator.userAgent)?'kakaotalk://web/openExternal?url='+encodeURIComponent(web):web;
+    document.getElementById('web').href=go;setTimeout(function(){location.href=go},300)}}
 })();
 </script>
 </body>
