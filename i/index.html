@@ -33,7 +33,7 @@ p{margin:0 0 18px;color:var(--soft);line-height:1.5}
   <a class="btn open" id="open" href="#">게임 열고 친구 되기</a>
   <a class="btn store" id="store" href="https://play.google.com/store/apps/details?id=com.woojin.mungmungtoktok">플레이 스토어에서 받기</a>
   <p class="tip">게임을 처음 받았다면, 설치한 뒤<br><b>카톡의 초대 링크를 한 번 더</b> 눌러 주세요!</p>
-  <div class="ios" id="ios">멍멍 톡톡 앱은 지금 안드로이드에서만 받을 수 있어요.<br><a href="../">웹에서 게임해 보기</a></div>
+  <div class="ios" id="ios">아이폰은 사파리에서 바로 할 수 있어요!<br><a id="web" href="../">웹에서 게임하고 친구 되기</a></div>
 </div>
 <script>
 (function(){
@@ -43,7 +43,7 @@ p{margin:0 0 18px;color:var(--soft);line-height:1.5}
   var intent='intent://invite?c='+c+'#Intent;scheme=mungmung;package='+PKG+';S.browser_fallback_url='+encodeURIComponent(STORE)+';end';
   var o=document.getElementById('open');
   if(isAndroid){o.href=intent;if(c)setTimeout(function(){location.href=intent},300)}
-  else{o.style.display='none';if(isIOS)document.getElementById('ios').style.display='block'}
+  else{o.style.display='none';if(isIOS){document.getElementById('ios').style.display='block';document.querySelector('.tip').style.display='none';document.getElementById('store').style.display='none';if(c)document.getElementById('web').href='../?inv='+c}}
 })();
 </script>
 </body>
