@@ -670,6 +670,35 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .invbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:2px 0 10px;padding:12px 16px;border:0;border-radius:16px;background:#FEE500;color:#3A1D1D;font:1.08rem "Jua",sans-serif;box-shadow:0 4px 0 #E2C800;cursor:pointer}
 .invbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #E2C800}
 .invbtn[hidden]{display:none}
+/* ===== 만든 사람: 영화 엔딩 크레딧 ===== */
+#endroll{position:fixed;inset:0;z-index:120;overflow:hidden;background:radial-gradient(ellipse at 50% 120%,#2A2550 0,#14122C 55%,#0A0918 100%);color:#F3EEE6;font-family:"Gowun Dodum",sans-serif;opacity:0;transition:opacity .9s}
+#endroll.show{opacity:1}
+#endroll[hidden]{display:none}
+#endroll .ersky{position:absolute;inset:0;background-image:radial-gradient(1px 1px at 12% 18%,#fff8 50%,transparent 51%),radial-gradient(1.5px 1.5px at 78% 12%,#fff9 50%,transparent 51%),radial-gradient(1px 1px at 33% 62%,#fff6 50%,transparent 51%),radial-gradient(1.2px 1.2px at 88% 70%,#fff7 50%,transparent 51%),radial-gradient(1px 1px at 55% 35%,#fff5 50%,transparent 51%),radial-gradient(1.4px 1.4px at 6% 82%,#fff6 50%,transparent 51%),radial-gradient(1px 1px at 66% 88%,#fff5 50%,transparent 51%);pointer-events:none}
+#endroll .ertrack{position:absolute;left:0;right:0;top:0;padding:0 24px;text-align:center;will-change:transform}
+#endroll .erskip{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));z-index:2;border:1px solid #ffffff40;background:#ffffff14;color:#fff;border-radius:999px;padding:7px 14px;font:.9rem "Jua",sans-serif;cursor:pointer}
+#endroll .ertitle{font:400 2.6rem "Jua",sans-serif;letter-spacing:.04em;color:#FFE7B8;margin:0 0 6px}
+#endroll .ersub{font-size:.95rem;color:#C9C2D8;margin:0}
+#endroll .erdogs3{display:flex;justify-content:center;gap:10px;margin:18px 0 0}
+#endroll .erdogs3 svg{width:64px;height:64px}
+#endroll .erblk{margin:0 auto 70px;max-width:420px}
+#endroll .errole{font-size:.85rem;letter-spacing:.18em;color:#A99FC4;margin:0 0 8px}
+#endroll .ername{font:400 1.55rem "Jua",sans-serif;color:#FFF6EA;margin:0;line-height:1.5}
+#endroll .ergrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;margin-top:12px}
+#endroll .ergrid div{display:flex;flex-direction:column;align-items:center;gap:4px;font:400 1rem "Jua",sans-serif;color:#F3EEE6}
+#endroll .ergrid svg{width:52px;height:52px}
+#endroll .erfr{display:flex;flex-direction:column;gap:16px;margin-top:12px}
+#endroll .erfr div{display:flex;align-items:center;justify-content:center;gap:12px;font:400 1.35rem "Jua",sans-serif}
+#endroll .erfr svg{width:60px;height:60px}
+#endroll .erfr small{display:block;font:.8rem "Gowun Dodum",sans-serif;color:#B9B0CF}
+#endroll .ersmall{font-size:.9rem;color:#C9C2D8;line-height:1.8;margin:0}
+#endroll .erlast{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);padding:0 28px;text-align:center;opacity:0;transition:opacity 2.4s}
+#endroll .erlast.show{opacity:1}
+#endroll .erlast p{margin:0;font-size:1.15rem;line-height:2;color:#F6EFE4}
+#endroll .erlast b{font-family:"Jua",sans-serif;font-weight:400;color:#FFE1A8}
+#endroll .erlast .paws{font-size:1.6rem;margin-top:14px;letter-spacing:.4em}
+#credits .rollbtn{display:block;margin:14px auto 0;border:0;border-radius:999px;padding:10px 18px;background:#2A2550;color:#FFE7B8;font:1rem "Jua",sans-serif;cursor:pointer;box-shadow:0 3px 0 #14122C}
+@media (prefers-reduced-motion:reduce){#endroll{transition:none}}
 /* 아이폰: 홈 화면에 추가 안내 */
 .a2hs{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:95;width:min(92vw,360px);background:#fff;color:#3A2A1A;border-radius:20px;padding:14px 16px 12px;box-shadow:0 10px 30px rgba(0,0,0,.25);text-align:center;font-size:.95rem;line-height:1.45;animation:a2in .45s cubic-bezier(.2,.9,.3,1.2)}
 .a2hs[hidden]{display:none}
@@ -1674,6 +1703,7 @@ body.exp4 #game .frame{border-radius:0!important}
 <body class="opening">
 <script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}try{document.documentElement.style.background='';var __p=document.getElementById('prebg');if(__p)__p.remove()}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
+<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
 <div class="a2hs" id="a2hs" hidden role="dialog" aria-label="홈 화면에 추가 안내"><b>📲 앱처럼 쓰기!</b>아래 <span class="sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v9h14v-9"/></svg></span> <b style="display:inline;font-size:1rem">공유 버튼</b>을 누르고<br><b style="display:inline;font-size:1rem">"홈 화면에 추가"</b>를 눌러 주세요<div class="sub">공유 버튼이 안 보이면 ··· 버튼 안에 있어요</div><div class="row"><button class="no" id="a2No" type="button">다음에</button><button class="ok" id="a2Ok" type="button">알겠어요</button></div></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -1817,6 +1847,7 @@ body.exp4 #game .frame{border-radius:0!important}
     <h3 class="crsec">🌈 무지개 다리 너머의 친구들</h3>
     <div id="friendCards" style="display:flex;flex-direction:column;gap:10px"></div>
     <div class="dedi"><span class="dpaw">🐾</span><p>이 게임은 먼저 떠난<br><b>샌드, 뭉치, 해피</b>를 기억하며 만들었어요.<br>게임 속에서 언제든 다시 만나요.</p><span class="dheart">💛</span></div>
+    <button class="rollbtn" id="rollBtn" type="button">🎬 엔딩 크레딧 다시 보기</button>
     <p class="fine">글꼴: Jua, Gowun Dodum (SIL Open Font License)</p>
     <p class="fine"><a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">개인정보처리방침</a></p>
   </section>
@@ -2365,7 +2396,7 @@ const MUSIC_CACHE=(()=>{
   return{get,prune};
 })();
 const BGM=(()=>{
-  const FILES={menu:'bgm/main.mp3?v=2',game:'bgm/play.mp3?v=3',fever:'bgm/fever.mp3?v=3'},VOL={menu:1,game:.9,fever:1};
+  const FILES={menu:'bgm/main.mp3?v=2',game:'bgm/play.mp3?v=3',fever:'bgm/fever.mp3?v=3',ending:'bgm/ending.mp3?v=2'},VOL={menu:1,game:.9,fever:1,ending:1};
   let on=ls.get('mung-bgm',true),allowed=false,want=null,feverOn=false,duckTo=1,failed=!/^https?:/.test(location.protocol),cur=null,asleep=false;
   const el={},fades={},blob={},P={},waited={};let lastPlay=0,lastErr='';
   // 지킴이: 틀어야 하는 음악이 멈춰 있으면 2초마다 다시 틀어요 (다른 앱·시스템이 멈춘 경우 대비, 아주 가벼움)
@@ -2395,7 +2426,7 @@ const BGM=(()=>{
   function restart(k){if(el[k])try{el[k].currentTime=0}catch(e){}}
   return{
     play(name){if(name!==want){duckTo=1;held=false}   // 화면이 바뀌면 '작게 줄이기'는 항상 풀어요 (일시정지·부활 창에서 메인으로 나갈 때 작아지던 문제)
-      if(failed){BGM_SYNTH.duck(duckTo<1);return BGM_SYNTH.play(name)}if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
+      if(failed){BGM_SYNTH.duck(duckTo<1);return BGM_SYNTH.play(name==='ending'?'menu':name)}if(name==='ending'&&!P.ending)getBlob('ending');if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
     allow(){allowed=true;if(failed)return BGM_SYNTH.allow();apply()},
     kick(){if(failed)return BGM_SYNTH.kick();const t=target();if(t&&el[t].paused)apply()},
     get on(){return on},get cur(){return failed?BGM_SYNTH.cur:cur},
@@ -2516,7 +2547,7 @@ function showScreen(id){
   clearTimeout(SCR_T);
   if(id==='game'){try{setBgRate(true)}catch(e){}}
   else SCR_T=setTimeout(()=>{try{setBgRate(false)}catch(e){}},320);
-  BGM.play(id==='game'?'game':'menu')}
+  BGM.play(id==='game'?'game':id==='credits'?'ending':'menu')}
 $('menuFriends').innerHTML=FRIEND_ART.map((_,i)=>svgFor(TYPES+i)).join('');
 $('friendCards').innerHTML=FRIENDS.map((f,i)=>`<div class="fr">${svgFor(TYPES+i)}<div><h3></h3><p></p></div></div>`).join('');
 document.querySelectorAll('#friendCards .fr').forEach((el,i)=>{
@@ -4304,6 +4335,7 @@ function backAction(){
   const open=id=>{const m=$(id);return m&&!m.hidden};
   if(previewing){endPreview();openThemes(true);return true}
   if(document.getElementById('opening')){const sk=$('skipBtn');sk&&sk.click();return true}
+  if(typeof ENDROLL!=='undefined'&&ENDROLL.on){endRollStop(true);return true}
   if(open('setModal')){closeSettings();return true}
   if(open('bagModal')){closeBag();return true}
   if(open('adModal')){$('adModal').hidden=true;return true}
@@ -4782,9 +4814,42 @@ async function kakaoStrip(){
 $('playBtn').onclick=startGame;
 $('againBtn').onclick=startGame;
 $('rankBtn').onclick=()=>{myEntry=null;submitNote={month:'',all:''};openRank('month')};
-$('creditBtn').onclick=()=>showScreen('credits');
+/* ===== 만든 사람: 영화처럼 엔딩 크레딧이 올라가요 (슬픈 피아노 「무지개 다리 너머」) ===== */
+const ENDROLL={anim:null,timer:0,on:false};
+function rollHTML(){
+  const blk=(role,name)=>`<div class="erblk"><p class="errole">${role}</p><p class="ername">${name}</p></div>`;
+  const dogs=DOG_NAMES.map((n,i)=>`<div>${svgFor(i)}<span>${n}</span></div>`).join('');
+  const frs=FRIENDS.map((f,i)=>`<div>${svgFor(TYPES+i)}<span>${f.name}<small>${f.breed}</small></span></div>`).join('');
+  return `<div class="erblk"><p class="ertitle">멍멍 톡톡</p><p class="ersub">강아지를 사랑하는 모든 이에게</p><div class="erdogs3">${[0,1,2].map(i=>svgFor(TYPES+i)).join('')}</div></div>`
+   +blk('기획 · 제작','정우진')
+   +blk('만든 가족','승아 · 승비 가족')
+   +`<div class="erblk"><p class="errole">주인공 강아지들</p><div class="ergrid">${dogs}</div></div>`
+   +`<div class="erblk"><p class="errole">무지개 다리 너머의 친구들</p><div class="erfr">${frs}</div></div>`
+   +blk('엔딩 음악','「무지개 다리 너머」')
+   +`<div class="erblk"><p class="errole">글꼴</p><p class="ersmall">Jua · Gowun Dodum<br>(SIL Open Font License)</p></div>`
+   +blk('함께 테스트해 준 분들','고마운 모든 분들')
+   +`<div class="erblk"><p class="errole">그리고</p><p class="ername">지금 이 화면을 보고 있는<br>당신 💛</p></div>`;
+}
+function endRollStop(toPage){
+  if(!ENDROLL.on)return;ENDROLL.on=false;clearTimeout(ENDROLL.timer);try{ENDROLL.anim&&ENDROLL.anim.cancel()}catch(e){}
+  const r=$('endroll');r.classList.remove('show');setTimeout(()=>{if(!ENDROLL.on)r.hidden=true},900);
+}
+function endRoll(){
+  const r=$('endroll'),tr=$('erTrack'),last=$('erLast');if(!r)return;
+  ENDROLL.on=true;tr.innerHTML=rollHTML();
+  last.className='erlast';last.innerHTML='<p>먼저 떠난<br><b>샌드, 뭉치, 해피</b>에게</p><p style="margin-top:14px">함께해 줘서 고마웠어.<br>무지개 다리 너머에서<br>꼭 다시 만나자.</p><p class="paws">🐾🐾🐾</p>';
+  r.hidden=false;void r.offsetWidth;r.classList.add('show');
+  try{BGM.play('ending')}catch(e){}
+  const H=r.clientHeight,h=tr.scrollHeight,DUR=Math.max(60000,Math.min(120000,(H+h)*55));   // 천천히 (화면 높이에 맞춰 1~2분)
+  if(tr.animate){ENDROLL.anim=tr.animate([{transform:`translateY(${H}px)`},{transform:`translateY(${-h}px)`}],{duration:DUR,easing:'linear',fill:'forwards'});
+    ENDROLL.anim.onfinish=()=>{if(!ENDROLL.on)return;last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)}}
+  else{last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)}
+}
+$('erSkip').onclick=e=>{e.stopPropagation();endRollStop(true)};
+$('rollBtn').onclick=()=>endRoll();
+$('creditBtn').onclick=()=>{showScreen('credits');endRoll()};
 $('rankBack').onclick=()=>showScreen('menu');
-$('creditBack').onclick=()=>showScreen('menu');
+$('creditBack').onclick=()=>{endRollStop();showScreen('menu')};
 $('themeBack').onclick=()=>showScreen('menu');
 $('helpBack').onclick=()=>showScreen('menu');
 $('themeBtn').onclick=openThemes;
