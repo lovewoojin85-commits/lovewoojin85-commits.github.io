@@ -4379,7 +4379,7 @@ let fitT=0;const fitSoon=()=>{cancelAnimationFrame(fitT);fitT=requestAnimationFr
 addEventListener('resize',fitSoon);
 /* ================= 구글 AdMob 광고 (앱에서만) =================
    ★ 정식 출시 직전에 ADS_TEST 를 false 로 바꿔 진짜 광고로 전환해요 */
-var ADS_TEST=true;
+var ADS_TEST=false;   // 2026-10-30 정식 출시: 진짜 광고
 const ADMOB={banner:'ca-app-pub-6517296511812589/9081270285',reward:'ca-app-pub-6517296511812589/3828943607'};
 const AD_REWARD=100,AD_DAILY=3,AD_COOLDOWN=180;   // 100코인, 하루 3번, 3분 대기
 const ADS={native:false,ready:false,plugin:null,bannerOn:false,rewardLoaded:false,busy:false};
