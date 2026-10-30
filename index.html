@@ -675,7 +675,8 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 #endroll.show{opacity:1}
 #endroll[hidden]{display:none}
 #endroll .ersky{position:absolute;inset:0;background-image:radial-gradient(1px 1px at 12% 18%,#fff8 50%,transparent 51%),radial-gradient(1.5px 1.5px at 78% 12%,#fff9 50%,transparent 51%),radial-gradient(1px 1px at 33% 62%,#fff6 50%,transparent 51%),radial-gradient(1.2px 1.2px at 88% 70%,#fff7 50%,transparent 51%),radial-gradient(1px 1px at 55% 35%,#fff5 50%,transparent 51%),radial-gradient(1.4px 1.4px at 6% 82%,#fff6 50%,transparent 51%),radial-gradient(1px 1px at 66% 88%,#fff5 50%,transparent 51%);pointer-events:none}
-#endroll .ertrack{position:absolute;left:0;right:0;top:0;padding:0 24px;text-align:center;will-change:transform}
+#endroll .ertrack{position:absolute;left:0;right:0;top:0;padding:0 24px;text-align:center;will-change:transform;transition:opacity 1.6s}
+#endroll .ertrack.fade{opacity:0}
 #endroll .erskip{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));top:calc(14px + env(safe-area-inset-top,0px));z-index:2;border:1px solid #ffffff40;background:#ffffff14;color:#fff;border-radius:999px;padding:7px 14px;font:.9rem "Jua",sans-serif;cursor:pointer}
 #endroll .ertitle{font:400 2.6rem "Jua",sans-serif;letter-spacing:.04em;color:#FFE7B8;margin:0 0 6px}
 #endroll .ersub{font-size:.95rem;color:#C9C2D8;margin:0}
@@ -688,7 +689,7 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 #endroll .ergrid div{display:flex;flex-direction:column;align-items:center;gap:4px;font:400 1rem "Jua",sans-serif;color:#F3EEE6}
 #endroll .ergrid svg{width:52px;height:52px}
 #endroll .erfr{display:flex;flex-direction:column;gap:16px;margin-top:12px}
-#endroll .erfr div{display:flex;align-items:center;justify-content:center;gap:12px;font:400 1.35rem "Jua",sans-serif}
+#endroll .erfr div{display:grid;grid-template-columns:60px 4.2em;align-items:center;justify-content:center;column-gap:14px;text-align:left;font:400 1.35rem "Jua",sans-serif}
 #endroll .erfr svg{width:60px;height:60px}
 #endroll .erfr small{display:block;font:.8rem "Gowun Dodum",sans-serif;color:#B9B0CF}
 #endroll .ersmall{font-size:.9rem;color:#C9C2D8;line-height:1.8;margin:0}
@@ -4819,7 +4820,7 @@ const ENDROLL={anim:null,timer:0,on:false};
 function rollHTML(){
   const blk=(role,name)=>`<div class="erblk"><p class="errole">${role}</p><p class="ername">${name}</p></div>`;
   const dogs=DOG_NAMES.map((n,i)=>`<div>${svgFor(i)}<span>${n}</span></div>`).join('');
-  const frs=FRIENDS.map((f,i)=>`<div>${svgFor(TYPES+i)}<span>${f.name}<small>${f.breed}</small></span></div>`).join('');
+  const frs=FRIENDS.map((f,i)=>`<div>${svgFor(TYPES+i)}<span>${f.name}<small>${f.label}</small></span></div>`).join('');
   return `<div class="erblk"><p class="ertitle">멍멍 톡톡</p><p class="ersub">강아지를 사랑하는 모든 이에게</p><div class="erdogs3">${[0,1,2].map(i=>svgFor(TYPES+i)).join('')}</div></div>`
    +blk('기획 · 제작','정우진<br><span style="font-size:.8em;color:#C9C2D8">(승아-승비 가족)</span>')
    +`<div class="erblk"><p class="errole">주인공 강아지들</p><div class="ergrid">${dogs}</div></div>`
@@ -4842,8 +4843,11 @@ function endRoll(){
   r.hidden=false;void r.offsetWidth;r.classList.add('show');
   try{BGM.play('ending')}catch(e){}
   const H=r.clientHeight,h=tr.scrollHeight,DUR=Math.max(35000,Math.min(70000,(H+h)*24));   // 화면 높이에 맞춰 약 1분
+  tr.classList.remove('fade');
+  const finale=()=>{if(!ENDROLL.on)return;tr.classList.add('fade');last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)};
   if(tr.animate){ENDROLL.anim=tr.animate([{transform:`translateY(${H}px)`},{transform:`translateY(${-h}px)`}],{duration:DUR,easing:'linear',fill:'forwards'});
-    ENDROLL.anim.onfinish=()=>{if(!ENDROLL.on)return;last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)}}
+    // 마지막 글이 화면 위쪽(30%)까지 올라가면 바로 헌사를 띄워요 (빈 화면 기다림 없이)
+    const f=Math.min(1,(.7*H+h)/(H+h));ENDROLL.timer=setTimeout(finale,DUR*f)}
   else{last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)}
 }
 $('erSkip').onclick=e=>{e.stopPropagation();endRollStop(true)};
