@@ -2987,7 +2987,7 @@ async function clearSet(set,gain){ftag(set.size>=12?'큰정리':liveN>0?'동시�
   keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el;el.classList.remove('wob','falling');if(EXP!==1)el.classList.add('happy');
     if(POPOK)el.style.transformOrigin=`calc(${c*100}% + 50%) calc(${r*100}% + 50%)`;
     if(lite)return;
-    if(POPOK&&el.animate)el.animate([{scale:'1',rotate:'0deg',translate:'0 0'},{scale:'1.2',rotate:'-6deg',translate:'0 -10%',offset:.6},{scale:'1.18',rotate:'4deg',translate:'0 -8%'}],{duration:150,easing:'ease-out',fill:'forwards'});
+    if(POPOK&&el.animate)el.__hp=el.animate([{scale:'1',rotate:'0deg',translate:'0 0'},{scale:'1.2',rotate:'-6deg',translate:'0 -10%',offset:.6},{scale:'1.18',rotate:'4deg',translate:'0 -8%'}],{duration:150,easing:'ease-out',fill:'forwards'});
     else{const w=el.firstChild;if(w&&w.animate)w.animate([{transform:'scale(1)'},{transform:'translateY(-10%) scale(1.2) rotate(-6deg)',offset:.6},{transform:'translateY(-8%) scale(1.18) rotate(4deg)'}],{duration:150,easing:'ease-out',fill:'forwards'})}});
   await sleep(lite?110:150);
   const[cx,cy]=burst(cells);
@@ -2995,6 +2995,7 @@ async function clearSet(set,gain){ftag(set.size>=12?'큰정리':liveN>0?'동시�
   let maxDelay=0;const rm=[];
   keys.forEach(k=>{const[r,c]=keyRC(k),el=board[r][c].el,w=el.firstChild;
     const delay=lite?Math.min(Math.hypot((c+.5)/N*100-cx,(r+.5)/N*100-cy)*2.2,170):0;maxDelay=Math.max(maxDelay,delay);
+    if(el.__hp){try{el.__hp.cancel()}catch(e){}el.__hp=null}   // 앞의 '신나는' 움직임을 먼저 끝내요 (겹쳐 두면 가끔 강아지 자리가 틀어진 채 남았어요)
     if(POPOK&&el.animate)el.animate(lite?[{scale:'1',opacity:1},{scale:'1.25',opacity:1,offset:.3},{scale:'0',opacity:0}]
                                :[{scale:'1.18',rotate:'4deg',translate:'0 -8%',opacity:1},{scale:'1.35',rotate:'0deg',translate:'0 0',opacity:1,offset:.35},{scale:'0',rotate:'30deg',translate:'0 0',opacity:0}],
                          {duration:lite?200:230,delay,easing:'ease-in',fill:'forwards'});
