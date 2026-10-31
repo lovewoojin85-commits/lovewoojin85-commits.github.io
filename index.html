@@ -692,6 +692,9 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 #endroll .erfr div{display:grid;grid-template-columns:60px 4.2em;align-items:center;justify-content:center;column-gap:14px;text-align:left;font:400 1.35rem "Jua",sans-serif}
 #endroll .erfr svg{width:60px;height:60px}
 #endroll .erfr small{display:block;font:.8rem "Gowun Dodum",sans-serif;color:#B9B0CF}
+#endroll .erded p{margin:0 0 14px;font-size:1.15rem;line-height:2;color:#F6EFE4}
+#endroll .erded b{font-family:"Jua",sans-serif;font-weight:400;color:#FFE1A8}
+#endroll .erded .paws{font-size:1.5rem;letter-spacing:.4em}
 #endroll .ersmall{font-size:.9rem;color:#C9C2D8;line-height:1.8;margin:0}
 #endroll .erlast{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);padding:0 28px;text-align:center;opacity:0;transition:opacity 2.4s}
 #endroll .erlast.show{opacity:1}
@@ -4826,6 +4829,7 @@ function rollHTML(){
    +blk('기획 · 제작','정우진<br><span style="font-size:.8em;color:#C9C2D8">(승아-승비 가족)</span>')
    +`<div class="erblk"><p class="errole">주인공 강아지들</p><div class="ergrid">${dogs}</div></div>`
    +`<div class="erblk"><p class="errole">무지개 다리 너머의 친구들</p><div class="erfr">${frs}</div></div>`
+   +`<div class="erblk erded"><p>먼저 떠난<br><b>샌드, 뭉치, 해피</b>에게</p><p>함께해 줘서 고마웠어.<br>무지개 다리 너머에서<br>꼭 다시 만나자.</p><p class="paws">🐾🐾🐾</p></div>`
    +blk('엔딩 음악','「무지개 다리 너머」')
    +`<div class="erblk"><p class="errole">글꼴</p><p class="ersmall">Jua · Gowun Dodum<br>(SIL Open Font License)</p></div>`
    +blk('함께 테스트해 준 분들','고마운 모든 분들')
@@ -4839,7 +4843,7 @@ function endRollStop(toPage){
 function endRoll(){
   const r=$('endroll'),tr=$('erTrack'),last=$('erLast');if(!r)return;
   ENDROLL.on=true;tr.innerHTML=rollHTML();
-  last.className='erlast';last.innerHTML='<p>먼저 떠난<br><b>샌드, 뭉치, 해피</b>에게</p><p style="margin-top:14px">함께해 줘서 고마웠어.<br>무지개 다리 너머에서<br>꼭 다시 만나자.</p><p class="paws">🐾🐾🐾</p>';
+  last.className='erlast';last.innerHTML='';
   r.hidden=false;void r.offsetWidth;r.classList.add('show');
   tr.style.transform='translateY(100vh)';
   try{BGM.play('ending')}catch(e){}   // 누른 순간 바로 재생 시작 (폰이 소리를 허락하는 순간)
@@ -4850,11 +4854,11 @@ function endRoll(){
 function rollStart(r,tr,last){
   const H=r.clientHeight,h=tr.scrollHeight,DUR=Math.max(35000,Math.min(70000,(H+h)*24));   // 화면 높이에 맞춰 약 1분
   tr.classList.remove('fade');
-  const finale=()=>{if(!ENDROLL.on)return;tr.classList.add('fade');last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)};
+  const finale=()=>{if(!ENDROLL.on)return;tr.classList.add('fade');ENDROLL.timer=setTimeout(()=>endRollStop(true),2200)};
   if(tr.animate){ENDROLL.anim=tr.animate([{transform:`translateY(${H}px)`},{transform:`translateY(${-h}px)`}],{duration:DUR,easing:'linear',fill:'forwards'});
-    // 마지막 글이 화면 위쪽(30%)까지 올라가면 바로 헌사를 띄워요 (빈 화면 기다림 없이)
+    // 마지막 글이 화면 위쪽(30%)까지 올라가면 스르륵 끝나요
     const f=Math.min(1,(.7*H+h)/(H+h));ENDROLL.timer=setTimeout(finale,DUR*f)}
-  else{last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)}
+  else{ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)}
 }
 $('erSkip').onclick=e=>{e.stopPropagation();endRollStop(true)};
 $('rollBtn').onclick=()=>endRoll();
