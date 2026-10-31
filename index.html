@@ -2410,7 +2410,7 @@ const BGM=(()=>{
     el[k]=a});
   // 메인 음악을 먼저 꺼내 오고, 나머지는 그다음에 (처음 소리가 빨리 나오게)
   const getBlob=k=>P[k]=MUSIC_CACHE.get(FILES[k]).then(u=>{blob[k]=u;const a=el[k];if(a.paused&&target()!==k){a.src=u}}).catch(()=>{});
-  if(!failed){getBlob('menu');P.menu.then(()=>{getBlob('game');getBlob('fever')})}
+  if(!failed){getBlob('menu');P.menu.then(()=>{getBlob('game');getBlob('fever');setTimeout(()=>{if(!P.ending)getBlob('ending')},20000)})}   // 엔딩곡은 20초 뒤 조용히 미리 받아 둬요 (만든 사람에서 바로 나오게)
   function fail(){if(failed)return;failed=true;Object.values(el).forEach(a=>{try{a.pause()}catch(e){}});
     BGM_SYNTH.setOn(on);if(allowed)BGM_SYNTH.allow();if(want)BGM_SYNTH.play(want);BGM_SYNTH.fever(feverOn);BGM_SYNTH.duck(duckTo<1)}
   function fadeTo(k,v,ms,done){const a=el[k];clearInterval(fades[k]);const from=a.volume,t0=Date.now();
@@ -2435,6 +2435,7 @@ const BGM=(()=>{
     fever(f){feverOn=!!f;if(failed)return BGM_SYNTH.fever(f);apply()},
     duck(d){duckTo=d?.35:1;if(failed)return BGM_SYNTH.duck(d);const t=target();if(t)fadeTo(t,VOL[t]*duckTo,300)},
     get lastPlay(){return lastPlay},
+    ready(k){if(failed||!FILES[k])return Promise.resolve();if(!P[k])getBlob(k);return P[k]||Promise.resolve()},
     hold(v){held=!!v;if(failed)return BGM_SYNTH.duck(v);apply()},   // 일시정지 중에는 음악을 완전히 멈춰요
     state(){const t=target();return failed?'합성 모드':!on?'꺼짐':!allowed?'대기':asleep?'쉬는 중':!t?'없음':(el[t].paused?'멈춤':'재생 중')+' · '+t+(blob[t]?' · 저장됨':' · 받는 중')+(lastErr?' · '+lastErr:'')},
     sleep(){asleep=true;if(failed)return;Object.keys(el).forEach(k=>{clearInterval(fades[k]);try{el[k].pause()}catch(e){}})},
@@ -4840,7 +4841,13 @@ function endRoll(){
   ENDROLL.on=true;tr.innerHTML=rollHTML();
   last.className='erlast';last.innerHTML='<p>먼저 떠난<br><b>샌드, 뭉치, 해피</b>에게</p><p style="margin-top:14px">함께해 줘서 고마웠어.<br>무지개 다리 너머에서<br>꼭 다시 만나자.</p><p class="paws">🐾🐾🐾</p>';
   r.hidden=false;void r.offsetWidth;r.classList.add('show');
-  try{BGM.play('ending')}catch(e){}
+  tr.style.transform='translateY(100vh)';
+  try{BGM.play('ending')}catch(e){}   // 누른 순간 바로 재생 시작 (폰이 소리를 허락하는 순간)
+  const go=()=>{if(!ENDROLL.on||ENDROLL.anim)return;rollStart(r,tr,last)};
+  ENDROLL.anim=null;let rd=Promise.resolve();try{rd=BGM.ready('ending')}catch(e){}
+  Promise.race([rd,new Promise(res=>setTimeout(res,1500))]).then(go);
+}
+function rollStart(r,tr,last){
   const H=r.clientHeight,h=tr.scrollHeight,DUR=Math.max(35000,Math.min(70000,(H+h)*24));   // 화면 높이에 맞춰 약 1분
   tr.classList.remove('fade');
   const finale=()=>{if(!ENDROLL.on)return;tr.classList.add('fade');last.classList.add('show');ENDROLL.timer=setTimeout(()=>endRollStop(true),9000)};
