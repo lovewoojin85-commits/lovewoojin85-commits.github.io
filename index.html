@@ -1702,6 +1702,7 @@ body.exp3 #bgfx{display:none!important}
 body.exp3{background:#2A2F5A!important}
 body.exp4 #board{border-radius:0!important}
 body.exp4 #game .frame{border-radius:0!important}
+#rankList li.idle{opacity:.5}#rankList li.idle .sc{font-size:.8em}
 </style>
 </head>
 <body class="opening">
@@ -3836,19 +3837,20 @@ function alignFr(list){if(!list.querySelector('.frb'))return;list.querySelectorA
 /* 카톡 친구 순위: 내가 추가한 카톡 친구들의 역대 최고 기록 */
 async function openFriendRank(){
   const si=$('seasonInfo'),list=$('rankList'),box=$('myRank'),note=$('rankNote');
-  si.innerHTML='<span class="schip">💬 내 친구들의 역대 최고 기록</span>';list.innerHTML='';box.hidden=true;$('champs').hidden=true;note.textContent='';
+  const S=seasonInfo(),mk=S.key;si.innerHTML=`<span class="schip">💬 ${S.label} 친구 순위</span><span class="schip dday">⏳ 종료까지 <b>D-${S.daysLeft}</b></span>`;list.innerHTML='';box.hidden=true;$('champs').hidden=true;note.textContent='';
   const cta=(txt,btn,fn)=>{$('rankCtaTxt').textContent=txt;const b=$('rankCtaBtn');b.hidden=false;b.innerHTML=KK_SVG+btn;b.onclick=fn;$('rankCta').hidden=false};
   if(!KAKAO.me){cta('카카오로 로그인하면 카톡 친구들과 순위를 겨룰 수 있어요!','카카오로 시작하기',async()=>{if(await kakaoLogin())openRank('friend')});return}
   note.textContent='불러오는 중...';
   try{await inviteSync()}catch(e){}if(rankTab!=='friend')return;
   const ids=[KAKAO.me.id,...myFr().filter(id=>id!==KAKAO.me.id)].slice(0,300);
   await waitFB();
-  const best={};
+  const best={},known={};   // best: 이번 달 기록, known: 이번 달 기록이 없는 친구도 이름·사진을 보여 주려고 (역대 기록에서)
   if(db){
     const chunks=[];for(let i=0;i<ids.length;i+=30)chunks.push(ids.slice(i,i+30));
-    try{const res=await Promise.all(chunks.map(c=>db.collection('scores').where('kid','in',c).get()));
-      res.forEach(sn=>sn.docs.forEach(d=>{const v=d.data()||{},k=String(v.kid||''),sc=Math.max(0,Math.floor(Number(v.score)||0));
-        if(!k)return;if(!best[k]||best[k].score<sc)best[k]={kid:k,id:d.id,score:sc,nick:shownName(v),img:kkPhoto(v.kp),pl:plateOf(v.pl)?v.pl:''}}))}
+    const take=(res,obj)=>res.forEach(sn=>sn.docs.forEach(d=>{const v=d.data()||{},k=String(v.kid||''),sc=Math.max(0,Math.floor(Number(v.score)||0));
+        if(!k)return;if(!obj[k]||obj[k].score<sc)obj[k]={kid:k,id:d.id,score:sc,nick:shownName(v),img:kkPhoto(v.kp),pl:plateOf(v.pl)?v.pl:''}}));
+    try{const q=coll=>Promise.all(chunks.map(c=>db.collection(coll).where('kid','in',c).get()));
+      const[resM,resA]=await Promise.all([q(mk),q('scores')]);take(resM,best);take(resA,known)}
     catch(e){if(rankTab!=='friend')return;note.textContent='';cta('순위를 불러오지 못했어요. 잠시 후 다시 해 주세요.','다시 불러오기',()=>openRank('friend'));return}
   }
   if(rankTab!=='friend')return;
@@ -3856,6 +3858,9 @@ async function openFriendRank(){
   const CW=db?await champWins():null;if(rankTab!=='friend')return;
   const medals=['🥇','🥈','🥉'];let myRank=0;
   rows.forEach((b,i)=>{const isMe=b.kid===KAKAO.me.id;if(isMe)myRank=i+1;{const li=rankRow(medals[i]||String(i+1),b.nick,b.score,isMe,b.img,true,starsOf(CW,b.id,b.kid));plateDecor(li,isMe?myPlate():b.pl);if(!isMe)frBtn(li,b.kid,b.nick,()=>openRank('friend'));list.appendChild(li)}});
+  // 이번 달 아직 안 한 친구는 맨 아래에 흐리게 (친구 빼기도 할 수 있게)
+  const idle=Object.values(known).filter(b=>!best[b.kid]);
+  idle.forEach(b=>{const isMe=b.kid===KAKAO.me.id;const li=rankRow('-',b.nick,'이번 달 아직',isMe,b.img,true,starsOf(CW,b.id,b.kid));li.classList.add('idle');plateDecor(li,isMe?myPlate():b.pl);if(!isMe)frBtn(li,b.kid,b.nick,()=>openRank('friend'));list.appendChild(li)});
   alignFr(list);box.className='myrank';box.textContent='';box.hidden=false;
   if(myRank){const m=rows[myRank-1];
     const a=document.createElement('div');a.className='big2';a.textContent=myRank+'위';
@@ -3863,8 +3868,8 @@ async function openFriendRank(){
     const c=document.createElement('div');c.className='pts';c.textContent=m.score.toLocaleString()+'점';
     const d=document.createElement('div');d.className='who';d.appendChild(avatarWithStars(m.img||KAKAO.me.img,starsOf(CW,m.id,m.kid)));d.append(m.nick);
     box.append(a,b,c,d)}
-  else{box.classList.add('none');box.textContent='게임이 끝나고 점수를 등록하면 친구 순위에 내가 나와요!'}
-  note.textContent=rows.length>(myRank?1:0)?'내가 추가한 친구들이에요. 빨간 − 를 누르면 친구에서 빠져요.':(INVITE.plugin?'💌 카톡으로 친구를 초대하거나, 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!':'이번 달·명예의 전당 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!');
+  else{box.classList.add('none');box.textContent='이번 달 한 판 하면 친구 순위에 내가 나와요!'}
+  note.textContent=rows.length+idle.length>(myRank||known[KAKAO.me.id]?1:0)?'내가 추가한 친구들이에요. 빨간 − 를 누르면 친구에서 빠져요.':(INVITE.plugin?'💌 카톡으로 친구를 초대하거나, 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!':'이번 달·명예의 전당 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!');
 }
 
 /* ================= 입력 ================= */
