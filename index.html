@@ -1590,15 +1590,6 @@ body.ingame main{overflow:hidden;overflow:clip}
 #opening .o-shine{position:absolute;top:0;height:calc(var(--w) * .42);left:50%;width:calc(var(--w) * .5);margin-left:calc(var(--w) * -.25);background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.9) 50%,transparent 70%);mix-blend-mode:soft-light;opacity:0;pointer-events:none}
 #opening .o-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(80,40,10,.22) 100%)}
 #opening .tapgo{z-index:3}
-/* 오프닝 로딩바: 게임에 필요한 음악·그림을 다 받으면 '건너뛰기'가 나와요 */
-#opLoad{position:absolute;left:50%;bottom:calc(74px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(64vw,280px);z-index:3;text-align:center;transition:opacity .45s ease;pointer-events:none}
-#opLoad .ol-bar{position:relative;height:12px;border-radius:99px;background:rgba(255,255,255,.75);box-shadow:inset 0 1px 3px rgba(95,120,145,.25)}
-#opLoad .ol-bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#FFB36B,#FF7A59 60%,#F2557A)}
-#opLoad .ol-paw{position:absolute;top:50%;left:0;transform:translate(-50%,-55%);font-size:20px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
-#opLoad .ol-txt{margin-top:9px;font-family:"Jua",sans-serif;font-size:.95rem;color:#5F7891;text-shadow:0 1px 0 rgba(255,255,255,.9)}
-#opLoad.ok .ol-txt{color:#E8664A}
-#opLoad.hide{opacity:0}
-#opening.loading #skipBtn{opacity:0;pointer-events:none}
 #opening #skipBtn{z-index:3}
 
 /* ---- 잠깐 쉬어요 ---- */
@@ -1736,7 +1727,6 @@ body.exp4 #game .frame{border-radius:0!important}
     <img class="o-poster" id="oPoster" alt="" decoding="async">
     <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto" disablepictureinpicture poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
   </div>
-  <div id="opLoad" aria-live="polite"><div class="ol-bar"><i id="olFill"></i><span class="ol-paw" id="olPaw">🐾</span></div><div class="ol-txt" id="olTxt">강아지들을 데려오는 중… 0%</div></div>
   <button id="skipBtn">건너뛰기</button>
 </div>
 
@@ -2440,7 +2430,6 @@ const BGM=(()=>{
   }
   function restart(k){if(el[k])try{el[k].currentTime=0}catch(e){}}
   return{
-    load(k){return P[k]||getBlob(k)},keys:()=>Object.keys(FILES),   // 오프닝 로딩바: 음악을 미리 다 받아 둬요
     play(name){if(name!==want){duckTo=1;held=false}   // 화면이 바뀌면 '작게 줄이기'는 항상 풀어요 (일시정지·부활 창에서 메인으로 나갈 때 작아지던 문제)
       if(failed){BGM_SYNTH.duck(duckTo<1);return BGM_SYNTH.play(name==='ending'?'menu':name)}if(name==='ending'&&!P.ending)getBlob('ending');if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
     allow(){allowed=true;if(failed)return BGM_SYNTH.allow();apply()},
@@ -2458,7 +2447,7 @@ const BGM=(()=>{
   };
 })();
 /* 오프닝 음악은 이제 오프닝 영상 속 음악을 써요 (예전 파일은 보관함에서 지워요) */
-const OPMUSIC=(()=>{try{MUSIC_CACHE.prune(['bgm/main.mp3?v=2','bgm/play.mp3?v=3','bgm/fever.mp3?v=3','bgm/ending.mp3?v=2'])}catch(e){}return{play(){return null}}})();
+const OPMUSIC=(()=>{try{MUSIC_CACHE.prune(['bgm/main.mp3?v=2','bgm/play.mp3?v=3','bgm/fever.mp3?v=3'])}catch(e){}return{play(){return null}}})();
 document.addEventListener('pointerdown',()=>{SFX.init();BGM.kick()},{passive:true});
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.classList.contains('snd'))SFX.click()});
 ['sndBtn','sndBtn2'].forEach(id=>$(id).addEventListener('click',()=>{SFX.init();SFX.click();openSettings()}));
@@ -3508,7 +3497,7 @@ const HERO=(()=>{
     setTimeout(()=>box.remove(),1900);
     return sl(660);   // 번쩍! 하는 순간에 판 정리를 시작해요
   }
-  return{preload,play,urls:()=>[...FLY,...Object.values(HEROES)]};
+  return{preload,play};
 })();
 async function megaBlast(r1,c1,r2,c2){ftag('판전체');
   if(busy||!active())return;trackM('mega',1);
@@ -5068,29 +5057,14 @@ updateTime();syncSnd();
   const canAlpha=!!(vid.canPlayType&&vid.canPlayType('video/webm; codecs="vp9, opus"'));
   const fromStore=url=>(typeof caches!=='undefined'&&/^https?:/.test(location.protocol))?caches.open('mung-music').then(c=>c.match(url)).then(r=>r?r.blob().then(b=>URL.createObjectURL(b)):null).catch(()=>null):Promise.resolve(null);
   const keep=url=>{try{if(typeof caches==='undefined'||!/^https?:/.test(location.protocol))return;caches.open('mung-music').then(c=>c.match(url).then(r=>r||fetch(url).then(n=>{if(n.ok)return c.put(url,n)}))).catch(()=>{})}catch(e){}};
-  let done=false,fell=false,ending=false,loaded=false;const timers=[];
-  /* ---- 로딩바: 음악 4곡 + 합체 그림 6장을 미리 다 받아 둬요 (두 번째부터는 폰에 저장돼 있어서 금방 차요) ---- */
-  op.classList.add('loading');
-  (function(){
-    const fill=$('olFill'),paw=$('olPaw'),txt=$('olTxt'),box=$('opLoad');
-    const jobs=[];try{BGM.keys().forEach(k=>jobs.push([3,()=>BGM.load(k)]))}catch(e){}
-    try{HERO.urls().forEach(u=>jobs.push([1,()=>MUSIC_CACHE.get(u)]))}catch(e){}
-    const total=jobs.reduce((a,j)=>a+j[0],0)||1;let got=0,shown=0;
-    const paint=()=>{const pc=Math.round(shown*100);fill.style.width=pc+'%';paw.style.left=pc+'%';if(!loaded)txt.textContent='강아지들을 데려오는 중… '+pc+'%'};
-    const iv=setInterval(()=>{const target=got/total;shown+=Math.max(.004,(target-shown)*.25);if(shown>target)shown=target;paint();if(shown>=1)clearInterval(iv)},50);
-    function ready(){if(loaded)return;loaded=true;got=total;shown=1;paint();clearInterval(iv);box.classList.add('ok');txt.textContent='준비 완료! 🐾';
-      setTimeout(()=>{box.classList.add('hide');op.classList.remove('loading')},700);
-      if(ending&&!done)setTimeout(finish,900)}   // 영상이 먼저 끝났으면 다 받는 대로 메인으로
-    Promise.all(jobs.map(([w,f])=>Promise.resolve().then(f).catch(()=>{}).then(()=>{got+=w}))).then(ready);
-    setTimeout(ready,30000);   // 인터넷이 너무 느려도 30초가 지나면 시작할 수 있게 (남은 건 뒤에서 마저 받아요)
-  })();
+  let done=false,fell=false,ending=false;const timers=[];
   const at=(ms,f)=>timers.push(setTimeout(()=>{if(!done)f()},ms));
   function finish(){if(done)return;done=true;timers.forEach(clearTimeout);try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();
     try{const v0=vid.volume,t0=Date.now();const iv=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/400);try{vid.volume=v0*(1-u)}catch(e){}if(u>=1){clearInterval(iv);try{vid.pause()}catch(e){}}},40)}catch(e){}
     setTimeout(()=>BGM.allow(),450);setTimeout(checkAttendance,1000);
     op.classList.add('out');document.body.classList.remove('opening');   // 오프닝은 사라지고 메뉴가 스르륵
     setTimeout(()=>{try{vid.pause();vid.removeAttribute('src');vid.load()}catch(e){}op.remove()},700)}
-  function end(){if(ending)return;ending=true;if(loaded)at(500,finish)}   // 아직 받는 중이면 마지막 장면에서 기다려요   // 마지막 장면 잠깐 보여 주고 메인으로
+  function end(){if(ending)return;ending=true;at(500,finish)}   // 마지막 장면 잠깐 보여 주고 메인으로
   const fallback=()=>{if(fell||done)return;fell=true;op.classList.remove('playing');op.classList.add('poster');poster.classList.add('kb');at(3000,end)};   // 영상을 못 틀면 마지막 그림으로
   function start(){
     if(vid.error||vid.networkState===3){fallback();return}
@@ -5114,7 +5088,7 @@ updateTime();syncSnd();
   });
   at(3000,()=>{if(!op.classList.contains('playing'))fallback()});   // 영상이 너무 늦게 오면
   at(13000,end);
-  $('skipBtn').addEventListener('click',e=>{e.stopPropagation();if(loaded)finish()});
+  $('skipBtn').addEventListener('click',e=>{e.stopPropagation();finish()});
 })();
 </script>
 
