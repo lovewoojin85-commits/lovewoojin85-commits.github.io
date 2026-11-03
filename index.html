@@ -1590,6 +1590,15 @@ body.ingame main{overflow:hidden;overflow:clip}
 #opening .o-shine{position:absolute;top:0;height:calc(var(--w) * .42);left:50%;width:calc(var(--w) * .5);margin-left:calc(var(--w) * -.25);background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.9) 50%,transparent 70%);mix-blend-mode:soft-light;opacity:0;pointer-events:none}
 #opening .o-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(80,40,10,.22) 100%)}
 #opening .tapgo{z-index:3}
+/* 오프닝 로딩바: 게임에 필요한 음악·그림을 다 받으면 '건너뛰기'가 나와요 */
+#opLoad{position:absolute;left:50%;bottom:calc(74px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(64vw,280px);z-index:3;text-align:center;transition:opacity .45s ease;pointer-events:none}
+#opLoad .ol-bar{position:relative;height:12px;border-radius:99px;background:rgba(255,255,255,.75);box-shadow:inset 0 1px 3px rgba(95,120,145,.25)}
+#opLoad .ol-bar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;background:linear-gradient(90deg,#FFB36B,#FF7A59 60%,#F2557A)}
+#opLoad .ol-paw{position:absolute;top:50%;left:0;transform:translate(-50%,-55%);font-size:20px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+#opLoad .ol-txt{margin-top:9px;font-family:"Jua",sans-serif;font-size:.95rem;color:#5F7891;text-shadow:0 1px 0 rgba(255,255,255,.9)}
+#opLoad.ok .ol-txt{color:#E8664A}
+#opLoad.hide{opacity:0}
+#opening.loading #skipBtn{opacity:0;pointer-events:none}
 #opening #skipBtn{z-index:3}
 
 /* ---- 잠깐 쉬어요 ---- */
@@ -1702,6 +1711,15 @@ body.exp3 #bgfx{display:none!important}
 body.exp3{background:#2A2F5A!important}
 body.exp4 #board{border-radius:0!important}
 body.exp4 #game .frame{border-radius:0!important}
+/* 큰 글씨 폰: 이름은 한 줄로, 너무 길면 … 으로 */
+.rank .nm,.myrank .who{min-width:0}
+.rank .nm>*,.myrank .who>*{flex:none}
+.rank .nm>.plic{flex:0 1 auto;min-width:0;overflow:hidden}
+.myrank .pts{grid-row:auto}.myrank .who{grid-column:2 / span 2}
+.rank .nm>.nt,.myrank .who>.nt{flex:0 0 auto;max-width:calc(100% - 36px);min-width:1.2em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal}
+.rank .sc,.myrank .pts{white-space:nowrap}
+#champs .c{min-width:0}#champs .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.myrank .lab .l1{word-break:keep-all}.myrank.none{word-break:keep-all}
 #rankList li.idle{opacity:.5}#rankList li.idle .sc{font-size:.8em}
 </style>
 </head>
@@ -1727,6 +1745,7 @@ body.exp4 #game .frame{border-radius:0!important}
     <img class="o-poster" id="oPoster" alt="" decoding="async">
     <video class="o-video" id="oVideo" playsinline webkit-playsinline preload="auto" disablepictureinpicture poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>
   </div>
+  <div id="opLoad" aria-live="polite"><div class="ol-bar"><i id="olFill"></i><span class="ol-paw" id="olPaw">🐾</span></div><div class="ol-txt" id="olTxt">강아지들을 데려오는 중… 0%</div></div>
   <button id="skipBtn">건너뛰기</button>
 </div>
 
@@ -2430,6 +2449,7 @@ const BGM=(()=>{
   }
   function restart(k){if(el[k])try{el[k].currentTime=0}catch(e){}}
   return{
+    load(k){return P[k]||getBlob(k)},keys:()=>Object.keys(FILES),   // 오프닝 로딩바: 음악을 미리 다 받아 둬요
     play(name){if(name!==want){duckTo=1;held=false}   // 화면이 바뀌면 '작게 줄이기'는 항상 풀어요 (일시정지·부활 창에서 메인으로 나갈 때 작아지던 문제)
       if(failed){BGM_SYNTH.duck(duckTo<1);return BGM_SYNTH.play(name==='ending'?'menu':name)}if(name==='ending'&&!P.ending)getBlob('ending');if(name!==want&&name!=='fever'){restart(name)}want=name;apply()},
     allow(){allowed=true;if(failed)return BGM_SYNTH.allow();apply()},
@@ -2447,7 +2467,7 @@ const BGM=(()=>{
   };
 })();
 /* 오프닝 음악은 이제 오프닝 영상 속 음악을 써요 (예전 파일은 보관함에서 지워요) */
-const OPMUSIC=(()=>{try{MUSIC_CACHE.prune(['bgm/main.mp3?v=2','bgm/play.mp3?v=3','bgm/fever.mp3?v=3'])}catch(e){}return{play(){return null}}})();
+const OPMUSIC=(()=>{try{MUSIC_CACHE.prune(['bgm/main.mp3?v=2','bgm/play.mp3?v=3','bgm/fever.mp3?v=3','bgm/ending.mp3?v=2'])}catch(e){}return{play(){return null}}})();
 document.addEventListener('pointerdown',()=>{SFX.init();BGM.kick()},{passive:true});
 document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.classList.contains('snd'))SFX.click()});
 ['sndBtn','sndBtn2'].forEach(id=>$(id).addEventListener('click',()=>{SFX.init();SFX.click();openSettings()}));
@@ -2744,6 +2764,17 @@ function bestHint(){
 }
 function findFriend(){for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(board[r][c]&&isFriend(board[r][c].type))return[r,c];return null}
 const hasAnyMove=()=>!!(findFriend()||findMove());
+/* 화면 그림 ↔ 판 정보 맞추기: 판에 없는데 보이는 '유령' 그림은 치우고, 판에 있는데 그림이 없으면 다시 그려요 */
+function syncBoardDom(){
+  try{
+    const live=new Set();
+    for(let r=0;r<N;r++)for(let c=0;c<N;c++){const t=board[r][c];if(!t)continue;
+      if(!t.el||!t.el.isConnected||t.el.classList.contains('parked')){t.el=makeEl(t);t.el.style.transition='none';place(t,r,c);t.el.offsetHeight;t.el.style.transition=''}
+      else if(isFriend(t.type)!==t.el.classList.contains('friend')){t.el.className='tile'+(isFriend(t.type)?' friend':'');t.el.textContent='';t.el.appendChild(tileNode(t))}
+      live.add(t.el)}
+    boardEl.querySelectorAll('.tile').forEach(e=>{if(!live.has(e)&&!e.classList.contains('parked'))parkTile(e)});
+  }catch(e){}
+}
 
 /* ---- 판 만들기 / 새 블록 ---- */
 function genBoard(){
@@ -3028,7 +3059,8 @@ async function clearSet(set,gain){ftag(set.size>=12?'큰정리':liveN>0?'동시�
 }
 function becomeFriend(r,c,f){ftag('무지개친구');
   trackM('friend',1);
-  const t=board[r][c];t.type=TYPES+f;t.shell=0;t.sleep=false;met[f]++;
+  const t=board[r][c];if(!t||!t.el)return;   // 그 사이 다른 줄 정리로 칸이 비었으면 건너뛰어요
+  t.type=TYPES+f;t.shell=0;t.sleep=false;met[f]++;
   t.el.className='tile friend';t.el.textContent='';t.el.appendChild(tileNode(t));
   const s=inner(t);s&&s.animate&&s.animate([{transform:'scale(0) rotate(-90deg)'},{transform:'scale(1.35) rotate(10deg)',offset:.6},{transform:'scale(1)'}],{duration:420,easing:'ease-out'});
   setTimeout(()=>{iconToast(svgFor(t.type),ga(FRIENDS[f].label)+' 왔어요! 눌러 보세요');SFX.woof();buzz(30)},120);
@@ -3164,7 +3196,9 @@ async function finishTurn(){
   while(findGroups().length){await resolve();await waitLive()}
   if(ended){busy=false;return}   // 마지막 순간에 옮겨서 생긴 짝도 정리
   updatePairs();
-  if(!hasAnyMove()){
+  syncBoardDom();   // 화면 그림과 판 정보가 어긋난 칸이 있으면 맞춰요
+  if(!hasAnyMove()){await sleep(300);await waitLive();syncBoardDom();updatePairs()}   // 다른 줄 정리가 끝나며 무지개 친구가 생길 수 있어서 한 번 더 확인
+  if(!hasAnyMove()&&!ended){
     const ok=await askRevive();
     if(!ok){
       clearInterval(tick);running=false;clearHint();clearSel();
@@ -3497,7 +3531,7 @@ const HERO=(()=>{
     setTimeout(()=>box.remove(),1900);
     return sl(660);   // 번쩍! 하는 순간에 판 정리를 시작해요
   }
-  return{preload,play};
+  return{preload,play,urls:()=>[...FLY,...Object.values(HEROES)]};
 })();
 async function megaBlast(r1,c1,r2,c2){ftag('판전체');
   if(busy||!active())return;trackM('mega',1);
@@ -3773,7 +3807,7 @@ async function openRank(tab){
     const b=document.createElement('div');b.className='lab';{const l1=document.createElement('span');l1.className='l1';l1.textContent=rankTab==='month'?'이번 달 내 순위':'역대 내 순위';
       const l2=document.createElement('span');l2.className='l2';l2.textContent=[me.total?`${me.total>=1000?'1000명 이상':me.total+'명'} 중`:'',nt||''].filter(Boolean).join(' · ');b.append(l1);if(l2.textContent)b.append(l2)}
     const c=document.createElement('div');c.className='pts';c.textContent=me.score.toLocaleString()+'점';
-    const d=document.createElement('div');d.className='who';{const st=starsOf(CW,pid,me.kid);if(me.img||me.kk||st)d.appendChild(avatarWithStars(me.img,st))}d.append(safeNick(me.nick));
+    const d=document.createElement('div');d.className='who';{const st=starsOf(CW,pid,me.kid);if(me.img||me.kk||st)d.appendChild(avatarWithStars(me.img,st))}d.appendChild(nameSpan(safeNick(me.nick)));
     box.append(a,b,c,d);
     if((me.reports||0)>=REPORT_HIDE){const w=document.createElement('div');w.className='lab';w.style.gridColumn='1 / -1';w.textContent='⚠️ 신고가 많이 쌓여 다른 사람에게는 이름이 가려져 보여요. 닉네임을 바꿔 등록하면 다시 보여요.';box.appendChild(w)}
   }else{box.classList.add('none');box.textContent=rankTab==='month'?'이번 달 첫 기록을 남겨 보세요! 게임 후 점수를 등록하면 여기 나와요.':'게임이 끝나고 점수를 등록하면 내 순위가 여기 나와요!'}
@@ -3798,9 +3832,10 @@ function avatarEl(img){
 function avatarWithStars(img,stars){const av=avatarEl(img);if(!stars)return av;
   const w=document.createElement('span');w.className='avw';const st=document.createElement('span');st.className='stars'+(stars>3?' many':'');
   st.textContent=stars>3?'★×'+stars:'★'.repeat(stars);st.title=`월간 1위 ${stars}번`;w.append(av,st);return w}
+const nameSpan=t=>{const s=document.createElement('span');s.className='nt';s.textContent=t;return s};   // 이름은 한 줄로 (글씨를 크게 쓰는 폰에서 세로로 쪼개지지 않게)
 function rankRow(rankText,nick,score,isMe,img,kk,stars){const li=document.createElement('li');if(isMe)li.className='me';
   const no=document.createElement('span');no.className='no';no.textContent=rankText;
-  const nm=document.createElement('span');nm.className='nm';if(img||kk||stars)nm.appendChild(avatarWithStars(img,stars));nm.append(nick);
+  const nm=document.createElement('span');nm.className='nm';if(img||kk||stars)nm.appendChild(avatarWithStars(img,stars));nm.appendChild(nameSpan(nick));
   const sc=document.createElement('span');sc.className='sc';sc.textContent=score.toLocaleString();
   li.append(no,nm,sc);return li}
 /* 지난 시즌 1위 기록 (끝난 달은 바뀌지 않으니 한 번 읽고 기기에 보관) */
@@ -3866,7 +3901,7 @@ async function openFriendRank(){
     const a=document.createElement('div');a.className='big2';a.textContent=myRank+'위';
     const b=document.createElement('div');b.className='lab';b.innerHTML=`<span class="l1">카톡 친구 중 내 순위</span><span class="l2">${rows.length}명 중</span>`;
     const c=document.createElement('div');c.className='pts';c.textContent=m.score.toLocaleString()+'점';
-    const d=document.createElement('div');d.className='who';d.appendChild(avatarWithStars(m.img||KAKAO.me.img,starsOf(CW,m.id,m.kid)));d.append(m.nick);
+    const d=document.createElement('div');d.className='who';d.appendChild(avatarWithStars(m.img||KAKAO.me.img,starsOf(CW,m.id,m.kid)));d.appendChild(nameSpan(m.nick));
     box.append(a,b,c,d)}
   else{box.classList.add('none');box.textContent='이번 달 한 판 하면 친구 순위에 내가 나와요!'}
   note.textContent=rows.length+idle.length>(myRank||known[KAKAO.me.id]?1:0)?'내가 추가한 친구들이에요. 빨간 − 를 누르면 친구에서 빠져요.':(INVITE.plugin?'💌 카톡으로 친구를 초대하거나, 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!':'이번 달·명예의 전당 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!');
@@ -5057,14 +5092,29 @@ updateTime();syncSnd();
   const canAlpha=!!(vid.canPlayType&&vid.canPlayType('video/webm; codecs="vp9, opus"'));
   const fromStore=url=>(typeof caches!=='undefined'&&/^https?:/.test(location.protocol))?caches.open('mung-music').then(c=>c.match(url)).then(r=>r?r.blob().then(b=>URL.createObjectURL(b)):null).catch(()=>null):Promise.resolve(null);
   const keep=url=>{try{if(typeof caches==='undefined'||!/^https?:/.test(location.protocol))return;caches.open('mung-music').then(c=>c.match(url).then(r=>r||fetch(url).then(n=>{if(n.ok)return c.put(url,n)}))).catch(()=>{})}catch(e){}};
-  let done=false,fell=false,ending=false;const timers=[];
+  let done=false,fell=false,ending=false,loaded=false;const timers=[];
+  /* ---- 로딩바: 음악 4곡 + 합체 그림 6장을 미리 다 받아 둬요 (두 번째부터는 폰에 저장돼 있어서 금방 차요) ---- */
+  op.classList.add('loading');
+  (function(){
+    const fill=$('olFill'),paw=$('olPaw'),txt=$('olTxt'),box=$('opLoad');
+    const jobs=[];try{BGM.keys().forEach(k=>jobs.push([3,()=>BGM.load(k)]))}catch(e){}
+    try{HERO.urls().forEach(u=>jobs.push([1,()=>MUSIC_CACHE.get(u)]))}catch(e){}
+    const total=jobs.reduce((a,j)=>a+j[0],0)||1;let got=0,shown=0;
+    const paint=()=>{const pc=Math.round(shown*100);fill.style.width=pc+'%';paw.style.left=pc+'%';if(!loaded)txt.textContent='강아지들을 데려오는 중… '+pc+'%'};
+    const iv=setInterval(()=>{const target=got/total;shown+=Math.max(.004,(target-shown)*.25);if(shown>target)shown=target;paint();if(shown>=1)clearInterval(iv)},50);
+    function ready(){if(loaded)return;loaded=true;got=total;shown=1;paint();clearInterval(iv);box.classList.add('ok');txt.textContent='준비 완료! 🐾';
+      setTimeout(()=>{box.classList.add('hide');op.classList.remove('loading')},700);
+      if(ending&&!done)setTimeout(finish,900)}   // 영상이 먼저 끝났으면 다 받는 대로 메인으로
+    Promise.all(jobs.map(([w,f])=>Promise.resolve().then(f).catch(()=>{}).then(()=>{got+=w}))).then(ready);
+    setTimeout(ready,30000);   // 인터넷이 너무 느려도 30초가 지나면 시작할 수 있게 (남은 건 뒤에서 마저 받아요)
+  })();
   const at=(ms,f)=>timers.push(setTimeout(()=>{if(!done)f()},ms));
   function finish(){if(done)return;done=true;timers.forEach(clearTimeout);try{sessionStorage.setItem('mung-op','1')}catch(e){}SFX.init();
     try{const v0=vid.volume,t0=Date.now();const iv=setInterval(()=>{const u=Math.min(1,(Date.now()-t0)/400);try{vid.volume=v0*(1-u)}catch(e){}if(u>=1){clearInterval(iv);try{vid.pause()}catch(e){}}},40)}catch(e){}
     setTimeout(()=>BGM.allow(),450);setTimeout(checkAttendance,1000);
     op.classList.add('out');document.body.classList.remove('opening');   // 오프닝은 사라지고 메뉴가 스르륵
     setTimeout(()=>{try{vid.pause();vid.removeAttribute('src');vid.load()}catch(e){}op.remove()},700)}
-  function end(){if(ending)return;ending=true;at(500,finish)}   // 마지막 장면 잠깐 보여 주고 메인으로
+  function end(){if(ending)return;ending=true;if(loaded)at(500,finish)}   // 아직 받는 중이면 마지막 장면에서 기다려요   // 마지막 장면 잠깐 보여 주고 메인으로
   const fallback=()=>{if(fell||done)return;fell=true;op.classList.remove('playing');op.classList.add('poster');poster.classList.add('kb');at(3000,end)};   // 영상을 못 틀면 마지막 그림으로
   function start(){
     if(vid.error||vid.networkState===3){fallback();return}
@@ -5088,7 +5138,7 @@ updateTime();syncSnd();
   });
   at(3000,()=>{if(!op.classList.contains('playing'))fallback()});   // 영상이 너무 늦게 오면
   at(13000,end);
-  $('skipBtn').addEventListener('click',e=>{e.stopPropagation();finish()});
+  $('skipBtn').addEventListener('click',e=>{e.stopPropagation();if(loaded)finish()});
 })();
 </script>
 
