@@ -1133,6 +1133,9 @@ body.fevering .fbar::after{content:"";position:absolute;top:0;bottom:0;left:0;wi
 @keyframes fvShine{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
 body.fevering #score{color:#E0479E}
 body.fevering #score::after{content:" ×2";font-size:.5em;color:#fff;background:linear-gradient(90deg,#E04BB0,#7A3CE0);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle;display:inline-block;animation:x2pop .6s ease-in-out infinite alternate;will-change:transform}
+/* ×2 배지는 자리를 차지하지 않게 점수 오른쪽 위에 띄워요 (좁은 폰에서 줄이 바뀌며 판 전체가 내려가던 문제) */
+#score{display:inline-block;position:relative;white-space:nowrap}
+body.fevering #score::after{position:absolute;left:100%;top:-.5em;margin-left:2px;white-space:nowrap}
 @keyframes x2pop{to{transform:scale(1.15)}}
 body.lite .fsp:nth-child(odd){display:none}
 .fsp:nth-child(even){clip-path:none;border-radius:50%;width:18px;height:18px;background:radial-gradient(circle,#fff 0 18%,var(--c) 32%,transparent 70%)}
@@ -1564,7 +1567,7 @@ main>.screen.scr-in{animation:scrIn .24s cubic-bezier(.2,.8,.3,1)}
 @media (orientation:landscape) and (min-aspect-ratio:4/3){.ftray{justify-content:flex-start;align-self:start}}
 
 /* 게임 중: 피버 꽃가루가 화면 밖으로 튀어도 화면 전체가 '스크롤 판'으로 바뀌지 않게 (바뀌면 판을 통째로 다시 그려서 깜빡여요) */
-body.ingame main{overflow:hidden;overflow:clip}
+body.ingame main{overflow:hidden;overflow:clip;min-height:0}
 
 /* ================= 새 오프닝: 영상 ================= */
 #opening{background:#F6C98A}
@@ -2571,7 +2574,7 @@ function showScreen(id){
   if(was&&was!==id&&id!=='game'){const e=$(id);e.classList.remove('scr-in');void 0;requestAnimationFrame(()=>{e.classList.add('scr-in');setTimeout(()=>e.classList.remove('scr-in'),260)})}
   if(id==='menu'){requestAnimationFrame(fitMenu);if(typeof refreshMenuBadges==='function')refreshMenuBadges()}
   clearTimeout(SCR_T);
-  if(id==='game'){try{setBgRate(true)}catch(e){}}
+  if(id==='game'){try{setBgRate(true)}catch(e){}fitGameSoon()}
   else SCR_T=setTimeout(()=>{try{setBgRate(false)}catch(e){}},320);
   BGM.play(id==='game'?'game':id==='credits'?'ending':'menu')}
 $('menuFriends').innerHTML=FRIEND_ART.map((_,i)=>svgFor(TYPES+i)).join('');
@@ -4455,6 +4458,31 @@ function fitCards(){document.querySelectorAll('.modal:not([hidden])').forEach(m=
 let fitT=0;const fitSoon=()=>{cancelAnimationFrame(fitT);fitT=requestAnimationFrame(()=>{fitCards();setTimeout(fitCards,320)})};
 {const mo=new MutationObserver(fitSoon);document.querySelectorAll('.modal').forEach(m=>mo.observe(m,{subtree:true,attributes:true,attributeFilter:['hidden'],childList:true}))}
 addEventListener('resize',fitSoon);
+
+/* ===== 게임판 크기 맞추기: 어떤 폰·태블릿·글씨 크기에서도 판과 아래 무지개 친구 칸이 광고 위에 다 들어오게 =====
+   CSS로 먼저 크기를 정하고, 실제로 넘치는 만큼만 판을 줄여요 (화면 크기가 바뀔 때만 계산해서 가벼워요) */
+let FIT_W=0;
+function fitGame(full=true){
+  const g=$('game');if(!g||g.hidden)return;
+  const fr=g.querySelector('.frame'),box=g.parentElement;if(!fr||!box)return;
+  const before=fr.getBoundingClientRect().width;
+  if(full){fr.style.width='';fr.style.minWidth='';g.style.zoom=''}   // 화면 크기가 바뀌었을 때만 처음 크기로 되돌려서 다시 계산 (게임 중에는 넘칠 때만 줄여요 → 판 깜빡임 없음)
+  let w=fr.getBoundingClientRect().width;
+  const ad=document.querySelector('.ad'),padB=parseFloat(getComputedStyle(document.documentElement).paddingBottom)||0;
+  const limit=()=>{const b=Math.min(box.getBoundingClientRect().bottom,innerHeight-padB-(ad?ad.getBoundingClientRect().height:0))-4;let m=0;   // 광고 자리 위까지만
+    g.querySelectorAll(':scope > *, .ftray .fbtn small').forEach(e=>{const r=e.getBoundingClientRect();if(r.height>0&&r.bottom>m)m=r.bottom});return m-b};
+  for(let i=0;i<5;i++){const over=limit();if(over<=0.5)break;w=Math.max(160,Math.floor(w-over));fr.style.minWidth='160px';fr.style.width=w+'px'}
+  {let over=limit();   // 판을 가장 작게 해도 넘치면(아주 작은 화면·가로 폰·아주 큰 글씨) 게임 화면 전체를 살짝 줄여요
+    for(let i=0;i<4&&over>0.5;i++){const top=g.getBoundingClientRect().top,lim=Math.min(box.getBoundingClientRect().bottom,innerHeight-padB-(ad?ad.getBoundingClientRect().height:0))-4;
+      const z0=parseFloat(g.style.zoom)||1,used=lim+over-top,z=Math.max(.55,z0*(lim-top)/used);if(Math.abs(z-z0)<.003)break;g.style.zoom=z.toFixed(3);over=limit()}}
+  const now=fr.getBoundingClientRect().width;FIT_W=now;
+  if(Math.abs(now-before)>2){clearTimeout(window.__atlT);window.__atlT=setTimeout(()=>{try{if(ATLAS&&boardEl.clientWidth)buildAtlas()}catch(e){}},300)}
+}
+let FIT_T=0;function fitGameSoon(){cancelAnimationFrame(FIT_T);FIT_T=requestAnimationFrame(()=>{fitGame();setTimeout(()=>fitGame(),350)})}
+let FIT_T2=0;function fitGameCheck(){cancelAnimationFrame(FIT_T2);FIT_T2=requestAnimationFrame(()=>fitGame(false))}
+addEventListener('resize',fitGameSoon);addEventListener('orientationchange',()=>setTimeout(fitGameSoon,300));
+try{document.fonts&&document.fonts.ready.then(fitGameSoon)}catch(e){}
+try{if(window.ResizeObserver){const ro=new ResizeObserver(()=>fitGameCheck());const g=$('game');[...g.children].forEach(c=>{if(!c.classList.contains('frame'))ro.observe(c)});new ResizeObserver(()=>fitGameSoon()).observe(document.querySelector('.ad'))}}catch(e){}
 /* ================= 구글 AdMob 광고 (앱에서만) =================
    ★ 정식 출시 직전에 ADS_TEST 를 false 로 바꿔 진짜 광고로 전환해요 */
 var ADS_TEST=false;   // 2026-10-30 정식 출시: 진짜 광고
@@ -4466,7 +4494,16 @@ const ADS={native:false,ready:false,plugin:null,bannerOn:false,rewardLoaded:fals
   if(!ADS.native)return;
   document.body.classList.add('native-ads');
   const A=ADS.plugin;
-  A.addListener&&A.addListener('bannerAdSizeChanged',info=>{const h=Math.max(0,Math.round((info&&info.height)||0));document.documentElement.style.setProperty('--banner-h',(h||60)+'px')});
+  /* 최신 안드로이드(15 이상)는 앱 화면을 아래 버튼 줄(◁ ○ ▥) 뒤까지 그려요. 광고는 버튼 줄 위에 붙으니, 그 높이만큼 아래를 더 비워 둬요 */
+  let BH=60;
+  const navGuard=()=>{try{
+    const pr=document.createElement('div');pr.style.cssText='position:fixed;bottom:0;left:0;height:0;padding-bottom:env(safe-area-inset-bottom,0px);visibility:hidden';document.body.appendChild(pr);
+    const env=pr.getBoundingClientRect().height;pr.remove();if(env>0)return 0;   // 폰이 버튼 줄 높이를 알려 주면 이미 비워져 있어요
+    const portrait=innerHeight>=innerWidth,full=portrait?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);
+    return portrait&&innerHeight>=full-2?48:0}catch(e){return 0}};
+  const applyBH=()=>{const g=navGuard();document.documentElement.style.setProperty('--banner-h',(BH+g)+'px');document.documentElement.style.setProperty('--navg',g+'px');try{fitGameSoon()}catch(e){}};
+  applyBH();addEventListener('resize',()=>setTimeout(applyBH,100));
+  A.addListener&&A.addListener('bannerAdSizeChanged',info=>{const h=Math.max(0,Math.round((info&&info.height)||0));BH=h||60;applyBH()});
   (async()=>{
     try{await A.initialize({initializeForTesting:ADS_TEST})}catch(e){}
     try{const ci=await A.requestConsentInfo();if(ci&&ci.isConsentFormAvailable&&ci.status==='REQUIRED')await A.showConsentForm()}catch(e){}
