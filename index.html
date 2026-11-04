@@ -1723,6 +1723,19 @@ body.exp4 #game .frame{border-radius:0!important}
 .rank .sc,.myrank .pts{white-space:nowrap}
 #champs .c{min-width:0}#champs .n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .myrank .lab .l1{word-break:keep-all}.myrank.none{word-break:keep-all}
+/* 이달의 순위 첫 진입: 무지개 테두리 + 빨간 '첫진입' 동그라미 (이 폰에서 처음 본 한 번만) */
+.rank li.newin{position:relative;box-shadow:0 0 12px rgba(255,120,200,.55),0 0 20px rgba(120,160,255,.35)}
+.rank li.newin::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:3px;pointer-events:none;z-index:2;
+  background:linear-gradient(90deg,#FF5A5A,#FFB13B,#FFE45C,#6EDC6E,#4FC3F7,#7C6CFF,#E86CFF,#FF5A5A,#FFB13B,#FFE45C,#6EDC6E,#4FC3F7,#7C6CFF,#E86CFF,#FF5A5A);background-size:200% 100%;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:nwFlow 2.4s linear infinite}
+@keyframes nwFlow{to{background-position:-100% 0}}
+.rank .nm>.nwb{flex:none;width:3em;height:3em;margin-left:6px;border-radius:50%;background:#E53935;color:#fff;font-family:"Jua",sans-serif;font-size:.62rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 0 #A8231F,0 0 0 2px #fff;transform:rotate(-10deg);animation:nwPop .5s cubic-bezier(.3,1.6,.5,1) both;position:relative;z-index:3;text-shadow:none!important}
+@keyframes nwPop{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(-10deg)}}
+body.lite .rank li.newin::after,body.eco .rank li.newin::after{animation:none}
+.rank li.devgap{margin-top:6px;font-size:.85rem;color:#8A6BD1;letter-spacing:.02em}
+.rank li.out30{background:#F4F1FA;outline:2px dashed #B9A8E6;outline-offset:-2px}
+.rank li.out30 .no{font-size:1rem}
 #rankList li.idle{opacity:.5}#rankList li.idle .sc{font-size:.8em}
 </style>
 </head>
@@ -1813,7 +1826,7 @@ body.exp4 #game .frame{border-radius:0!important}
 
   <!-- 순위표 -->
   <section class="screen" id="rank" hidden>
-    <div class="shead"><h2>순위표</h2><button class="sub small" id="rankBack">돌아가기</button></div>
+    <div class="shead"><h2 id="rankTitle">순위표</h2><button class="sub small" id="rankBack">돌아가기</button></div>
     <div class="tabs" id="rankTabs"><button class="tab on" id="tabMonth">이번 달</button><button class="tab" id="tabAll">명예의 전당</button><button class="tab" id="tabFriend" hidden>카톡 친구</button></div>
     <p class="season" id="seasonInfo"></p>
     <div class="champs" id="champs" hidden></div>
@@ -3779,7 +3792,8 @@ async function openRank(tab){
   else si.innerHTML='<span class="schip hall">🏛️ 지금까지의 최고 기록이 영원히 남아요</span>';
   const list=$('rankList');list.innerHTML='';$('rankNote').textContent='불러오는 중...';
   const box=$('myRank');box.hidden=true;const ch=$('champs');ch.hidden=true;
-  const{shared,rows}=await readTop(coll,30);
+  const DEVV=rankTab==='month'&&ls.get('mung-dev',false);   // 개발자 보기(우진님 폰만): 30위 밖까지
+  const{shared,rows}=await readTop(coll,DEVV?500:30);
   if(rankTab!==(coll==='scores'?'all':'month'))return;   // 탭을 빠르게 바꾼 경우
   // 지난달 챔피언
   if(rankTab==='month'){
@@ -3799,11 +3813,18 @@ async function openRank(tab){
   const CW=shared?await champWins():null;
   const medals=['🥇','🥈','🥉'];
   let shown=false;
-  rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe)shown=true;const li=rankRow(medals[i]||String(i+1),r.nick,r.score,isMe,r.img,r.kk,starsOf(CW,r.id,r.kid));plateDecor(li,isMe?myPlate():r.pl);
+  /* 첫 진입: 이 폰에서 지난번에 본 이달의 순위(30위 안)에 없던 사람은 무지개 테두리 + '첫진입' 표시. 한 번 보고 나면 다음부터는 똑같이 */
+  const seenK='mung-seen-'+coll,seen=(rankTab==='month'&&shared)?ls.get(seenK,null):null,seenS=new Set(Array.isArray(seen)?seen:[]);
+  rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe&&i<30)shown=true;
+    if(DEVV&&i===30){const d=document.createElement('li');d.className='gap devgap';d.textContent=`── 30위 밖 (개발자만 보여요) · 전체 ${rows.length>=500?'500명 이상':rows.length+'명'} ──`;list.appendChild(d)}
+    const li=rankRow(medals[i]||String(i+1),r.nick,r.score,isMe,r.img,r.kk,starsOf(CW,r.id,r.kid));plateDecor(li,isMe?myPlate():r.pl);if(i>=30)li.classList.add('out30');
+    if(Array.isArray(seen)&&!seenS.has(r.id)){li.classList.add('newin');const bd=document.createElement('span');bd.className='nwb';bd.textContent='첫진입';const nm=li.querySelector('.nm');if(nm)nm.appendChild(bd)}
     if(!isMe&&shared)frBtn(li,r.kid,r.nick);
     list.appendChild(li)});
-  if(me&&!shown){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);{const li=rankRow(String(me.rank),safeNick(me.nick),me.score,true,me.img,me.kk,starsOf(CW,pid,me.kid));plateDecor(li,myPlate());list.appendChild(li)}}
+  if(me&&!shown&&!DEVV){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);{const li=rankRow(String(me.rank),safeNick(me.nick),me.score,true,me.img,me.kk,starsOf(CW,pid,me.kid));plateDecor(li,myPlate());list.appendChild(li)}}
   alignFr(list);box.hidden=false;box.className='myrank';box.textContent='';
+  if(rankTab==='month'&&shared){try{rows.slice(0,DEVV?rows.length:30).forEach(r=>seenS.add(r.id));ls.set(seenK,[...seenS].slice(-3000));   // 이번 달에 한 번 본 사람은 다시는 '첫진입'이 안 떠요
+    for(let k=0;k<localStorage.length;k++){const key=localStorage.key(k);if(key&&key.indexOf('mung-seen-')===0&&key!==seenK)localStorage.removeItem(key)}}catch(e){}}
   const nt=submitNote[rankTab];
   if(me){
     const a=document.createElement('div');a.className='big2';a.textContent=(me.capped?'1000+':me.rank)+'위';
@@ -3910,6 +3931,9 @@ async function openFriendRank(){
   note.textContent=rows.length+idle.length>(myRank||known[KAKAO.me.id]?1:0)?'내가 추가한 친구들이에요. 빨간 − 를 누르면 친구에서 빠져요.':(INVITE.plugin?'💌 카톡으로 친구를 초대하거나, 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!':'이번 달·명예의 전당 순위표에서 친구 이름 끝의 ＋ 를 누르면 여기에 함께 나와요!');
 }
 
+/* 개발자 보기 비밀 스위치: '순위표' 제목을 2초 안에 7번 누르면 켜지고/꺼져요 (켠 폰에서만) */
+(function(){let n=0,t=0;const h=$('rankTitle');if(!h)return;h.addEventListener('click',()=>{const now=Date.now();n=now-t<2000?n+1:1;t=now;
+  if(n>=7){n=0;const on=!ls.get('mung-dev',false);ls.set('mung-dev',on);toast(on?'🛠 개발자 보기 켜짐: 30위 밖까지 보여요':'개발자 보기 꺼짐');try{openRank('month')}catch(e){}}})})();
 /* ================= 입력 ================= */
 function cellAt(e){const rc=boardEl.getBoundingClientRect();const c=Math.floor((e.clientX-rc.left)/rc.width*N),r=Math.floor((e.clientY-rc.top)/rc.height*N);return inB(r,c)?{r,c}:null}
 let drag=null;
