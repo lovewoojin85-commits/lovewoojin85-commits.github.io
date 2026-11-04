@@ -1729,6 +1729,7 @@ body.exp4 #game .frame{border-radius:0!important}
   background:linear-gradient(90deg,#FF5A5A,#FFB13B,#FFE45C,#6EDC6E,#4FC3F7,#7C6CFF,#E86CFF,#FF5A5A,#FFB13B,#FFE45C,#6EDC6E,#4FC3F7,#7C6CFF,#E86CFF,#FF5A5A);background-size:200% 100%;
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:nwFlow 2.4s linear infinite}
 @keyframes nwFlow{to{background-position:-100% 0}}
+.rank li.newin .nm{overflow:visible}   /* 첫진입 도장이 잘리지 않게 (이름 말줄임은 .nt가 따로 해요) */
 .rank .nm>.nwb{flex:none;width:3em;height:3em;margin-left:6px;border-radius:50%;background:#E53935;color:#fff;font-family:"Jua",sans-serif;font-size:.62rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;
   box-shadow:0 2px 0 #A8231F,0 0 0 2px #fff;transform:rotate(-10deg);animation:nwPop .5s cubic-bezier(.3,1.6,.5,1) both;position:relative;z-index:3;text-shadow:none!important}
 @keyframes nwPop{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(-10deg)}}
