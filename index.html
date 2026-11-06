@@ -942,7 +942,7 @@ body[data-bg="aurora"] #bgfx .fx-aurora,body[data-bg="ocean"] #bgfx .fx-ocean,bo
 /* ---- 일반 배경에도 은은한 움직임 (발자국 배경은 그대로) ---- */
 body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],[data-bg="autumn"],[data-bg="snow"],[data-bg="cloud"],[data-bg="night"],[data-bg="rainbow"]) #bgfx{display:block}
 #bgfx .fx-lite{display:none;position:absolute;inset:0}
-body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],[data-bg="autumn"],[data-bg="snow"],[data-bg="cloud"],[data-bg="night"],[data-bg="rainbow"],[data-bg="aurora"]) #bgfx .fx-lite{display:block}
+body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],[data-bg="autumn"],[data-bg="snow"],[data-bg="cloud"],[data-bg="night"],[data-bg="rainbow"],[data-bg="aurora"],[data-bg="palace"]) #bgfx .fx-lite{display:block}
 #bgfx .fx-lite i{position:absolute;width:var(--s);height:var(--s);background:var(--img) center/contain no-repeat;opacity:var(--o,.8);animation:var(--an) var(--d) linear var(--dl) infinite}
 #bgfx .fx-lite i.fall{top:-60px;left:var(--x)}
 #bgfx .fx-lite i.rise{bottom:-60px;left:var(--x)}
@@ -964,7 +964,7 @@ body:is([data-bg="sakura"],[data-bg="park"],[data-bg="treat"],[data-bg="beach"],
 
 
 /* 🫧 바닷속 수족관 */
-body[data-bg="ocean"]{background:linear-gradient(180deg,#5FC7E6 0%,#1E8DBF 40%,#0F5F92 75%,#0B3F6E 100%);--ink:#F4F6FF;--ink-soft:#CDD5F2;--card:#3A4384;--frame:#8C9BDA;--frame-deep:#6577BE;--bar-bg:rgba(255,255,255,.18);--card:#1E6C99}
+body[data-bg="ocean"]{background:linear-gradient(180deg,#2E9ED3 0%,#1A7FB3 40%,#0F5F92 75%,#0B3F6E 100%);--ink:#F4F6FF;--ink-soft:#CDD5F2;--card:#3A4384;--frame:#8C9BDA;--frame-deep:#6577BE;--bar-bg:rgba(255,255,255,.18);--card:#1E6C99}
 #bgfx .fx-ocean .rays{position:absolute;top:-20%;left:-10%;width:120%;height:90%;background:repeating-linear-gradient(100deg,rgba(255,255,255,.16) 0 40px,transparent 40px 120px);transform-origin:50% 0;animation:rays 9s ease-in-out infinite alternate;opacity:.7}
 #bgfx .fx-ocean .rays.b{animation-duration:13s;animation-direction:alternate-reverse;opacity:.45}
 @keyframes rays{from{transform:skewX(-6deg) translateX(-3%)}to{transform:skewX(6deg) translateX(3%)}}
@@ -1666,6 +1666,15 @@ body.ingame main{overflow:hidden;overflow:clip;min-height:0}
 
 /* ---- 메인화면 3차: 큰 메뉴 4개 + 작은 링크 3개, 설정은 왼쪽 위 ---- */
 #menu .topleft{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:16px;z-index:2}
+/* 지난달 1~3위: 왼쪽 위 메달 (한 달 동안) */
+#myMedal{display:flex;flex-direction:column;align-items:center;margin-top:-6px;pointer-events:none}
+#myMedal[hidden]{display:none}
+#myMedal .mi{font-size:2.1rem;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+#myMedal .ml{margin-top:-2px;padding:2px 7px;border-radius:999px;box-shadow:0 2px 0 rgba(0,0,0,.18);font-weight:800;font-size:.72rem;white-space:nowrap}
+#myMedal.r1 .ml{background:linear-gradient(#FFE07A,#F2B92E);color:#7A4A00}
+#myMedal.r2 .ml{background:linear-gradient(#EEF1F6,#B8C0CC);color:#4A5260}
+#myMedal.r3 .ml{background:linear-gradient(#F7D2B0,#D08A55);color:#6B3A14}
+@media (max-width:340px){#menu #myMedal{left:8px}#myMedal .mi{font-size:1.8rem}#myMedal .ml{font-size:.68rem;padding:1px 6px}#myMedal .mm{display:none}}
 #menu .topleft .ticon{font-size:inherit}
 #menu .menu-grid{grid-template-columns:repeat(4,1fr)}
 .menu-links{display:flex;justify-content:center;gap:8px;flex-wrap:nowrap}
@@ -1734,9 +1743,14 @@ body.exp4 #game .frame{border-radius:0!important}
   box-shadow:0 2px 0 #A8231F,0 0 0 2px #fff;transform:rotate(-10deg);animation:nwPop .5s cubic-bezier(.3,1.6,.5,1) both;position:relative;z-index:3;text-shadow:none!important}
 @keyframes nwPop{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(-10deg)}}
 body.lite .rank li.newin::after,body.eco .rank li.newin::after{animation:none}
-.rank li.devgap{margin-top:6px;font-size:.85rem;color:#8A6BD1;letter-spacing:.02em}
-.rank li.out30{background:#F4F1FA;outline:2px dashed #B9A8E6;outline-offset:-2px}
+.rank li.devgap{margin-top:6px;font-size:.85rem;color:var(--ink-soft);letter-spacing:.02em}
+.rank li.out30{background:var(--card,#fff);background-image:linear-gradient(rgba(150,120,230,.14),rgba(150,120,230,.14));outline:2px dashed #B9A8E6;outline-offset:-2px}   /* 배경색 따라가요 (어두운 배경에서 글자가 안 보이던 문제) */
 .rank li.out30 .no{font-size:1rem}
+/* 어두운 배경에서 글자가 잘 보이게 (배경별 글자 검사로 찾은 곳들) */
+body:is([data-bg="night"],[data-bg="aurora"],[data-bg="ocean"],[data-bg="fireworks"],[data-bg="galaxy"]) button:disabled{opacity:1;filter:grayscale(.9) brightness(.9)}
+body:is([data-bg="night"],[data-bg="aurora"],[data-bg="ocean"],[data-bg="fireworks"],[data-bg="galaxy"]) button.sub:disabled{background:rgba(255,255,255,.14)!important;color:var(--ink-soft)!important;box-shadow:0 3px 0 rgba(0,0,0,.25)!important;filter:none}
+body[data-bg="palace"] .logo span{color:#E0582A}
+body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub){text-shadow:0 1px 3px rgba(0,40,80,.45)}
 #rankList li.idle{opacity:.5}#rankList li.idle .sc{font-size:.8em}
 </style>
 </head>
@@ -1771,6 +1785,7 @@ body.lite .rank li.newin::after,body.eco .rank li.newin::after{animation:none}
 <main>
   <!-- 메인 화면 -->
   <section class="screen" id="menu">
+    <div class="topleft" id="myMedal" hidden aria-label=""><span class="mi"></span><span class="ml"></span></div>
     <div class="topright"><button class="coinpill" id="coinPill" aria-label="내 코인 (상점 열기)"><i class="ci"></i> <b id="coinPillN">0</b></button>
       <div class="ticons"><button class="ticon" id="shopBtn" aria-label="상점"><span class="ti">🛒</span><small>상점</small></button><button class="ticon" id="menuBagBtn" aria-label="가방"><span class="ti">🎒</span><small>가방</small><span class="badge cnt" id="menuBagN" hidden>0</span></button><button class="ticon" id="missionBtn" aria-label="오늘의 미션"><span class="ti">🎯</span><small>미션</small><span class="badge" id="missionBadge" hidden>!</span></button></div></div>
     <div class="menu-friends" id="menuFriends"></div>
@@ -4101,6 +4116,19 @@ function trackM(id,val){
   if(changed)queueSave();
 }
 function claimable(){const st=todayMissions();return st.list.filter(m=>m.prog>=m.n&&!m.claimed).length+((!st.allClaimed&&st.list.every(m=>m.claimed))?1:0)}
+/* 지난달 1~3위였으면 메인 왼쪽 위에 메달 (끝난 달은 안 바뀌니 한 번 읽고 기기에 보관) */
+async function showMyMedal(){try{
+  const P=seasonInfo(-1),k='mung-top3-'+P.key,el=$('myMedal');if(!el)return;
+  let top=ls.get(k,null);
+  if(!Array.isArray(top)){await waitFB();if(!db)return;const r=await readTop(P.key,3);if(!r.shared)return;top=r.rows.map(x=>({id:x.id,kid:x.kid||''}));ls.set(k,top);
+    for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&key.indexOf('mung-top3-')===0&&key!==k)localStorage.removeItem(key)}}
+  const pid=FBUID||ls.get('mung-pid',''),kid=KAKAO&&KAKAO.me&&KAKAO.me.id?String(KAKAO.me.id):'';
+  const i=top.findIndex(t=>(pid&&t.id===pid)||(kid&&t.kid===kid));
+  if(i<0){el.hidden=true;return}
+  const lab=P.label.replace(/^\d+년 /,'')+' '+(i+1)+'위';
+  el.className='topleft r'+(i+1);el.querySelector('.mi').textContent=['🥇','🥈','🥉'][i];{const ml=el.querySelector('.ml'),mm=document.createElement('span');mm.className='mm';mm.textContent=P.label.replace(/^\d+년 /,'')+' ';ml.textContent='';ml.append(mm,(i+1)+'위')}el.setAttribute('aria-label',lab);el.hidden=false;
+}catch(e){}}
+setTimeout(showMyMedal,2500);setTimeout(showMyMedal,9000);
 function refreshMenuBadges(){
   const c=claimable(),bd=$('missionBadge');bd.hidden=!c;bd.textContent=c;
   $('coinPillN').textContent=getCoin().toLocaleString();
@@ -4795,7 +4823,7 @@ function kakaoEndUI(){
 }
 function kakaoSet(r){
   const me={id:String(r.id),nick:kkName(r.nickname)||'카카오 친구',img:kkPhoto(r.image)};
-  const prev=KAKAO.me;KAKAO.me=me;ls.set('mung-kakao',me);kakaoUI();
+  const prev=KAKAO.me;KAKAO.me=me;ls.set('mung-kakao',me);kakaoUI();setTimeout(showMyMedal,500);
   if(!prev||prev.id!==me.id||prev.nick!==me.nick||prev.img!==me.img)kakaoStamp();
 }
 /* 카카오 정보 지우기 (stripDocs: 순위표에 올린 카카오 이름·사진도 지워요) */
@@ -5007,6 +5035,10 @@ const FXS={
   firefly:SVGU('<circle cx="20" cy="20" r="18" fill="#FFF3A0" opacity=".35"/><circle cx="20" cy="20" r="9" fill="#FFF7C2" opacity=".7"/><circle cx="20" cy="20" r="4" fill="#fff"/>'),
   shoot:'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 12"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#FFF7C2"/></linearGradient></defs><rect x="0" y="4" width="112" height="4" rx="2" fill="url(#g)"/><circle cx="113" cy="6" r="5" fill="#fff"/></svg>')+'")',
   wave:'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60" preserveAspectRatio="none"><path d="M0 30 Q50 10 100 30 T200 30 T300 30 T400 30 V60 H0Z" fill="#ffffff" opacity=".55"/><path d="M0 40 Q50 22 100 40 T200 40 T300 40 T400 40 V60 H0Z" fill="#BFE6FF" opacity=".6"/></svg>')+'")',
+  crown:SVGU('<path d="M5 30 L3 11 L13 19 L20 6 L27 19 L37 11 L35 30Z" fill="#FFD23F" stroke="#C98A1A" stroke-width="2" stroke-linejoin="round"/><rect x="5" y="29" width="30" height="6" rx="2" fill="#F5B731" stroke="#C98A1A" stroke-width="2"/><circle cx="20" cy="22" r="3" fill="#FF6F91"/><circle cx="12" cy="24" r="2" fill="#6FC3FF"/><circle cx="28" cy="24" r="2" fill="#6FC3FF"/><circle cx="3" cy="11" r="2.4" fill="#FFF3B0"/><circle cx="20" cy="6" r="2.4" fill="#FFF3B0"/><circle cx="37" cy="11" r="2.4" fill="#FFF3B0"/>'),
+  coin:SVGU('<circle cx="20" cy="20" r="16" fill="#FFD23F" stroke="#C98A1A" stroke-width="2.5"/><circle cx="20" cy="20" r="11.5" fill="none" stroke="#F5B731" stroke-width="2"/><g fill="#C98A1A"><ellipse cx="20" cy="23.5" rx="4.6" ry="3.8"/><circle cx="14.8" cy="18.6" r="1.9"/><circle cx="18.2" cy="16.2" r="1.9"/><circle cx="21.8" cy="16.2" r="1.9"/><circle cx="25.2" cy="18.6" r="1.9"/></g><path d="M11 12 Q14 8 19 7" stroke="#FFF7CC" stroke-width="2" fill="none" stroke-linecap="round"/>'),
+  boneG:SVGU('<g fill="#FFD23F" stroke="#C98A1A" stroke-width="2.5"><circle cx="9" cy="15" r="6"/><circle cx="9" cy="25" r="6"/><circle cx="31" cy="15" r="6"/><circle cx="31" cy="25" r="6"/><rect x="9" y="15" width="22" height="10"/></g><rect x="10" y="16.5" width="20" height="7" fill="#FFD23F"/><path d="M12 18 H26" stroke="#FFF3B0" stroke-width="2" stroke-linecap="round"/>'),
+  goldSw:'linear-gradient(100deg,transparent 32%,rgba(255,255,255,.0) 38%,rgba(255,246,200,.55) 46%,rgba(255,255,255,.75) 50%,rgba(255,226,140,.5) 54%,transparent 64%)',
   rbw:'linear-gradient(100deg,transparent 30%,rgba(255,120,160,.35) 40%,rgba(255,220,120,.35) 47%,rgba(140,230,160,.35) 54%,rgba(120,180,255,.35) 61%,rgba(190,140,255,.35) 68%,transparent 78%)',
   seed:SVGU('<circle cx="20" cy="20" r="3" fill="#C9D8B8"/><g stroke="#B7C9A2" stroke-width="1.6" opacity=".95"><path d="M20 20 L20 6 M20 20 L31 10 M20 20 L34 20 M20 20 L31 30 M20 20 L9 10 M20 20 L6 20 M20 20 L9 30"/></g>')
 };
@@ -5020,6 +5052,9 @@ const LITE={   // 비쌀수록 더 많이, 더 다양하게 (모두 transform/op
   cloud:[{c:'drift',n:6,img:['cloudB'],s:[100,170],d:[22,36],o:.85},{c:'drift',n:4,img:['cloudB'],s:[56,84],d:[14,20],o:.7},{c:'tw',an:'lbob',n:2,img:['moon'],s:[40,52],d:[4,6],o:1},{c:'rise',n:7,img:['zzz','starY','heart'],s:[16,24],d:[9,13],o:.85},{c:'shoot',n:2,img:['shoot'],s:[100,130],d:[6,9],o:1},{c:'tw',n:12,img:['sparkW','spark'],s:[12,20],d:[2,3.5],o:1}],
   night:[{c:'tw',n:20,img:['spark','sparkW'],s:[10,20],d:[1.8,3.6],o:1},{c:'shoot',n:3,img:['shoot'],s:[110,150],d:[5,8],o:1},{c:'rise',n:8,img:['firefly'],s:[12,18],d:[9,14],o:.95}],
   aurora:[{c:'tw',n:16,img:['sparkW','starB'],s:[8,16],d:[1.8,3.4],o:1},{c:'rise',n:8,img:['glowG'],s:[10,18],d:[10,15],o:.85},{c:'shoot',n:3,img:['shoot'],s:[110,150],d:[5,8],o:1}],
+  /* 👑 황금 강아지 궁전 (가장 비싼 배경): 금빛 줄기 + 금화 비 + 떠오르는 왕관·황금 뼈다귀 + 둥실 왕관 + 반짝반짝 + 별똥별 */
+  palace:[{c:'sweep',n:1,img:['goldSw'],s:[0,0],d:[4.2,4.2],o:.9},{c:'fall',n:10,img:['coin'],s:[20,30],d:[7,11],o:.95},{c:'rise',n:7,img:['crown','boneG'],s:[24,34],d:[9,14],o:.9},
+    {c:'tw',an:'lbob',n:2,img:['crown'],s:[46,58],d:[3.2,4.6],o:1},{c:'tw',n:18,img:['spark','sparkW','starY'],s:[12,24],d:[1.6,3.2],o:1},{c:'shoot',n:2,img:['shoot'],s:[100,140],d:[6,9],o:1}],
   rainbow:[{c:'rise',n:14,img:['heart','spark','heartB'],s:[16,26],d:[7,11],o:.9},{c:'sweep',n:1,img:['rbw'],s:[0,0],d:[5,5],o:.55},{c:'tw',n:10,img:['sparkW','spark'],s:[12,20],d:[1.8,3.2],o:1}]
 };
 function buildLiteFx(id){
