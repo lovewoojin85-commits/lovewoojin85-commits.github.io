@@ -663,6 +663,10 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .kkme .av{width:36px;height:36px}
 .rank .nm{display:flex;align-items:center;gap:8px}
 .myrank .who{display:flex;align-items:center;gap:8px}
+.myrank .who:has(.plgo)>.nt{flex:0 1 auto;max-width:none}
+.myrank .plgo{flex:none;margin-left:auto;width:auto;padding:5px 11px;border-radius:999px;background:#fff;color:#E0582A;font:400 .85rem/1 "Jua",sans-serif;box-shadow:0 2px 0 rgba(160,60,80,.35);white-space:nowrap;cursor:pointer}
+#stPlates{position:relative}
+#stPlates.dot::after{content:"N";position:absolute;top:2px;right:14%;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#FF4D4D;color:#fff;font:700 .7rem/18px sans-serif;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .tabs.three{grid-template-columns:1fr 1fr 1fr}
 .tabs.three .tab{font-size:.98rem}
 .rankcta{display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center;background:var(--card);border-radius:18px;padding:16px}
@@ -1286,6 +1290,14 @@ body.native-ads .ad #adSlot{display:none}
 @keyframes nowPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 /* ---- 출석 도장 ---- */
 .attcard{background:linear-gradient(180deg,#FFEFD9 0,#FFFDF8 38%);gap:10px}
+.crw{text-align:center;align-items:center}
+.crw .crw-m{font-size:3.6rem;line-height:1;filter:drop-shadow(0 3px 3px rgba(0,0,0,.2));animation:crwBob 1.6s ease-in-out infinite}
+@keyframes crwBob{50%{transform:translateY(-6px) rotate(-6deg)}}
+.crw h2{margin:2px 0 0}
+.crw .crw-s{margin:0;color:var(--ink-soft)}
+.crw .crw-g{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:999px;background:linear-gradient(100deg,#FFF6D8,#FFE7A8);box-shadow:0 3px 0 #EBC56E;font-family:"Jua",sans-serif;color:#E07A10;font-size:1.6rem}
+.crw .crw-g .crw-box{font-size:1.5rem}
+.crw button{width:100%}
 .atthead{display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
 .atthead h2{margin:0;font-family:"Jua",sans-serif;font-size:1.7rem;color:#5A3A1E}
 .atthead .atpaw{font-size:1.5rem;transform:rotate(-15deg)}
@@ -1667,14 +1679,15 @@ body.ingame main{overflow:hidden;overflow:clip;min-height:0}
 /* ---- 메인화면 3차: 큰 메뉴 4개 + 작은 링크 3개, 설정은 왼쪽 위 ---- */
 #menu .topleft{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:16px;z-index:2}
 /* 지난달 1~3위: 왼쪽 위 메달 (한 달 동안) */
-#myMedal{display:flex;flex-direction:column;align-items:center;margin-top:-6px;pointer-events:none}
+#myMedal{display:inline-flex;align-items:center;gap:3px;margin-left:4px;padding:3px 9px 3px 5px;border-radius:999px;box-shadow:0 2px 0 rgba(0,0,0,.15);white-space:nowrap;font-size:.85rem}
 #myMedal[hidden]{display:none}
-#myMedal .mi{font-size:2.1rem;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
-#myMedal .ml{margin-top:-2px;padding:2px 7px;border-radius:999px;box-shadow:0 2px 0 rgba(0,0,0,.18);font-weight:800;font-size:.72rem;white-space:nowrap}
-#myMedal.r1 .ml{background:linear-gradient(#FFE07A,#F2B92E);color:#7A4A00}
-#myMedal.r2 .ml{background:linear-gradient(#EEF1F6,#B8C0CC);color:#4A5260}
-#myMedal.r3 .ml{background:linear-gradient(#F7D2B0,#D08A55);color:#6B3A14}
-@media (max-width:340px){#menu #myMedal{left:8px}#myMedal .mi{font-size:1.8rem}#myMedal .ml{font-size:.68rem;padding:1px 6px}#myMedal .mm{display:none}}
+#myMedal .mi{font-size:1.15rem;line-height:1}
+#myMedal.r1{background:linear-gradient(#FFE07A,#F2B92E);color:#7A4A00}
+#myMedal.r2{background:linear-gradient(#F4F6FA,#BFC6D1);color:#4A5260}
+#myMedal.r3{background:linear-gradient(#F7D2B0,#D08A55);color:#6B3A14}
+#menu .menu-best .mblab{white-space:nowrap}
+#menu .menu-best.t1{gap:5px;padding-right:6px}#menu .menu-best.t1 #myMedal .mm{display:none}
+#menu .menu-best.t2 .mblab{display:none}
 #menu .topleft .ticon{font-size:inherit}
 #menu .menu-grid{grid-template-columns:repeat(4,1fr)}
 .menu-links{display:flex;justify-content:center;gap:8px;flex-wrap:nowrap}
@@ -1785,13 +1798,12 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
 <main>
   <!-- 메인 화면 -->
   <section class="screen" id="menu">
-    <div class="topleft" id="myMedal" hidden aria-label=""><span class="mi"></span><span class="ml"></span></div>
     <div class="topright"><button class="coinpill" id="coinPill" aria-label="내 코인 (상점 열기)"><i class="ci"></i> <b id="coinPillN">0</b></button>
       <div class="ticons"><button class="ticon" id="shopBtn" aria-label="상점"><span class="ti">🛒</span><small>상점</small></button><button class="ticon" id="menuBagBtn" aria-label="가방"><span class="ti">🎒</span><small>가방</small><span class="badge cnt" id="menuBagN" hidden>0</span></button><button class="ticon" id="missionBtn" aria-label="오늘의 미션"><span class="ti">🎯</span><small>미션</small><span class="badge" id="missionBadge" hidden>!</span></button></div></div>
     <div class="menu-friends" id="menuFriends"></div>
     <h1 class="logo">멍멍<span>톡톡</span></h1>
     <p class="tag"><span class="tgpaw">🐾</span>맞출수록 <b>시간이 쑥쑥</b> 늘어나는 강아지 퍼즐<span class="tgpaw r">🐾</span></p>
-    <p class="menu-best"><span class="mbcrown">🏆</span><span class="mblab">내 최고 점수</span><b id="menuBest">0</b></p>
+    <p class="menu-best"><span class="mbcrown">🏆</span><span class="mblab">내 최고 점수</span><b id="menuBest">0</b><span id="myMedal" hidden><span class="mi"></span><span class="ml"></span></span></p>
     <div class="menu-btns">
       <button id="playBtn">시작하기</button>
       <div class="menu-grid">
@@ -1970,6 +1982,15 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
 </div>
 
 <!-- 출석 보상 -->
+<div class="modal" id="champRw" hidden>
+  <div class="card attcard crw">
+    <div class="crw-m" id="crwM">🥇</div>
+    <h2 id="crwT">10월 1위 축하해요!</h2>
+    <p class="crw-s">지난달 순위표 <b id="crwR">1위</b>를 차지했어요 🎉</p>
+    <div class="crw-g"><span class="crw-box">🎁</span><i class="ci"></i><b id="crwN">3,000</b></div>
+    <button id="crwOk">보상 받기</button>
+  </div>
+</div>
 <div class="modal" id="attendModal" hidden>
   <div class="card attcard">
     <div class="atthead"><span class="atpaw">🐾</span><h2>출석 도장</h2><span class="atday" id="attDay">1일째</span></div>
@@ -2159,7 +2180,7 @@ const fbReady=new Promise(res=>{
 const waitFB=()=>FB_EXPECTED&&!fbOk?Promise.race([fbReady,new Promise(r=>setTimeout(r,4000))]):Promise.resolve();
 
 let best=ls.get('mung-best',0)||0;
-function showBest(){$('best').textContent=best.toLocaleString();$('menuBest').textContent=best.toLocaleString()}
+function showBest(){$('best').textContent=best.toLocaleString();$('menuBest').textContent=best.toLocaleString();try{medalFit()}catch(e){}}
 showBest();
 
 /* ================= 효과음 (Web Audio로 직접 합성) ================= */
@@ -2595,7 +2616,7 @@ addEventListener('resize',()=>requestAnimationFrame(fitMenu));
 try{document.fonts&&document.fonts.ready.then(()=>fitMenu())}catch(e){}
 /* 화면 바꾸기: 먼저 화면을 보여 주고, 무거운 정리(배경 움직임 속도 맞추기)는 그린 다음에 해요 → 메뉴가 바로바로 열려요 */
 let SCR_T=0,SCR_CUR='';
-function showScreen(id){
+function showScreen(id){if(id!=='shop')SHOP_FROM='';
   const box=$(id).parentElement;if(box.scrollTop)box.scrollTop=0;
   const was=SCR_CUR;SCR_CUR=id;
   ['menu','game','rank','credits','themes','help','missions','shop','dex','ach'].forEach(s=>{const e=$(s);if(e.hidden!==(s!==id))e.hidden=s!==id});
@@ -3390,7 +3411,7 @@ function openShop(){
   const shSc=$('shop').parentElement,shKeep=!$('shop').hidden,shY=shSc.scrollTop;
   $('shopCoin').textContent=getCoin().toLocaleString();
   const L=$('shopList');L.innerHTML='';
-  $('stItems').classList.toggle('on',SHOP_TAB==='items');$('stPlates').classList.toggle('on',SHOP_TAB==='plates');L.classList.toggle('pltab',SHOP_TAB==='plates');
+  $('stItems').classList.toggle('on',SHOP_TAB==='items');$('stPlates').classList.toggle('on',SHOP_TAB==='plates');if(SHOP_TAB==='plates')ls.set('mung-pl-seen',1);$('stPlates').classList.toggle('dot',!ls.get('mung-pl-seen',0));L.classList.toggle('pltab',SHOP_TAB==='plates');
   if(SHOP_TAB==='plates'){try{renderPlates(L)}catch(e){}showScreen('shop');if(shKeep)shSc.scrollTop=shY;return}
   if(ADS.native)L.appendChild(rewardCard());
   SHOP.forEach(it=>{const c=document.createElement('div');c.className='scard c-'+(it.cat||'x');
@@ -3403,8 +3424,9 @@ function openShop(){
     c.appendChild(b);L.appendChild(c)});
   showScreen('shop');if(shKeep)shSc.scrollTop=shY;
 }
-$('shopBtn').onclick=()=>{SHOP_TAB='items';$('shopNote').textContent='🪙 코인은 출석·미션·게임으로 모아요';openShop()};
-$('shopBack').onclick=()=>showScreen('menu');
+$('shopBtn').onclick=()=>{SHOP_TAB='items';SHOP_FROM='';$('shopNote').textContent='🪙 코인은 출석·미션·게임으로 모아요';openShop()};
+var SHOP_FROM='';
+$('shopBack').onclick=()=>{if(SHOP_FROM==='rank'){SHOP_FROM='';openRank();return}showScreen('menu')};
 $('stItems').onclick=()=>{if(SHOP_TAB==='items')return;SHOP_TAB='items';$('shopNote').textContent='🪙 코인은 출석·미션·게임으로 모아요';openShop();$('shop').parentElement.scrollTop=0};
 $('stPlates').onclick=()=>{if(SHOP_TAB==='plates')return;SHOP_TAB='plates';$('shopNote').textContent='🏷️ 이름표는 순위표에서 모두에게 보여요';openShop();$('shop').parentElement.scrollTop=0};
 $('coinPill').onclick=()=>$('shopBtn').click();
@@ -3848,6 +3870,8 @@ async function openRank(tab){
       const l2=document.createElement('span');l2.className='l2';l2.textContent=[me.total?`${me.total>=1000?'1000명 이상':me.total+'명'} 중`:'',nt||''].filter(Boolean).join(' · ');b.append(l1);if(l2.textContent)b.append(l2)}
     const c=document.createElement('div');c.className='pts';c.textContent=me.score.toLocaleString()+'점';
     const d=document.createElement('div');d.className='who';{const st=starsOf(CW,pid,me.kid);if(me.img||me.kk||st)d.appendChild(avatarWithStars(me.img,st))}d.appendChild(nameSpan(safeNick(me.nick)));
+    if(shared&&!myPlate()){const k=document.createElement('button');k.type='button';k.className='plgo';k.textContent='🏷️ 꾸미기';k.setAttribute('aria-label','이름표로 내 이름 줄 꾸미기');
+      k.onclick=()=>{SFX.click&&SFX.click();SHOP_TAB='plates';SHOP_FROM='rank';$('shopNote').textContent='🏷️ 이름표는 순위표에서 모두에게 보여요';openShop();$('shop').parentElement.scrollTop=0};d.appendChild(k)}
     box.append(a,b,c,d);
     if((me.reports||0)>=REPORT_HIDE){const w=document.createElement('div');w.className='lab';w.style.gridColumn='1 / -1';w.textContent='⚠️ 신고가 많이 쌓여 다른 사람에게는 이름이 가려져 보여요. 닉네임을 바꿔 등록하면 다시 보여요.';box.appendChild(w)}
   }else{box.classList.add('none');box.textContent=rankTab==='month'?'이번 달 첫 기록을 남겨 보세요! 게임 후 점수를 등록하면 여기 나와요.':'게임이 끝나고 점수를 등록하면 내 순위가 여기 나와요!'}
@@ -4126,8 +4150,28 @@ async function showMyMedal(){try{
   const i=top.findIndex(t=>(pid&&t.id===pid)||(kid&&t.kid===kid));
   if(i<0){el.hidden=true;return}
   const lab=P.label.replace(/^\d+년 /,'')+' '+(i+1)+'위';
-  el.className='topleft r'+(i+1);el.querySelector('.mi').textContent=['🥇','🥈','🥉'][i];{const ml=el.querySelector('.ml'),mm=document.createElement('span');mm.className='mm';mm.textContent=P.label.replace(/^\d+년 /,'')+' ';ml.textContent='';ml.append(mm,(i+1)+'위')}el.setAttribute('aria-label',lab);el.hidden=false;
+  el.className='r'+(i+1);el.querySelector('.mi').textContent=['🥇','🥈','🥉'][i];{const ml=el.querySelector('.ml'),mm=document.createElement('span');mm.className='mm';mm.textContent=P.label.replace(/^\d+년 /,'')+' ';ml.textContent='';ml.append(mm,(i+1)+'위')}el.setAttribute('aria-label',lab);el.hidden=false;medalFit();champReward(P,i);
 }catch(e){}}
+/* 지난달 1~3위 보상: 한 번만 (받은 달은 클라우드 저장에도 남아서 다시 깔아도 또 안 받아요) */
+const CHAMP_RW=[3000,2000,1000];
+function champReward(P,i,tries=0){
+  const got=ls.get('mung-champrw',[]);if(Array.isArray(got)&&got.includes(P.key))return;
+  if(champReward.busy)return;
+  const busy=(typeof CLOUD!=='undefined'&&CLOUD.on&&!CLOUD.loaded)||$('menu').hidden||(running&&!ended)||!!document.querySelector('.modal:not([hidden])')||!!document.getElementById('opening');
+  if(busy){if(tries<90)setTimeout(()=>champReward(P,i,tries+1),2000);return}
+  champReward.busy=true;const n=CHAMP_RW[i],mo=P.label.replace(/^\d+년 /,'');
+  $('crwM').textContent=['🥇','🥈','🥉'][i];$('crwT').textContent=`${mo} ${i+1}위 축하해요!`;$('crwR').textContent=(i+1)+'위';$('crwN').textContent=n.toLocaleString();
+  $('champRw').hidden=false;try{SFX.levelup()}catch(e){}
+  $('crwOk').onclick=()=>{const g=ls.get('mung-champrw',[]);if(Array.isArray(g)&&g.includes(P.key)){$('champRw').hidden=true;champReward.busy=false;return}
+    ls.set('mung-champrw',[...(Array.isArray(g)?g:[]),P.key].slice(-24));addCoin(n);
+    $('champRw').hidden=true;champReward.busy=false;try{SFX.reward();buzz([20,30,60])}catch(e){}
+    try{toast(`🎁 ${n.toLocaleString()}코인을 받았어요!`)}catch(e){}};
+}
+/* 메달이 붙어서 칸이 넘치면: 먼저 '10월'을 빼고, 그래도 넘치면 '내 최고 점수' 글자를 빼요 (숫자·메달은 남김) */
+function medalFit(){const pb=document.querySelector('#menu .menu-best');if(!pb)return;pb.classList.remove('t1','t2');if($('myMedal').hidden)return;
+  const over=()=>pb.scrollWidth>pb.clientWidth+1||pb.getBoundingClientRect().right>innerWidth-4;
+  if(over())pb.classList.add('t1');if(over())pb.classList.add('t2')}
+addEventListener('resize',()=>{clearTimeout(medalFit.t);medalFit.t=setTimeout(medalFit,200)});
 setTimeout(showMyMedal,2500);setTimeout(showMyMedal,9000);
 function refreshMenuBadges(){
   const c=claimable(),bd=$('missionBadge');bd.hidden=!c;bd.textContent=c;
@@ -4694,7 +4738,7 @@ const KWEB={
 })();
 const CLOUD={plugin:null,on:false,loaded:false,name:'',dirty:false,saving:false,t:null};
 const CLOUD_SLOT='mung-save';
-const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','mung-bonus','mung-dex','mung-pops','mung-themes-owned','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick','mung-stats','mung-ach','mung-plates-owned','mung-plate','mung-myfr'];
+const CLOUD_KEYS=['mung-best','mung-maxlv','mung-coin','mung-inv','mung-items','mung-bonus','mung-dex','mung-pops','mung-themes-owned','mung-theme','mung-attend','mung-missions','mung-adrew','mung-nick','mung-stats','mung-ach','mung-plates-owned','mung-plate','mung-myfr','mung-champrw'];
 (function(){
   try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.PlayGames)CLOUD.plugin=C.Plugins.PlayGames}catch(e){}
   if(!CLOUD.plugin&&window.__CLOUD_WEB){CLOUD.plugin=window.__CLOUD_WEB;CLOUD.web=true}
@@ -4736,6 +4780,7 @@ function cloudMerge(L,R){
   {const t={};[ld.tier||{},rd.tier||{}].forEach(o=>Object.keys(o).forEach(k=>{t[k]=Math.max(t[k]|0,o[k]|0)}));M['mung-dex'].tier=t}
   M['mung-themes-owned']=[...new Set([...(L['mung-themes-owned']||[]),...(R['mung-themes-owned']||[])])];
   M['mung-plates-owned']=[...new Set([...(L['mung-plates-owned']||[]),...(R['mung-plates-owned']||[])])];
+  M['mung-champrw']=[...new Set([...(Array.isArray(L['mung-champrw'])?L['mung-champrw']:[]),...(Array.isArray(R['mung-champrw'])?R['mung-champrw']:[])])].slice(-24);
   ['mung-stats','mung-ach'].forEach(key=>{const a=L[key]||{},b=R[key]||{},o={};[...new Set([...Object.keys(a),...Object.keys(b)])].forEach(k=>{o[k]=Math.max(a[k]|0,b[k]|0)});M[key]=o});
   return{M,fromCloud:main===R};
 }
