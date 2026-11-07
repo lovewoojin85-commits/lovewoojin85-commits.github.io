@@ -1772,7 +1772,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
 <body class="opening">
 <script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}try{document.documentElement.style.background='';var __p=document.getElementById('prebg');if(__p)__p.remove()}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
-<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v168</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
+<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v169</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
 <div class="a2hs" id="a2hs" hidden role="dialog" aria-label="홈 화면에 추가 안내"><b>📲 앱처럼 쓰기!</b>아래 <span class="sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v9h14v-9"/></svg></span> <b style="display:inline;font-size:1rem">공유 버튼</b>을 누르고<br><b style="display:inline;font-size:1rem">"홈 화면에 추가"</b>를 눌러 주세요<div class="sub">공유 버튼이 안 보이면 ··· 버튼 안에 있어요</div><div class="row"><button class="no" id="a2No" type="button">다음에</button><button class="ok" id="a2Ok" type="button">알겠어요</button></div></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -1920,7 +1920,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
     <button class="rollbtn" id="rollBtn" type="button">🎬 엔딩 크레딧 다시 보기</button>
     <p class="fine">글꼴: Jua, Gowun Dodum (SIL Open Font License)</p>
     <p class="fine"><a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">개인정보처리방침</a></p>
-    <p class="fine">버전 v168</p>
+    <p class="fine">버전 v169</p>
   </section>
 </main>
 
@@ -4577,11 +4577,19 @@ function fitGame(full=true){
   /* 글씨를 크게 쓰는 폰(부모님 폰 등)·짧은 화면: 위쪽 점수판 글씨가 커져서 판이 작아지면, 판 대신 점수판 줄들을 조금 줄여서 판을 크게 지켜요 */
   if(full&&innerHeight>innerWidth*1.15){
     fr.style.width='100%';const ideal=Math.min(fr.getBoundingClientRect().width,innerHeight-376);fr.style.width=w+'px';   // 보통 글씨 크기였다면 판이 가졌을 크기
-    for(let t=0;t<3;t++){const now=fr.getBoundingClientRect().width;if(now>=ideal*.93)break;
+    for(let t=0;t<3;t++){const now=fr.getBoundingClientRect().width;if(now>=ideal*.98)break;
       const z0=parseFloat(hud[0]&&hud[0].style.zoom)||1;if(z0<=.5)break;
-      const hh=hud.reduce((a,e)=>a+e.getBoundingClientRect().height,0)||1,need=ideal*.97-now;
+      const hh=hud.reduce((a,e)=>a+e.getBoundingClientRect().height,0)||1,need=ideal*1.01-now;
       const z=Math.max(.5,z0*(hh-need)/hh);if(Math.abs(z-z0)<.01)break;
       hud.forEach(e=>e.style.zoom=z.toFixed(3));w=Math.floor(ideal);fr.style.minWidth='160px';fr.style.width=w+'px';shrink()}
+    /* 큰 글씨 폰은 한 번 더: 점수판을 보통 폰보다 조금만 더 작게(최대 15%) 해서 판을 화면 폭 가득 */
+    const z1=parseFloat(hud[0]&&hud[0].style.zoom)||1;
+    if(z1<.9){fr.style.width='100%';const full=fr.getBoundingClientRect().width;fr.style.width=w+'px';const zmin=Math.max(.5,z1*.85);
+      for(let t=0;t<3;t++){const now=fr.getBoundingClientRect().width;if(now>=full*.98)break;
+        const z0=parseFloat(hud[0].style.zoom)||1;if(z0<=zmin+.005)break;
+        const hh=hud.reduce((a,e)=>a+e.getBoundingClientRect().height,0)||1,need=full*1.01-now;
+        const z=Math.max(zmin,z0*(hh-need)/hh);if(Math.abs(z-z0)<.01)break;
+        hud.forEach(e=>e.style.zoom=z.toFixed(3));w=Math.floor(full);fr.style.minWidth='160px';fr.style.width=w+'px';shrink()}}
   }
   {let over=limit();   // 판을 가장 작게 해도 넘치면(아주 작은 화면·가로 폰·아주 큰 글씨) 게임 화면 전체를 살짝 줄여요
     for(let i=0;i<4&&over>0.5;i++){const top=g.getBoundingClientRect().top,lim=Math.min(box.getBoundingClientRect().bottom,innerHeight-padB-(ad?ad.getBoundingClientRect().height:0))-4;
