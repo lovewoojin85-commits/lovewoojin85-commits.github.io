@@ -1757,6 +1757,12 @@ body.exp4 #game .frame{border-radius:0!important}
 .rank .nm>.nwb{flex:none;width:3em;height:3em;margin-left:6px;border-radius:50%;background:#E53935;color:#fff;font-family:"Jua",sans-serif;font-size:.62rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;
   box-shadow:0 2px 0 #A8231F,0 0 0 2px #fff;transform:rotate(-10deg);animation:nwPop .5s cubic-bezier(.3,1.6,.5,1) both;position:relative;z-index:3;text-shadow:none!important}
 @keyframes nwPop{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(-10deg)}}
+/* 순위 상승: 지난번에 본 순위보다 올랐으면 첫진입 자리에 초록 '▲3' (한 번 보면 사라져요) */
+.rank .nm>.upb{flex:none;margin-left:6px;padding:3px 7px 3px 6px;border-radius:999px;background:linear-gradient(#4CD07D,#22A85A);color:#fff;font-family:"Jua",sans-serif;font-size:.78rem;line-height:1;white-space:nowrap;
+  box-shadow:0 2px 0 #157A3F,0 0 0 2px #fff;animation:upPop .5s cubic-bezier(.3,1.6,.5,1) both,upBob 1.2s ease-in-out .5s 3;position:relative;z-index:3;text-shadow:none!important}
+@keyframes upPop{from{transform:scale(0) translateY(8px)}to{transform:scale(1)}}
+@keyframes upBob{50%{transform:translateY(-3px)}}
+.rank li.upin{box-shadow:0 0 10px rgba(60,200,110,.45)}
 body.lite .rank li.newin::after,body.eco .rank li.newin::after{animation:none}
 .rank li.devgap{margin-top:6px;font-size:.85rem;color:var(--ink-soft);letter-spacing:.02em}
 .rank li.out30{background:var(--card,#fff);background-image:linear-gradient(rgba(150,120,230,.14),rgba(150,120,230,.14));outline:2px dashed #B9A8E6;outline-offset:-2px}   /* 배경색 따라가요 (어두운 배경에서 글자가 안 보이던 문제) */
@@ -1772,7 +1778,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
 <body class="opening">
 <script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}try{document.documentElement.style.background='';var __p=document.getElementById('prebg');if(__p)__p.remove()}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
-<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v169</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
+<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v170</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
 <div class="a2hs" id="a2hs" hidden role="dialog" aria-label="홈 화면에 추가 안내"><b>📲 앱처럼 쓰기!</b>아래 <span class="sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v9h14v-9"/></svg></span> <b style="display:inline;font-size:1rem">공유 버튼</b>을 누르고<br><b style="display:inline;font-size:1rem">"홈 화면에 추가"</b>를 눌러 주세요<div class="sub">공유 버튼이 안 보이면 ··· 버튼 안에 있어요</div><div class="row"><button class="no" id="a2No" type="button">다음에</button><button class="ok" id="a2Ok" type="button">알겠어요</button></div></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -1920,7 +1926,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
     <button class="rollbtn" id="rollBtn" type="button">🎬 엔딩 크레딧 다시 보기</button>
     <p class="fine">글꼴: Jua, Gowun Dodum (SIL Open Font License)</p>
     <p class="fine"><a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">개인정보처리방침</a></p>
-    <p class="fine">버전 v169</p>
+    <p class="fine">버전 v170</p>
   </section>
 </main>
 
@@ -3856,16 +3862,18 @@ async function openRank(tab){
   let shown=false;
   /* 첫 진입: 이 폰에서 지난번에 본 이달의 순위(30위 안)에 없던 사람은 무지개 테두리 + '첫진입' 표시. 한 번 보고 나면 다음부터는 똑같이 */
   const seenK='mung-seen-'+coll,seen=(rankTab==='month'&&shared)?ls.get(seenK,null):null,seenS=new Set(Array.isArray(seen)?seen:[]);
+  const rkK='mung-rk-'+coll,rkPrev=(rankTab==='month'&&shared)?ls.get(rkK,null):null;   // 지난번에 본 순위 (오른 사람에게 ▲)
   rows.forEach((r,i)=>{const isMe=r.id===pid;if(isMe&&i<30)shown=true;
     if(DEVV&&i===30){const d=document.createElement('li');d.className='gap devgap';d.textContent=`── 30위 밖 (개발자만 보여요) · 전체 ${rows.length>=500?'500명 이상':rows.length+'명'} ──`;list.appendChild(d)}
     const li=rankRow(medals[i]||String(i+1),r.nick,r.score,isMe,r.img,r.kk,starsOf(CW,r.id,r.kid));plateDecor(li,isMe?myPlate():r.pl);if(i>=30)li.classList.add('out30');
     if(Array.isArray(seen)&&!seenS.has(r.id)){li.classList.add('newin');const bd=document.createElement('span');bd.className='nwb';bd.textContent='첫진입';const nm=li.querySelector('.nm');if(nm)nm.appendChild(bd)}
+    else if(rkPrev&&rkPrev[r.id]&&i+1<rkPrev[r.id]&&i<(DEVV?rows.length:30)){li.classList.add('upin');const bd=document.createElement('span');bd.className='upb';bd.textContent='▲'+(rkPrev[r.id]-i-1);bd.setAttribute('aria-label',(rkPrev[r.id]-i-1)+'계단 올랐어요');const nm=li.querySelector('.nm');if(nm)nm.appendChild(bd)}
     if(!isMe&&shared)frBtn(li,r.kid,r.nick);
     list.appendChild(li)});
   if(me&&!shown&&!DEVV){const gap=document.createElement('li');gap.className='gap';gap.textContent='⋯';list.appendChild(gap);{const li=rankRow(String(me.rank),safeNick(me.nick),me.score,true,me.img,me.kk,starsOf(CW,pid,me.kid));plateDecor(li,myPlate());list.appendChild(li)}}
   alignFr(list);box.hidden=false;box.className='myrank';box.textContent='';
-  if(rankTab==='month'&&shared){try{rows.slice(0,DEVV?rows.length:30).forEach(r=>seenS.add(r.id));ls.set(seenK,[...seenS].slice(-3000));   // 이번 달에 한 번 본 사람은 다시는 '첫진입'이 안 떠요
-    for(let k=0;k<localStorage.length;k++){const key=localStorage.key(k);if(key&&key.indexOf('mung-seen-')===0&&key!==seenK)localStorage.removeItem(key)}}catch(e){}}
+  if(rankTab==='month'&&shared){try{rows.slice(0,DEVV?rows.length:30).forEach(r=>seenS.add(r.id));ls.set(seenK,[...seenS].slice(-3000));{const m=(rkPrev&&typeof rkPrev==='object')?rkPrev:{};rows.slice(0,DEVV?rows.length:30).forEach((r,i)=>m[r.id]=i+1);const ks=Object.keys(m);if(ks.length>1500)ks.slice(0,ks.length-1500).forEach(k=>delete m[k]);ls.set(rkK,m)}   // 이번 달에 한 번 본 사람은 다시는 '첫진입'이 안 떠요
+    for(let k=0;k<localStorage.length;k++){const key=localStorage.key(k);if(key&&key.indexOf('mung-seen-')===0&&key!==seenK)localStorage.removeItem(key)}for(let k=localStorage.length-1;k>=0;k--){const key=localStorage.key(k);if(key&&key.indexOf('mung-rk-')===0&&key!==rkK)localStorage.removeItem(key)}}catch(e){}}
   const nt=submitNote[rankTab];
   if(me){
     const a=document.createElement('div');a.className='big2';a.textContent=(me.capped?'1000+':me.rank)+'위';
