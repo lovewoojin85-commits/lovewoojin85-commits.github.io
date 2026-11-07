@@ -618,6 +618,7 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .menu-best .mbcrown{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:inset 0 -2px 0 #F3D488;font-size:1.05rem}
 .menu-best b{font-weight:400;font-size:1.35rem;color:#E07A10;font-variant-numeric:tabular-nums;text-shadow:0 1px 0 #fff}
 .best{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 6px;border-radius:999px;background:linear-gradient(100deg,#FFF6D8,#FFE7A8);box-shadow:0 2px 0 #EBC56E;color:#8A5A10;font-family:"Jua",sans-serif;font-size:.85rem}
+.best .blab,.best b{white-space:nowrap}
 .best .bcrown{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;font-size:.8rem}
 .best b{font-weight:400;font-size:1.05rem;color:#E07A10;font-variant-numeric:tabular-nums}
 #missionNote{display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
@@ -4563,12 +4564,23 @@ function fitGame(full=true){
   const g=$('game');if(!g||g.hidden)return;
   const fr=g.querySelector('.frame'),box=g.parentElement;if(!fr||!box)return;
   const before=fr.getBoundingClientRect().width;
-  if(full){fr.style.width='';fr.style.minWidth='';g.style.zoom=''}   // 화면 크기가 바뀌었을 때만 처음 크기로 되돌려서 다시 계산 (게임 중에는 넘칠 때만 줄여요 → 판 깜빡임 없음)
-  let w=fr.getBoundingClientRect().width;
+  const hud=[...g.querySelectorAll(':scope > :not(.frame)')];
+  if(full){fr.style.width='';fr.style.minWidth='';g.style.zoom='';hud.forEach(e=>e.style.zoom='')}   // 화면 크기가 바뀌었을 때만 처음 크기로 되돌려서 다시 계산 (게임 중에는 넘칠 때만 줄여요 → 판 깜빡임 없음)
+  let w=fr.getBoundingClientRect().width;const nat=w;
   const ad=document.querySelector('.ad'),padB=parseFloat(getComputedStyle(document.documentElement).paddingBottom)||0;
   const limit=()=>{const b=Math.min(box.getBoundingClientRect().bottom,innerHeight-padB-(ad?ad.getBoundingClientRect().height:0))-4;let m=0;   // 광고 자리 위까지만
     g.querySelectorAll(':scope > *, .ftray .fbtn small').forEach(e=>{const r=e.getBoundingClientRect();if(r.height>0&&r.bottom>m)m=r.bottom});return m-b};
-  for(let i=0;i<5;i++){const over=limit();if(over<=0.5)break;w=Math.max(160,Math.floor(w-over));fr.style.minWidth='160px';fr.style.width=w+'px'}
+  const shrink=()=>{for(let i=0;i<5;i++){const over=limit();if(over<=0.5)break;w=Math.max(160,Math.floor(w-over));fr.style.minWidth='160px';fr.style.width=w+'px'}};
+  shrink();
+  /* 글씨를 크게 쓰는 폰(부모님 폰 등)·짧은 화면: 위쪽 점수판 글씨가 커져서 판이 작아지면, 판 대신 점수판 줄들을 조금 줄여서 판을 크게 지켜요 */
+  if(full&&innerHeight>innerWidth*1.15){
+    fr.style.width='100%';const ideal=Math.min(fr.getBoundingClientRect().width,innerHeight-376);fr.style.width=w+'px';   // 보통 글씨 크기였다면 판이 가졌을 크기
+    for(let t=0;t<3;t++){const now=fr.getBoundingClientRect().width;if(now>=ideal*.93)break;
+      const z0=parseFloat(hud[0]&&hud[0].style.zoom)||1;if(z0<=.62)break;
+      const hh=hud.reduce((a,e)=>a+e.getBoundingClientRect().height,0)||1,need=ideal*.97-now;
+      const z=Math.max(.62,z0*(hh-need)/hh);if(Math.abs(z-z0)<.01)break;
+      hud.forEach(e=>e.style.zoom=z.toFixed(3));w=Math.floor(ideal);fr.style.minWidth='160px';fr.style.width=w+'px';shrink()}
+  }
   {let over=limit();   // 판을 가장 작게 해도 넘치면(아주 작은 화면·가로 폰·아주 큰 글씨) 게임 화면 전체를 살짝 줄여요
     for(let i=0;i<4&&over>0.5;i++){const top=g.getBoundingClientRect().top,lim=Math.min(box.getBoundingClientRect().bottom,innerHeight-padB-(ad?ad.getBoundingClientRect().height:0))-4;
       const z0=parseFloat(g.style.zoom)||1,used=lim+over-top,z=Math.max(.55,z0*(lim-top)/used);if(Math.abs(z-z0)<.003)break;g.style.zoom=z.toFixed(3);over=limit()}}
