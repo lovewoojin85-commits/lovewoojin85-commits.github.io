@@ -1761,7 +1761,7 @@ body.exp4 #game .frame{border-radius:0!important}
 @keyframes nwPop{from{transform:scale(0) rotate(-40deg)}to{transform:scale(1) rotate(-10deg)}}
 /* 순위 상승: 지난번에 본 순위보다 올랐으면 첫진입 자리에 초록 '▲3' (한 번 보면 사라져요) */
 .rank .nm>.upb{flex:none;margin-left:6px;padding:3px 7px 3px 6px;border-radius:999px;background:linear-gradient(#4CD07D,#22A85A);color:#fff;font-family:"Jua",sans-serif;font-size:.78rem;line-height:1;white-space:nowrap;
-  box-shadow:0 2px 0 #157A3F,0 0 0 2px #fff;animation:upPop .5s cubic-bezier(.3,1.6,.5,1) both,upBob 1.2s ease-in-out .5s 3;position:relative;z-index:3;text-shadow:none!important}
+  box-shadow:0 2px 0 #157A3F;animation:upPop .5s cubic-bezier(.3,1.6,.5,1) both,upBob 1.2s ease-in-out .5s 3;position:relative;z-index:3;text-shadow:none!important}
 @keyframes upPop{from{transform:scale(0) translateY(8px)}to{transform:scale(1)}}
 @keyframes upBob{50%{transform:translateY(-3px)}}
 .rank li.upin{box-shadow:0 0 10px rgba(60,200,110,.45)}
@@ -1780,7 +1780,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
 <body class="opening">
 <script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}try{document.documentElement.style.background='';var __p=document.getElementById('prebg');if(__p)__p.remove()}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
-<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v171</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
+<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v172</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
 <div class="a2hs" id="a2hs" hidden role="dialog" aria-label="홈 화면에 추가 안내"><b>📲 앱처럼 쓰기!</b>아래 <span class="sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v9h14v-9"/></svg></span> <b style="display:inline;font-size:1rem">공유 버튼</b>을 누르고<br><b style="display:inline;font-size:1rem">"홈 화면에 추가"</b>를 눌러 주세요<div class="sub">공유 버튼이 안 보이면 ··· 버튼 안에 있어요</div><div class="row"><button class="no" id="a2No" type="button">다음에</button><button class="ok" id="a2Ok" type="button">알겠어요</button></div></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -1928,7 +1928,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
     <button class="rollbtn" id="rollBtn" type="button">🎬 엔딩 크레딧 다시 보기</button>
     <p class="fine">글꼴: Jua, Gowun Dodum (SIL Open Font License)</p>
     <p class="fine"><a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">개인정보처리방침</a></p>
-    <p class="fine">버전 v171</p>
+    <p class="fine">버전 v172</p>
   </section>
 </main>
 
