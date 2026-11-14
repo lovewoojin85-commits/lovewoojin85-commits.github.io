@@ -580,6 +580,22 @@ html{font-size:clamp(16px,calc(4px + 2vmin),26px)}
 .endbest.nb{background:linear-gradient(100deg,#FFE88A,#FFC93C);color:#7A4B00;box-shadow:0 3px 0 #E0A82A;animation:nbPop .9s ease-out 2}
 @keyframes nbPop{0%,100%{transform:scale(1)}40%{transform:scale(1.12)}}
 .endstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+/* 게임오버: '조금만 더!' 목표 + 첫날 선물 */
+.endgoal{display:flex;flex-direction:column;gap:5px;margin:2px 0}
+.endgoal[hidden],.welc[hidden]{display:none}
+.endgoal .eg{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:14px;background:linear-gradient(100deg,#FFF3D6,#FFE6EE);color:#5A3A20;font-size:.95rem;line-height:1.3;text-align:left;box-shadow:0 2px 0 rgba(200,140,90,.25);animation:egIn .45s cubic-bezier(.3,1.5,.5,1) both}
+.endgoal .eg b{color:#E0582A;font-family:"Jua",sans-serif;font-size:1.08em}
+.endgoal .eg .egi{font-size:1.25rem;flex:none}
+@keyframes egIn{from{transform:translateY(6px) scale(.96);opacity:0}}
+.welc{padding:9px 12px;border-radius:14px;background:#F2F8FF;border:2px dashed #9CC6EE;text-align:left;font-size:.88rem;color:#2E4A66}
+.welc h4{margin:0 0 4px;font:1rem "Jua",sans-serif;color:#2E77C9}
+.welc .wl{display:flex;align-items:center;gap:6px;padding:2px 0}
+.welc .wl .wr{margin-left:auto;font-size:.8rem;color:#6A86A3;white-space:nowrap}
+.welc .wl.ok{color:#3DA866}.welc .wl.ok .wr{color:#3DA866;font-weight:700}
+.welc .wl.now{animation:egIn .5s both}
+#againBtn.again1{font-size:1.15rem;animation:agBeat 1.6s ease-in-out 1s infinite}
+@keyframes agBeat{0%,100%{transform:scale(1)}8%{transform:scale(1.06)}16%{transform:scale(1)}}
+body.lite #againBtn.again1,body.eco #againBtn.again1{animation:none}
 .est{display:flex;flex-direction:column;align-items:center;gap:1px;padding:8px 4px;border-radius:16px;background:#FFF4E8;box-shadow:inset 0 -3px 0 #FFE2C6}
 .est .ei{font-size:1.15rem;line-height:1.2}
 .est b{font-family:"Jua",sans-serif;font-weight:400;font-size:1.2rem;color:#5A3A1E;white-space:nowrap}
@@ -1780,7 +1796,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
 <body class="opening">
 <script>try{var __t=JSON.parse(localStorage.getItem('mung-theme')||'"paw"');if(typeof __t==='string'&&/^[a-z]+$/.test(__t))document.body.setAttribute('data-bg',__t)}catch(e){}try{document.documentElement.style.background='';var __p=document.getElementById('prebg');if(__p)__p.remove()}catch(e){}</script>
 <script>setTimeout(function(){if(!document.getElementById('opening'))document.body.classList.remove('opening')},16000)</script>
-<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v172</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
+<div id="endroll" hidden aria-label="엔딩 크레딧"><div class="erver">버전 v173</div><div class="ersky"></div><button class="erskip" id="erSkip" type="button">건너뛰기 ›</button><div class="ertrack" id="erTrack"></div><div class="erlast" id="erLast"></div></div>
 <div class="a2hs" id="a2hs" hidden role="dialog" aria-label="홈 화면에 추가 안내"><b>📲 앱처럼 쓰기!</b>아래 <span class="sh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v9h14v-9"/></svg></span> <b style="display:inline;font-size:1rem">공유 버튼</b>을 누르고<br><b style="display:inline;font-size:1rem">"홈 화면에 추가"</b>를 눌러 주세요<div class="sub">공유 버튼이 안 보이면 ··· 버튼 안에 있어요</div><div class="row"><button class="no" id="a2No" type="button">다음에</button><button class="ok" id="a2Ok" type="button">알겠어요</button></div></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -1928,7 +1944,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
     <button class="rollbtn" id="rollBtn" type="button">🎬 엔딩 크레딧 다시 보기</button>
     <p class="fine">글꼴: Jua, Gowun Dodum (SIL Open Font License)</p>
     <p class="fine"><a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">개인정보처리방침</a></p>
-    <p class="fine">버전 v172</p>
+    <p class="fine">버전 v173</p>
   </section>
 </main>
 
@@ -2095,6 +2111,8 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
     <div class="endhead"><div class="eh-dogs" id="endDogs"></div><h2 class="eh-title">GAME OVER</h2><p class="eh-reason" id="endReason"></p></div>
     <div class="endscore"><small>이번 점수</small><div class="big" id="final">0</div><p class="endbest" id="endMsg"></p></div>
     <div class="endstats"><div class="est"><span class="ei">⏱️</span><b id="stTime">0초</b><small>버틴 시간</small></div><div class="est"><span class="ei">⭐</span><b id="stLv">1</b><small>도달 레벨</small></div><div class="est coin"><span class="ei"><i class="ci"></i></span><b id="stCoin">+0</b><small>받은 코인</small></div></div>
+    <div class="endgoal" id="endGoal" hidden></div>
+    <div class="welc" id="welc" hidden></div>
     <div class="endmet" id="metMsg"></div>
     <p id="playMsg" hidden></p><p class="coinget" id="coinGet" hidden></p>
     <p class="endsub" id="unlockMsg" style="color:#3DBA6F"></p>
@@ -2108,7 +2126,7 @@ body[data-bg="ocean"] :is(.shead h2,.stats small,.season,.sub-note,#themes .tsub
       <button class="kkbtn small" id="kkEndBtn" hidden></button>
     </div>
     <p class="msg" id="submitMsg"></p>
-    <div class="row"><button id="againBtn">다시 하기</button><button class="sub" id="homeBtn">메인으로</button></div>
+    <div class="row"><button id="againBtn" class="again1">🐶 한 판 더!</button><button class="sub" id="homeBtn">메인으로</button></div>
   </div>
 </div>
 
@@ -2857,8 +2875,12 @@ function genBoard(){
 }
 function countObs(){let n=0;for(const row of board)for(const t of row)if(t&&(t.type===SAND||t.shell||t.sleep))n++;return n}
 let goldThisGame=0;
+/* 처음 두 판은 살짝 쉽게: 위에서 내려오는 강아지가 가끔 바로 앞 강아지와 같아서 연쇄·무지개 친구가 잘 나오고, 피버도 빨리 차요 */
+let EASY=false,LAST_NT=-1;
 function newTile(){
   const t={type:rnd(),shell:0,sleep:false};
+  if(EASY&&running&&!ended&&LAST_NT>=0&&LAST_NT<activeTypes&&Math.random()<.3)t.type=LAST_NT;
+  LAST_NT=t.type;
   if(running&&!ended&&level>=2&&goldThisGame<2&&Math.random()<1/160&&!board.some(row=>row.some(x=>x&&x.gold))){t.gold=true;goldThisGame++}
   if(!running||level<5)return t;
   if(countObs()>=Math.min(3+Math.floor((level-5)/2),6))return t;
@@ -2951,7 +2973,7 @@ function feverConfetti(){
   FXC.add(items);
 }
 let feverGainAt=0;   // 마지막으로 피버 게이지를 채운 때 (게임 시간 기준)
-function addFever(n){if(feverOn||!running)return;feverGainAt=elapsed;fever=Math.min(100,fever+n);updateFever();
+function addFever(n){if(feverOn||!running)return;if(EASY)n*=1.8;feverGainAt=elapsed;fever=Math.min(100,fever+n);updateFever();
   if(fever>=70){const fr=document.querySelector('#game .frame');if(fr&&!fr.classList.contains('fvwarm'))fr.classList.add('fvwarm')}   // 피버 직전: 피버 효과를 안 보이게 미리 준비해 둬요 (켜지는 순간 끊김 방지)
   if(fever>=100)startFever()}
 function startFever(msg){ftag('피버');
@@ -3617,7 +3639,8 @@ function tryMegaFrom(r,c){const p=pairPartner(r,c);if(!p)return false;megaBlast(
 /* ---- 게임 진행 ---- */
 function startGame(){
   try{HERO.preload()}catch(e){}
-  SPECIAL_DOG=todaySpecial();goldThisGame=0;
+  SPECIAL_DOG=todaySpecial();goldThisGame=0;LAST_NT=-1;
+  {const gp=getStats().games|0;EASY=gp<2;if(gp===0&&welcOn())setTimeout(()=>{try{toast('🎁 첫날 선물! 3판 하면 랜덤박스를 드려요')}catch(e){}},4500)}
   if(SPECIAL_DOG>=0)setTimeout(()=>{try{iconToast(svgFor(SPECIAL_DOG),`주말 스페셜! 오늘은 ${DOG_NAMES[SPECIAL_DOG]} 점수 2배`)}catch(e){}},1600);
   $('endModal').hidden=true;$('pauseModal').hidden=true;
   ['feverBanner','toast','combo','tadd','bplus'].forEach(id=>$(id).classList.remove('show'));
@@ -3639,7 +3662,7 @@ function startGame(){
     if(busy&&!cascading)return;   // 친구 효과·섞기 중에는 시간이 멈추고, 연속 정리 중에는 흘러요
     elapsed+=dt;
     // 피버 게이지: 2.5초 동안 못 터뜨리면 1초에 4%씩 천천히 줄어요
-    if(!feverOn&&fever>0&&elapsed-feverGainAt>2.5){fever=Math.max(0,fever-dt*4);updateFever()}
+    if(!feverOn&&fever>0&&elapsed-feverGainAt>2.5){fever=Math.max(0,fever-dt*(EASY?2:4));updateFever()}
     if(feverOn)return;   // 피버 중에는 시간이 멈춰요
     const rate=Math.min(1+Math.max(0,level-4)*.08,1.5);   // 레벨 1~4는 정상 속도, 5부터 레벨마다 8%씩, 최대 1.5배
     const prev=time;time-=dt*rate;updateTime();
@@ -3674,6 +3697,8 @@ function endGame(reason){
     if(list.length){const lb=document.createElement('span');lb.className='mlab';lb.textContent='🌈 불러낸 무지개 친구';mm.appendChild(lb);
       const row=document.createElement('span');row.className='mrow';FRIENDS.forEach((f,i)=>{if(!met[i])return;const c=document.createElement('span');c.className='mchip';c.innerHTML=svgFor(TYPES+i);c.append(`${f.label} ×${met[i]}`);row.appendChild(c)});mm.appendChild(row)}
     else{const t=document.createElement('span');t.className='mtip';t.textContent='💡 4개 이상 맞추면 무지개 친구가 나와요!';mm.appendChild(t)}}
+  try{endGoals(isBest)}catch(e){$('endGoal').hidden=true}
+  try{welcEnd()}catch(e){$('welc').hidden=true}
   const um=$('unlockMsg');um.textContent='';
   const maxLv=ls.get('mung-maxlv',1);
   if(level>maxLv){
@@ -3688,6 +3713,35 @@ function endGame(reason){
   if(score>0)autoSubmit();
 }
 
+/* 게임오버 '조금만 더!': 거의 다 된 목표를 보여 줘요 (내 최고 점수·오늘 미션) */
+function endGoals(isBest){
+  const box=$('endGoal');box.innerHTML='';const G=[];
+  if(!isBest&&best>0&&score>0&&score>=best*.6)G.push(`<span class="egi">👑</span><span>내 최고 점수까지 <b>${(best-score+1).toLocaleString()}점</b>! 아까워요</span>`);
+  if(claimable()>0)G.push(`<span class="egi">🎁</span><span>받을 <b>미션 보상</b>이 기다리고 있어요</span>`);
+  else{const st=todayMissions();for(const m of st.list){if(m.claimed||m.prog>=m.n)continue;const def=MPOOL.find(d=>d.id===m.id);if(!def||def.kind!=='sum')continue;
+    if(m.n-m.prog<=Math.max(1,Math.ceil(m.n*.4))){G.push(`<span class="egi">🎯</span><span>미션 <b>${def.t(m.n)}</b> · ${m.prog}/${m.n}</span>`);break}}}
+  G.slice(0,2).forEach(h=>{const d=document.createElement('div');d.className='eg';d.innerHTML=h;box.appendChild(d)});
+  box.hidden=!box.children.length;
+}
+/* 첫날 선물: 처음 깐 사람만, 사흘 동안. 3가지를 하면 바로 선물 */
+const WELC=[{k:'g',t:'3판 하기',n:3,rw:{box:1},rt:'🎁 랜덤박스'},{k:'fv',t:'피버 1번 즐기기',n:1,rw:{bone:2},rt:'🦴 개껌 2개'},{k:'fr',t:'무지개 친구 1번 부르기',n:1,rw:{coin:100},rt:'@ 100코인'}];
+let WELC_MEM=null;
+function welcSt(){if(WELC_MEM)return WELC_MEM;let w=ls.get('mung-welc',null);
+  if(!w){w=((ls.get('mung-best',0)|0)>0||(getStats().games|0)>0)?{old:1}:{t0:Date.now(),g:0,fv:0,fr:0,got:{}};ls.set('mung-welc',w)}
+  return WELC_MEM=w}
+function welcOn(){const w=welcSt();return !w.old&&Date.now()-(w.t0||0)<3*864e5&&WELC.some(x=>!(w.got||{})[x.k])}
+function welcTrack(id,val){const k=id==='games'?'g':id==='fever'?'fv':id==='friend'?'fr':null;if(!k||!welcOn())return;const w=welcSt();w[k]=(w[k]|0)+(val|0||1);ls.set('mung-welc',w)}
+function welcEnd(){
+  const el=$('welc');if(!welcOn()){el.hidden=true;return}
+  const w=welcSt();w.got=w.got||{};const now=[];
+  WELC.forEach(x=>{if(!w.got[x.k]&&(w[x.k]|0)>=x.n){w.got[x.k]=1;grantReward(x.rw);now.push(x.k)}});
+  ls.set('mung-welc',w);
+  const all=WELC.every(x=>w.got[x.k]);
+  el.innerHTML=`<h4>${all?'🎉 첫날 선물을 다 받았어요!':'🎁 첫날 선물'}</h4>`+WELC.map(x=>{const ok=!!w.got[x.k],p=Math.min(x.n,w[x.k]|0);
+    return `<div class="wl${ok?' ok':''}${now.includes(x.k)?' now':''}"><span>${ok?'✅':'⬜'}</span><span>${x.t}${x.n>1&&!ok?` (${p}/${x.n})`:''}</span><span class="wr">${now.includes(x.k)?'받았어요! ':''}${x.rt.replace('@',COIN)}</span></div>`}).join('');
+  el.hidden=false;
+  if(now.length){try{SFX.reward();buzz([20,30,60])}catch(e){}if(BOXQ.length)setTimeout(()=>{if(!$('endModal').hidden)openBoxQueue()},1200)}
+}
 /* ================= 순위표 ================= */
 const cleanNick=s=>String(s||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,10);
 /* ================= 닉네임 바른말 필터 =================
@@ -3789,6 +3843,23 @@ async function autoSubmit(rename){
   if(!rename)submitNote={month:note(rMon,'이번 달'),all:note(rAll,'역대')};myEntry={id:playerId()};
   if(seq!==SUBMIT_SEQ||$('endModal').hidden)return;
   $('submitMsg').textContent=!shared?'📶 인터넷이 연결되면 순위표에 올라가요':'';
+  if(shared&&!rename)try{await rankGoal(mk,rMon.best|0,seq)}catch(e){}
+}
+/* 게임오버 '조금만 더!': 이번 달 바로 윗사람까지 몇 점인지 (읽기 1~2번) */
+async function rankGoal(mk,mb,seq){
+  if(!db||mb<=0)return;
+  const q=db.collection(mk).where('ver','==',2).where('score','>',mb);
+  const nx=await q.orderBy('score','asc').limit(1).get();
+  if(seq!==SUBMIT_SEQ||$('endModal').hidden)return;
+  let html;
+  if(nx.empty)html=`<span class="egi">🥇</span><span>지금 <b>이번 달 1위</b>예요! 끝까지 지켜내요</span>`;
+  else{const up=Math.floor(Number(nx.docs[0].data().score)||0),gap=up-mb+1;let rk=null;
+    try{if(typeof q.count==='function'){const h=await q.count();if(typeof h==='number')rk=h+1}}catch(e){}
+    if(seq!==SUBMIT_SEQ||$('endModal').hidden)return;
+    html=rk&&rk>1?`<span class="egi">🏃</span><span>이번 달 <b>${rk-1}위</b>까지 <b>${gap.toLocaleString()}점</b>!</span>`
+                 :`<span class="egi">🏃</span><span>바로 위 친구까지 <b>${gap.toLocaleString()}점</b>!</span>`}
+  const box=$('endGoal'),d=document.createElement('div');d.className='eg';d.innerHTML=html;
+  box.prepend(d);while(box.children.length>2)box.lastChild.remove();box.hidden=false;
 }
 async function retryPending(){
   const p=ls.get('mung-pending',null);if(!p||!p.sc||(typeof navigator!=='undefined'&&navigator.onLine===false))return;
@@ -4144,6 +4215,7 @@ function todayMissions(){
   MST_MEM=st;return st;
 }
 function trackM(id,val){
+  try{welcTrack(id,val)}catch(e){}
   try{if(['pop','friend','dirt','games','mega','fever'].includes(id))statAdd(id,val|0);else if(id==='combo')statMax('combo',val)}catch(e){}
   if(!running&&id!=='score'&&id!=='games')return;
   const st=todayMissions();let changed=false;
